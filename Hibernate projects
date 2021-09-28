@@ -1,0 +1,4152 @@
+Hibernate1
+
+pom.xml
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>com.pack</groupId>
+  <artifactId>Hibernate1</artifactId>
+  <version>0.0.1-SNAPSHOT</version>
+  <name>Hibernate1</name>
+  <dependencies>
+        <dependency>
+            <groupId>mysql</groupId>
+            <artifactId>mysql-connector-java</artifactId>
+            <version>8.0.11</version>
+        </dependency>
+        <dependency>
+            <groupId>org.hibernate</groupId>
+            <artifactId>hibernate-core</artifactId>
+            <version>5.2.3.Final</version>
+        </dependency>
+    </dependencies>
+ 
+    <build>
+        <plugins>
+            <plugin>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.5.1</version>
+                <configuration>
+                    <source>1.6</source>
+                    <target>1.6</target>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+</project>
+
+
+hibernate.cfg.xml
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-configuration PUBLIC
+          "-//Hibernate/Hibernate Configuration DTD 3.0//EN"
+          "http://hibernate.sourceforge.net/hibernate-configuration-3.0.dtd">
+ 
+<hibernate-configuration>
+ 
+    <session-factory>
+        <property name="hbm2ddl.auto">update</property>
+        <property name="dialect">org.hibernate.dialect.MySQL5Dialect</property>
+        <property name="connection.url">jdbc:mysql://localhost:3306/Hibernate</property>
+        <property name="connection.username">root</property>
+        <property name="connection.password">root</property>
+        <property name="connection.driver_class">com.mysql.jdbc.Driver</property>
+        <property name="show_sql">true</property>
+        <property name="format_sql">true</property>
+        <property name="use_sql_comments">true</property>
+        <!-- <property name="show_sql">true</property> 
+         <property name="cache.use_second_level_cache">true</property> 
+         <property name="cache.region.factory_class">org.hibernate.cache.ehcache.EhCacheRegionFactory</property>
+         <mapping class="com.pack.Employee"/> -->
+         <mapping resource="Student.hbm.xml"/>
+         
+    </session-factory>
+ 
+</hibernate-configuration>
+
+
+Student.hbm.xml
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC
+          "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+          "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping>
+	<class name="com.pack.Student" table="student">
+		<id name="id" column="id">
+			<generator class="assigned"></generator>
+		</id>
+		<property name="name"></property>
+		<property name="age"></property>
+		<property name="department"></property>
+	</class>
+    <!-- <sql-query name="all">
+    select * from student where id=?
+    </sql-query>
+    <query name="allh">
+    from Student st where st.id=:cid
+    </query> -->
+</hibernate-mapping>
+
+
+Student.java
+package com.pack;
+
+public class Student {
+	@Override
+	public String toString() {
+		return "Student [id=" + id + ", name=" + name + ", age=" + age + ", department=" + department + "]";
+	}
+
+	private int id;
+	private String name;
+	private int age;
+	private String department;
+
+	public int getId() {
+		return id;
+	}
+
+	public void setId(int id) {
+		this.id = id;
+	}
+
+	public String getName() {
+		return name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
+
+
+	public String getDepartment() {
+		return department;
+	}
+
+	public void setDepartment(String department) {
+		this.department = department;
+	}
+
+	public int getAge() {
+		return age;
+	}
+
+	public void setAge(int age) {
+		this.age = age;
+	}
+}
+
+
+Main.java
+package com.pack;
+
+import java.util.List;
+
+import javax.persistence.TypedQuery;
+
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
+import org.hibernate.Transaction;
+import org.hibernate.cfg.Configuration;
+
+public class Main {
+
+	public static void main(String[] args) {
+		try {
+			Configuration c = new Configuration().configure();
+			SessionFactory sf = c.buildSessionFactory();
+			
+			
+			 /* Student st = new Student();
+			  st.setId(4); 
+			  st.setName("ram");
+			  st.setAge(23);
+			  st.setDepartment("Apps&Delivery"); // s.persist(st); Integer i = (Integer)
+			  s.saveOrUpdate(st); */
+			Session s = sf.openSession();
+			Transaction t = s.beginTransaction();
+			Student st = new Student();
+			  st.setId(7); 
+			  st.setName("ram");
+			  st.setAge(23);
+			  st.setDepartment("Apps&Delivery"); // s.persist(st); Integer i = (Integer)
+			  s.saveOrUpdate(st);
+			  t.commit();
+			  Session s1=sf.openSession();
+			  t = s1.beginTransaction();
+			  Student st1 = new Student();
+			  st1.setId(7); 
+			  st1.setName("rammmm");
+			  st1.setAge(28);
+			  st1.setDepartment("Delivery");
+			 s1.saveOrUpdate(st1);
+			  System.out.println("Success");
+			
+			/*Scanner sc = new Scanner(System.in);
+			System.out.println("Enter your ID to Change Your Age");
+			Integer id = Integer.parseInt(sc.nextLine());*/
+			/*
+			 * System.out.println("Enter your Age"); int age =
+			 * Integer.parseInt(sc.nextLine()); Student st1 = s.get(Student.class, id);
+			 * st1.setAge(age);; s.update(st1);
+			 */
+			//Student st1 = s.load(Student.class, id);
+			//s.delete(st1);
+			//sc.close(); 
+			  
+			  TypedQuery<Student> query = s.createQuery("SELECT e FROM Student e",
+				        Student.class);
+				    List<Student> emps = query.getResultList();
+				    System.out.println(emps);
+			t.commit();
+
+		} catch (Exception e) {
+			System.out.println(e);
+		}
+	}
+
+}
+
+
+Hibernate-1
+
+pom.xml
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>com.pack</groupId>
+  <artifactId>Hibernate-1</artifactId>
+  <version>0.0.1-SNAPSHOT</version>
+  <name>Hibernate-1</name>
+   <dependencies>
+        <dependency>
+            <groupId>mysql</groupId>
+            <artifactId>mysql-connector-java</artifactId>
+            <version>8.0.11</version>
+        </dependency>
+        <dependency>
+            <groupId>org.hibernate</groupId>
+            <artifactId>hibernate-core</artifactId>
+            <version>5.2.3.Final</version>
+        </dependency>
+    </dependencies>
+ 
+    <build>
+        <plugins>
+            <plugin>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.5.1</version>
+                <configuration>
+                    <source>1.6</source>
+                    <target>1.6</target>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+</project>
+
+
+hibernate.cfg.xml
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-configuration PUBLIC
+          "-//Hibernate/Hibernate Configuration DTD 3.0//EN"
+          "http://hibernate.sourceforge.net/hibernate-configuration-3.0.dtd">
+
+<hibernate-configuration>
+
+    <session-factory>
+        <property name="hbm2ddl.auto">update</property>
+        <property name="dialect">org.hibernate.dialect.MySQL5Dialect</property>
+        <property name="connection.url">jdbc:mysql://localhost:3306/Hibernate</property>
+        <property name="connection.username">root</property>
+        <property name="connection.password">root</property>
+        <property name="connection.driver_class">com.mysql.jdbc.Driver</property>
+        <property name="show_sql">true</property>
+        <property name="format_sql">true</property>
+        <property name="use_sql_comments">true</property>
+        <mapping resource="Employee.hbm.xml"/>
+    </session-factory>
+
+</hibernate-configuration>
+
+
+Employee.hbm.xml
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC
+          "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+          "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping>
+    <class name="com.pack.Employee" table="emp1000">
+       <id name="empId" column="employeeId">
+           <generator class="assigned"></generator>
+       </id>
+       <property name="name" column="empname"/>
+       <property name="salary"/>
+       <property name="address" column="eaddress"/>
+       <property name="qualification"/>
+    </class>   
+    <query name="findEmployeeById">
+         select e from Employee e where e.empId=:eid
+    </query>
+    <sql-query name="findByName">
+         select * from emp1000 where employeeId=?
+    </sql-query>
+</hibernate-mapping>
+
+
+Employee.java
+package com.pack;
+
+public class Employee {
+    private int empId;
+    private String name;
+    private double salary;
+    private String address;
+    private String qualification;
+	public int getEmpId() {
+		return empId;
+	}
+	public void setEmpId(int empId) {
+		this.empId = empId;
+	}
+	public String getName() {
+		return name;
+	}
+	public void setName(String name) {
+		this.name = name;
+	}
+	public double getSalary() {
+		return salary;
+	}
+	public void setSalary(double salary) {
+		this.salary = salary;
+	}
+	public String getAddress() {
+		return address;
+	}
+	public void setAddress(String address) {
+		this.address = address;
+	}
+	public String getQualification() {
+		return qualification;
+	}
+	public void setQualification(String qualification) {
+		this.qualification = qualification;
+	}
+	public Employee(int empId, String name, double salary, String address, String qualification) {
+		super();
+		this.empId = empId;
+		this.name = name;
+		this.salary = salary;
+		this.address = address;
+		this.qualification = qualification;
+	}
+	public Employee() {
+		super();
+		// TODO Auto-generated constructor stub
+	}
+	@Override
+	public String toString() {
+		return "Employee [empId=" + empId + ", name=" + name + ", salary=" + salary + ", address=" + address
+				+ ", qualification=" + qualification + "]";
+	}
+    
+}
+
+
+Main.java
+package com.pack;
+
+import org.hibernate.SQLQuery;
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
+import org.hibernate.Transaction;
+import org.hibernate.cfg.Configuration;
+
+public class Main {
+
+	public static void main(String[] args) {
+		//read db info from hibernate.cfg.xml
+		Configuration cfg=new Configuration().configure();
+        SessionFactory sf=cfg.buildSessionFactory();
+        Session s=sf.openSession();
+        Transaction t=s.beginTransaction();
+        Employee e=new Employee(); //transient stage
+       /* e.setEmpId(100);
+        e.setName("Ram");
+        e.setSalary(20000.0);
+        e.setAddress("Chennai");
+        e.setQualification("BE");
+        
+        s.persist(e);*/
+        
+       /* e.setEmpId(103);
+        e.setName("Ramu");
+        e.setSalary(40000.0);
+        e.setAddress("Mumbai");
+        e.setQualification("MBBS");
+        
+        System.out.println(s.save(e));*/
+        
+        /*Employee emp=(Employee)s.get(Employee.class, 101);
+        emp.setSalary(50000.0);
+        emp.setAddress("Delhi");
+        s.update(emp);*/
+        
+       /* Employee emp=(Employee)s.load(Employee.class,103);
+        s.delete(emp);*/
+        
+       /* Query q=s.getNamedQuery("findEmployeeById");
+        q.setParameter("eid", 101);
+        Employee emp=(Employee)q.uniqueResult();
+        System.out.println(emp.getName());*/
+        
+        SQLQuery q=s.getNamedSQLQuery("findByName");
+        q.addEntity(Employee.class);
+        q.setParameter(0, 101);
+        Employee emp=(Employee)q.uniqueResult();
+        System.out.println(emp.getName());
+        
+        t.commit();
+        System.out.println("Data inserted successfully");
+        s.close();
+	}
+
+}
+
+
+Hibernate2
+
+pom.xml
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>com.pack</groupId>
+  <artifactId>Hibernate2</artifactId>
+  <version>0.0.1-SNAPSHOT</version>
+  <name>Hibernate2</name>
+  <dependencies>
+	        <dependency>
+	            <groupId>mysql</groupId>
+	            <artifactId>mysql-connector-java</artifactId>
+	            <version>8.0.13</version>
+	        </dependency>
+	       <dependency>
+	            <groupId>antlr</groupId>
+	            <artifactId>antlr</artifactId>
+	            <version>2.7.7</version>
+	        </dependency>
+	        
+	
+	
+	
+	        <dependency>
+	            <groupId>org.hibernate</groupId>
+	            <artifactId>hibernate-commons-annotations</artifactId>
+	            <version>3.2.0.Final</version>
+	        </dependency>
+	
+	
+	
+	        <dependency>
+	            <groupId>org.hibernate</groupId>
+	            <artifactId>hibernate-core</artifactId>
+	            <version>4.1.4.Final</version>
+	        </dependency>
+	
+	
+	
+	        <dependency>
+	            <groupId>org.slf4j</groupId>
+	            <artifactId>slf4j-api</artifactId>
+	            <version>1.6.1</version>
+	        </dependency>
+	
+	
+	
+	        <dependency>
+	            <groupId>javassist</groupId>
+	            <artifactId>javassist</artifactId>
+	            <version>3.12.0.GA</version>
+	        </dependency>
+	    </dependencies>
+	
+	
+	
+	    <build>
+	        <plugins>
+	            <plugin>
+	                <artifactId>maven-compiler-plugin</artifactId>
+	                <version>3.5.1</version>
+	                <configuration>
+	                    <source>1.6</source>
+	                    <target>1.6</target>
+	                </configuration>
+	            </plugin>
+	        </plugins>
+	    </build>
+  
+</project>
+
+
+hibernate.cfg.xml
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-configuration PUBLIC
+          "-//Hibernate/Hibernate Configuration DTD 3.0//EN"
+          "http://hibernate.sourceforge.net/hibernate-configuration-3.0.dtd">
+
+<hibernate-configuration>
+
+    <session-factory>
+        <property name="hbm2ddl.auto">update</property>
+        <property name="dialect">org.hibernate.dialect.MySQL5Dialect</property>
+        <property name="connection.url">jdbc:mysql://localhost:3306/Hibernate</property>
+        <property name="connection.username">root</property>
+        <property name="connection.password">root</property>
+        <property name="connection.driver_class">com.mysql.jdbc.Driver</property>
+        <property name="show_sql">true</property>
+        <property name="format_sql">true</property>
+        <property name="use_sql_comments">true</property>
+        <mapping class="com.pack.Student"/>
+        <mapping class="com.pack.Person"/>
+        <mapping class="com.pack.Manager"/>
+        <mapping class="com.pack.Employee"/>
+        <mapping class="com.pack.Player"/>
+    </session-factory>
+
+</hibernate-configuration>
+
+
+Gender.java
+package com.pack;
+
+public enum Gender {
+   MALE,FEMALE,OTHER
+}
+
+
+
+Student.java
+package com.pack;
+
+import java.util.Date;
+
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.Table;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
+import javax.persistence.Transient;
+
+import org.hibernate.annotations.DynamicInsert;
+import org.hibernate.annotations.DynamicUpdate;
+
+@Entity
+@Table(name="stu1000")
+@DynamicInsert(value=true)
+@DynamicUpdate(value=true)
+public class Student {
+   @Id
+   @GeneratedValue(strategy=GenerationType.AUTO)
+   @Column(name="student_id")
+   private Integer stuid;
+   @Column(name="studentname")
+   private String name;
+   private Integer age;
+   @Column(name="stusal",scale=7,precision=2)
+   private double salary;
+   @Temporal(TemporalType.DATE)
+   private Date dob;
+   @Transient
+   private boolean status;
+   @Enumerated(EnumType.ORDINAL)
+   private Gender gender;
+public Integer getStuid() {
+	return stuid;
+}
+public void setStuid(Integer stuid) {
+	this.stuid = stuid;
+}
+public String getName() {
+	return name;
+}
+public void setName(String name) {
+	this.name = name;
+}
+public Integer getAge() {
+	return age;
+}
+public void setAge(Integer age) {
+	this.age = age;
+}
+public double getSalary() {
+	return salary;
+}
+public void setSalary(double salary) {
+	this.salary = salary;
+}
+public Date getDob() {
+	return dob;
+}
+public void setDob(Date dob) {
+	this.dob = dob;
+}
+public boolean isStatus() {
+	return status;
+}
+public void setStatus(boolean status) {
+	this.status = status;
+}
+public Gender getGender() {
+	return gender;
+}
+public void setGender(Gender gender) {
+	this.gender = gender;
+}
+public Student(Integer stuid, String name, Integer age, double salary, Date dob, boolean status, Gender gender) {
+	super();
+	this.stuid = stuid;
+	this.name = name;
+	this.age = age;
+	this.salary = salary;
+	this.dob = dob;
+	this.status = status;
+	this.gender = gender;
+}
+public Student() {
+	super();
+	// TODO Auto-generated constructor stub
+}
+   
+}
+
+
+
+Main.java
+package com.pack;
+
+import java.time.LocalDate;
+import java.util.Date;
+import java.util.GregorianCalendar;
+
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
+import org.hibernate.Transaction;
+import org.hibernate.cfg.Configuration;
+
+public class Main {
+
+	public static void main(String[] args) {
+	   Configuration cfg=new Configuration().configure();
+	   SessionFactory sf=cfg.buildSessionFactory();
+	   Session s=sf.openSession();
+	   Transaction t=s.beginTransaction();
+	   
+	   Student st=new Student();
+	   /*st.setName("Rajessh");
+	   st.setAge(20);
+	   st.setSalary(20000.7846);
+	   Date d=new Date();
+	   st.setDob(d);
+	   st.setGender(Gender.MALE);*/
+	   
+	   
+	   /*st.setAge(27);
+	   GregorianCalendar g=new GregorianCalendar(1998,03,03);
+	   Date date=g.getTime();
+	   st.setSalary(20000.7846);
+	   st.setDob(date);
+	   st.setGender(Gender.MALE);
+	   s.persist(st);*/
+	   
+	   Student st1=(Student)s.get(Student.class, 5);
+	   st1.setName("Ria");
+	   s.update(st1);
+	   
+	   t.commit();
+	   System.out.println("Student inserted successfully");
+	   s.close();
+	}
+
+}
+
+Person.java
+package com.pack;
+
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.IdClass;
+import javax.persistence.Table;
+
+@Entity
+@Table(name="per1000")
+@IdClass(CompositeId.class)
+public class Person {
+	@Id
+    private Integer pid;
+    private String name;
+    private Integer age;
+    @Id
+    private Integer phoneNumber;
+    private String address;
+	public Integer getPid() {
+		return pid;
+	}
+	public void setPid(Integer pid) {
+		this.pid = pid;
+	}
+	public String getName() {
+		return name;
+	}
+	public void setName(String name) {
+		this.name = name;
+	}
+	public Integer getAge() {
+		return age;
+	}
+	public void setAge(Integer age) {
+		this.age = age;
+	}
+	public Integer getPhoneNumber() {
+		return phoneNumber;
+	}
+	public void setPhoneNumber(Integer phoneNumber) {
+		this.phoneNumber = phoneNumber;
+	}
+	public String getAddress() {
+		return address;
+	}
+	public void setAddress(String address) {
+		this.address = address;
+	}
+	public Person(Integer pid, String name, Integer age, Integer phoneNumber, String address) {
+		super();
+		this.pid = pid;
+		this.name = name;
+		this.age = age;
+		this.phoneNumber = phoneNumber;
+		this.address = address;
+	}
+	public Person() {
+		super();
+		// TODO Auto-generated constructor stub
+	}
+    
+}
+
+
+CompositeId.java
+package com.pack;
+
+import java.io.Serializable;
+
+public class CompositeId implements Serializable  {
+   private Integer pid;
+   private Integer phoneNumber;
+
+public Integer getPid() {
+	return pid;
+}
+public Integer getPhoneNumber() {
+	return phoneNumber;
+}
+
+@Override
+public int hashCode() {
+	final int prime = 31;
+	int result = 1;
+	result = prime * result + ((phoneNumber == null) ? 0 : phoneNumber.hashCode());
+	result = prime * result + ((pid == null) ? 0 : pid.hashCode());
+	return result;
+}
+@Override
+public boolean equals(Object obj) {
+	if (this == obj)
+		return true;
+	if (obj == null)
+		return false;
+	if (getClass() != obj.getClass())
+		return false;
+	CompositeId other = (CompositeId) obj;
+	if (phoneNumber == null) {
+		if (other.phoneNumber != null)
+			return false;
+	} else if (!phoneNumber.equals(other.phoneNumber))
+		return false;
+	if (pid == null) {
+		if (other.pid != null)
+			return false;
+	} else if (!pid.equals(other.pid))
+		return false;
+	return true;
+}
+public CompositeId() {
+	super();
+	// TODO Auto-generated constructor stub
+}
+public CompositeId(Integer pid, Integer phoneNumber) {
+	super();
+	this.pid = pid;
+	this.phoneNumber = phoneNumber;
+}
+
+   
+}
+
+
+Main1.java
+package com.pack;
+
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
+import org.hibernate.Transaction;
+import org.hibernate.cfg.Configuration;
+
+public class Main1 {
+
+	public static void main(String[] args) {
+		Configuration cfg=new Configuration().configure();
+		   SessionFactory sf=cfg.buildSessionFactory();
+		   Session s=sf.openSession();
+		   Transaction t=s.beginTransaction();
+		   
+		  /* CompositeId c=new CompositeId(1, 2000);
+		   Person p=new Person();
+           p.setAddress("chennai");
+           p.setAge(20);
+           p.setName("Rajesh");
+           p.setPid(c.getPid());
+           p.setPhoneNumber(c.getPhoneNumber());
+           s.persist(p);*/
+		   
+		   Person p=(Person)s.get(Person.class, new CompositeId(1, 1000));
+		   System.out.println(p.getAddress());
+           t.commit();
+           System.out.println("Inserted successfully");
+           s.close();
+	}
+
+}
+
+
+Address.java
+package com.pack;
+
+import javax.persistence.Embeddable;
+
+@Embeddable
+public class Address {
+   private String city;
+   private String state;
+   private Integer zipcode;
+public String getCity() {
+	return city;
+}
+public void setCity(String city) {
+	this.city = city;
+}
+public String getState() {
+	return state;
+}
+public void setState(String state) {
+	this.state = state;
+}
+public Integer getZipcode() {
+	return zipcode;
+}
+public void setZipcode(Integer zipcode) {
+	this.zipcode = zipcode;
+}
+public Address(String city, String state, Integer zipcode) {
+	super();
+	this.city = city;
+	this.state = state;
+	this.zipcode = zipcode;
+}
+public Address() {
+	super();
+	// TODO Auto-generated constructor stub
+}
+   
+}
+
+
+Name.java
+package com.pack;
+
+import javax.persistence.Embeddable;
+
+@Embeddable
+public class Name {
+   private String firstName;
+   private String lastName;
+public String getFirstName() {
+	return firstName;
+}
+public void setFirstName(String firstName) {
+	this.firstName = firstName;
+}
+public String getLastName() {
+	return lastName;
+}
+public void setLastName(String lastName) {
+	this.lastName = lastName;
+}
+public Name(String firstName, String lastName) {
+	super();
+	this.firstName = firstName;
+	this.lastName = lastName;
+}
+public Name() {
+	super();
+	// TODO Auto-generated constructor stub
+}
+   
+}
+
+Manager.java
+package com.pack;
+
+import javax.persistence.AttributeOverride;
+import javax.persistence.AttributeOverrides;
+import javax.persistence.Column;
+import javax.persistence.Embedded;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.Table;
+
+@Entity
+@Table(name="mgr1000")
+public class Manager {
+   @Id
+   @GeneratedValue(strategy=GenerationType.AUTO)
+   private Integer mgrId;
+   
+   @Embedded
+   private Name name;
+   @Embedded
+   private Address address;
+public Integer getMgrId() {
+	return mgrId;
+}
+public void setMgrId(Integer mgrId) {
+	this.mgrId = mgrId;
+}
+public Name getName() {
+	return name;
+}
+public void setName(Name name) {
+	this.name = name;
+}
+public Address getAddress() {
+	return address;
+}
+public void setAddress(Address address) {
+	this.address = address;
+}
+public Manager(Integer mgrId, Name name, Address address) {
+	super();
+	this.mgrId = mgrId;
+	this.name = name;
+	this.address = address;
+}
+public Manager() {
+	super();
+	// TODO Auto-generated constructor stub
+}
+   
+}
+
+
+
+Main2.java
+package com.pack;
+
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
+import org.hibernate.Transaction;
+import org.hibernate.cfg.Configuration;
+
+public class Main2 {
+
+	public static void main(String[] args) {
+		Configuration cfg=new Configuration().configure();
+		   SessionFactory sf=cfg.buildSessionFactory();
+		   Session s=sf.openSession();
+		   Transaction t=s.beginTransaction();
+		   
+		   Address adr=new Address("Bangalore", "Karnataka", 564404);
+		   Name name=new Name("Raj","Kumar");
+		   
+		   Manager mgr=new Manager();
+		   mgr.setName(name);
+		   mgr.setAddress(adr);
+		   s.persist(mgr);
+		   t.commit();
+		   System.out.println("Inserted success");
+		   s.close();
+
+	}
+
+}
+
+
+Employee.java
+package com.pack;
+
+import javax.persistence.AttributeOverride;
+import javax.persistence.Column;
+import javax.persistence.EmbeddedId;
+import javax.persistence.Entity;
+import javax.persistence.Table;
+
+@Entity
+@Table(name="emp2000")
+public class Employee {
+	
+	@EmbeddedId
+	@AttributeOverride(name="firstName", column=@Column(name="f_name"))
+	private EmplName empl;
+
+	@Column(name="location")
+	private String location;
+
+	public EmplName getEmpl() {
+		return empl;
+	}
+
+	public void setEmpl(EmplName empl) {
+		this.empl = empl;
+	}
+
+	public String getLocation() {
+		return location;
+	}
+
+	public void setLocation(String location) {
+		this.location = location;
+	}
+
+	public Employee(EmplName empl, String location) {
+		super();
+		this.empl = empl;
+		this.location = location;
+	}
+
+	public Employee() {
+		super();
+		// TODO Auto-generated constructor stub
+	}
+	
+	
+}
+
+
+EmplName.java
+package com.pack;
+
+import java.io.Serializable;
+
+import javax.persistence.Column;
+import javax.persistence.Embeddable;
+
+@Embeddable
+public class EmplName implements Serializable{
+	@Column(name="first_name")
+	private String firstName;
+	
+	@Column(name="last_name")
+	private String lastName;
+
+	public String getFirstName() {
+		return firstName;
+	}
+
+	public void setFirstName(String firstName) {
+		this.firstName = firstName;
+	}
+
+	public String getLastName() {
+		return lastName;
+	}
+
+	public void setLastName(String lastName) {
+		this.lastName = lastName;
+	}
+
+	public EmplName(String firstName, String lastName) {
+		super();
+		this.firstName = firstName;
+		this.lastName = lastName;
+	}
+
+	public EmplName() {
+		super();
+		// TODO Auto-generated constructor stub
+	}
+	
+}
+
+
+Main3.java
+package com.pack;
+
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
+import org.hibernate.Transaction;
+import org.hibernate.cfg.Configuration;
+
+public class Main3 {
+
+	public static void main(String[] args) {
+		Configuration cfg=new Configuration().configure();
+		   SessionFactory sf=cfg.buildSessionFactory();
+		   Session s=sf.openSession();
+		   Transaction t=s.beginTransaction();
+		   
+		   EmplName em=new EmplName("Raj","Kumar1");
+		   Employee e=new Employee();
+		   e.setLocation("chennai");
+		   e.setEmpl(em);
+		   
+		   s.persist(e);
+		   t.commit();
+		   System.out.println("Inserted");
+           s.close();
+	}
+
+}
+
+
+
+Player.java
+package com.pack;
+
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.Table;
+
+@Entity
+@Table(name="play1000")
+public class Player {
+	@Id
+	@GeneratedValue(strategy=GenerationType.AUTO)
+	private int playId;
+	private String name;
+	private int noOfMatches;
+	public int getPlayId() {
+		return playId;
+	}
+	public void setPlayId(int playId) {
+		this.playId = playId;
+	}
+	public String getName() {
+		return name;
+	}
+	public void setName(String name) {
+		this.name = name;
+	}
+	public int getNoOfMatches() {
+		return noOfMatches;
+	}
+	public void setNoOfMatches(int noOfMatches) {
+		this.noOfMatches = noOfMatches;
+	}
+	public Player(int playId, String name, int noOfMatches) {
+		super();
+		this.playId = playId;
+		this.name = name;
+		this.noOfMatches = noOfMatches;
+	}
+	public Player() {
+		super();
+		// TODO Auto-generated constructor stub
+	}
+    
+	
+}
+
+
+
+Main4.java
+package com.pack;
+
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
+import org.hibernate.Transaction;
+import org.hibernate.cfg.Configuration;
+
+public class Main4 {
+
+	public static void main(String[] args) {
+		Configuration cfg=new Configuration().configure();
+		SessionFactory sf=cfg.buildSessionFactory();
+		Session s=sf.openSession();
+		Transaction t=s.beginTransaction();
+		
+		Player p=new Player();
+		p.setName("Ramesh");
+		p.setNoOfMatches(10);
+		
+		s.persist(p);
+		t.commit();
+		s.close();
+		
+		Session s1=sf.openSession();
+		Transaction t1=s1.beginTransaction();
+		
+		p.setNoOfMatches(100);
+		s1.merge(p); // used to update persistent entity instance with new value from detached entity instance
+        t1.commit();
+        s1.close();
+	}
+
+}
+
+
+Hibernate3
+
+pom.xml
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>com.pack</groupId>
+  <artifactId>Hibernate3</artifactId>
+  <version>0.0.1-SNAPSHOT</version>
+  <name>Hibernate3</name>
+  <dependencies>
+	        <dependency>
+	            <groupId>mysql</groupId>
+	            <artifactId>mysql-connector-java</artifactId>
+	            <version>8.0.13</version>
+	        </dependency>
+	       <dependency>
+	            <groupId>antlr</groupId>
+	            <artifactId>antlr</artifactId>
+	            <version>2.7.7</version>
+	        </dependency>
+	        
+	
+	
+	
+	        <dependency>
+	            <groupId>org.hibernate</groupId>
+	            <artifactId>hibernate-commons-annotations</artifactId>
+	            <version>3.2.0.Final</version>
+	        </dependency>
+	
+	
+	
+	        <dependency>
+	            <groupId>org.hibernate</groupId>
+	            <artifactId>hibernate-core</artifactId>
+	            <version>4.1.4.Final</version>
+	        </dependency>
+	
+	
+	
+	        <dependency>
+	            <groupId>org.slf4j</groupId>
+	            <artifactId>slf4j-api</artifactId>
+	            <version>1.6.1</version>
+	        </dependency>
+	
+	
+	
+	        <dependency>
+	            <groupId>javassist</groupId>
+	            <artifactId>javassist</artifactId>
+	            <version>3.12.0.GA</version>
+	        </dependency>
+	    </dependencies>
+	
+	
+	
+	    <build>
+	        <plugins>
+	            <plugin>
+	                <artifactId>maven-compiler-plugin</artifactId>
+	                <version>3.5.1</version>
+	                <configuration>
+	                    <source>1.6</source>
+	                    <target>1.6</target>
+	                </configuration>
+	            </plugin>
+	        </plugins>
+	    </build>
+</project>
+
+
+hibernate.cfg.xml
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-configuration PUBLIC
+          "-//Hibernate/Hibernate Configuration DTD 3.0//EN"
+          "http://hibernate.sourceforge.net/hibernate-configuration-3.0.dtd">
+
+<hibernate-configuration>
+
+    <session-factory>
+        <property name="hbm2ddl.auto">update</property>
+        <property name="dialect">org.hibernate.dialect.MySQL5Dialect</property>
+        <property name="connection.url">jdbc:mysql://localhost:3306/Hibernate</property>
+        <property name="connection.username">root</property>
+        <property name="connection.password">root</property>
+        <property name="connection.driver_class">com.mysql.jdbc.Driver</property>
+        <property name="show_sql">true</property>
+        <property name="format_sql">true</property>
+        <property name="use_sql_comments">true</property>
+        <mapping class="com.pack.Vehicle"/>
+        <mapping class="com.pack.User"/>
+        <mapping class="com.pack.Vehicle1"/>
+        <mapping class="com.pack.User1"/>
+        <mapping class="com.pack.Vehicle2"/>
+        <mapping class="com.pack.User2"/>
+    </session-factory>
+
+</hibernate-configuration>
+
+
+User.java
+package com.pack;
+
+import javax.persistence.CascadeType;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.OneToOne;
+import javax.persistence.Table;
+
+@Entity
+@Table(name="user1000")
+public class User {
+	@Id
+	@GeneratedValue(strategy=GenerationType.AUTO)
+	@Column(name="user_id")
+	private int id;
+	@Column(name="user_name")
+	private String name;
+	
+	@OneToOne(cascade=CascadeType.ALL)
+	@JoinColumn(name="vehicle_id")
+	private Vehicle vehicle;
+
+	public int getId() {
+		return id;
+	}
+
+	public void setId(int id) {
+		this.id = id;
+	}
+
+	public String getName() {
+		return name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
+
+	public Vehicle getVehicle() {
+		return vehicle;
+	}
+
+	public void setVehicle(Vehicle vehicle) {
+		this.vehicle = vehicle;
+	}
+
+	public User(int id, String name, Vehicle vehicle) {
+		super();
+		this.id = id;
+		this.name = name;
+		this.vehicle = vehicle;
+	}
+
+	public User() {
+		super();
+		// TODO Auto-generated constructor stub
+	} 
+}
+
+
+Vehcile.java
+package com.pack;
+
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+
+@Entity
+public class Vehicle {
+	@Id
+	@GeneratedValue(strategy=GenerationType.AUTO)
+	@Column(name="vehicle_id")
+	private int id;
+	@Column(name="vehicle_name")
+	private String name;
+	public int getId() {
+		return id;
+	}
+	public void setId(int id) {
+		this.id = id;
+	}
+	public String getName() {
+		return name;
+	}
+	public void setName(String name) {
+		this.name = name;
+	}
+	public Vehicle(int id, String name) {
+		super();
+		this.id = id;
+		this.name = name;
+	}
+	public Vehicle() {
+		super();
+		// TODO Auto-generated constructor stub
+	}
+    
+}
+
+
+Main.java
+package com.pack;
+
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
+import org.hibernate.Transaction;
+import org.hibernate.cfg.Configuration;
+
+public class Main {
+
+	public static void main(String[] args) {
+		Configuration cfg=new Configuration().configure();
+		SessionFactory sf=cfg.buildSessionFactory();
+		Session s=sf.openSession();
+		Transaction t=s.beginTransaction();
+		
+		Vehicle v=new Vehicle();
+		v.setName("Car");
+		
+		User u=new User();
+		u.setName("Raju");
+		u.setVehicle(v);
+		
+		s.persist(u);
+		t.commit();
+		System.out.println("Data inserted");
+		s.close();
+
+	}
+
+}
+
+
+User1.java
+package com.pack;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.persistence.CascadeType;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
+import javax.persistence.OneToMany;
+import javax.persistence.Table;
+
+@Entity
+@Table(name="user101")
+public class User1 {
+   @Id
+   @GeneratedValue(strategy=GenerationType.AUTO)
+   @Column(name="user_id")
+   private int id;
+   @Column(name="user_name")
+   private String name;
+   
+   @OneToMany(cascade=CascadeType.ALL)
+   @JoinTable(name="user_vehicle", 
+       joinColumns=@JoinColumn(name="user_id"), inverseJoinColumns=@JoinColumn(name="vehicle_id"))
+   private List<Vehicle1> vehicle1 = new ArrayList<>();
+
+public int getId() {
+	return id;
+}
+
+public void setId(int id) {
+	this.id = id;
+}
+
+public String getName() {
+	return name;
+}
+
+public void setName(String name) {
+	this.name = name;
+}
+
+public List<Vehicle1> getVehicle1() {
+	return vehicle1;
+}
+
+public void setVehicle1(List<Vehicle1> vehicle1) {
+	this.vehicle1 = vehicle1;
+}
+
+public User1(int id, String name, List<Vehicle1> vehicle1) {
+	super();
+	this.id = id;
+	this.name = name;
+	this.vehicle1 = vehicle1;
+}
+
+public User1() {
+	super();
+	// TODO Auto-generated constructor stub
+}    
+}
+
+
+Vehicle1.java
+package com.pack;
+
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.Table;
+
+@Entity
+@Table(name="veh100")
+public class Vehicle1 {
+	@Id
+	@GeneratedValue(strategy=GenerationType.AUTO)
+	@Column(name="vehicle_id")
+    private int id;
+	@Column(name="vehicle_name")
+    private String name;
+	public int getId() {
+		return id;
+	}
+	public void setId(int id) {
+		this.id = id;
+	}
+	public String getName() {
+		return name;
+	}
+	public void setName(String name) {
+		this.name = name;
+	}
+	public Vehicle1(int id, String name) {
+		super();
+		this.id = id;
+		this.name = name;
+	}
+	public Vehicle1() {
+		super();
+		// TODO Auto-generated constructor stub
+	}
+}
+
+
+Main1.java
+package com.pack;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
+import org.hibernate.Transaction;
+import org.hibernate.cfg.Configuration;
+
+public class Main1 {
+
+	public static void main(String[] args) {
+		Configuration cfg=new Configuration().configure();
+		SessionFactory sf=cfg.buildSessionFactory();
+		Session s=sf.openSession();
+		Transaction t=s.beginTransaction();
+		
+		Vehicle1 v1=new Vehicle1();
+		v1.setName("Car");
+		
+		Vehicle1 v2=new Vehicle1();
+		v2.setName("Bus");
+		
+		List<Vehicle1> l=new ArrayList<>();
+		l.add(v1);
+		l.add(v2);
+		
+		User1 u=new User1();
+		u.setName("Rajesh");
+		u.setVehicle1(l);
+		
+		s.persist(u);
+		t.commit();
+		System.out.println("Data inserted");
+		s.close();
+
+	}
+
+}
+
+
+User2.java
+package com.pack;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.ManyToMany;
+import javax.persistence.Table;
+
+@Entity
+@Table(name="user2100")
+public class User2{
+    @Id
+    @GeneratedValue(strategy=GenerationType.AUTO)
+    @Column(name="user_id")
+    private int id;
+    @Column(name="user_name")
+    private String name;
+    @ManyToMany
+    private List<Vehicle2> vehicle=new ArrayList<>();
+	public int getId() {
+		return id;
+	}
+	public void setId(int id) {
+		this.id = id;
+	}
+	public String getName() {
+		return name;
+	}
+	public void setName(String name) {
+		this.name = name;
+	}
+	public List<Vehicle2> getVehicle() {
+		return vehicle;
+	}
+	public void setVehicle(List<Vehicle2> vehicle) {
+		this.vehicle = vehicle;
+	}
+	public User2(int id, String name, List<Vehicle2> vehicle) {
+		super();
+		this.id = id;
+		this.name = name;
+		this.vehicle = vehicle;
+	}
+	public User2() {
+		super();
+		// TODO Auto-generated constructor stub
+	}
+    
+    
+}
+
+
+Vehicle2.java
+package com.pack;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.ManyToMany;
+import javax.persistence.Table;
+
+@Entity
+@Table(name="vehicle100")
+public class Vehicle2 {
+   @Id
+   @GeneratedValue(strategy=GenerationType.AUTO)
+   @Column(name="vehicle_id")
+   private int id;
+   @Column(name="vehicle_name")
+   private String name;
+   @ManyToMany(mappedBy="vehicle")
+   private List<User2> user=new ArrayList<>();
+public int getId() {
+	return id;
+}
+public void setId(int id) {
+	this.id = id;
+}
+public String getName() {
+	return name;
+}
+public void setName(String name) {
+	this.name = name;
+}
+public List<User2> getUser() {
+	return user;
+}
+public void setUser(List<User2> user) {
+	this.user = user;
+}
+public Vehicle2(int id, String name, List<User2> user) {
+	super();
+	this.id = id;
+	this.name = name;
+	this.user = user;
+}
+public Vehicle2() {
+	super();
+	// TODO Auto-generated constructor stub
+}
+  
+}
+
+Main2.java
+package com.pack;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
+import org.hibernate.Transaction;
+import org.hibernate.cfg.Configuration;
+
+public class Main2 {
+
+	public static void main(String[] args) {
+		Configuration cfg=new Configuration().configure();
+		SessionFactory sf=cfg.buildSessionFactory();
+		Session s =sf.openSession();
+		Transaction t=s.beginTransaction();
+		
+		User2 u1=new User2();
+		u1.setName("Rajesh");
+		User2 u2=new User2();
+		u2.setName("Ramesh");
+		
+		Vehicle2 v1=new Vehicle2();
+		v1.setName("Benz");
+		Vehicle2 v2=new Vehicle2();
+		v2.setName("Audi");
+		
+		List<Vehicle2> l1=new ArrayList<>();
+		l1.add(v1);
+		l1.add(v2);
+		List<User2> l2=new ArrayList<>();
+		l2.add(u1);
+		l2.add(u2);
+		
+		u1.setVehicle(l1);
+		u2.setVehicle(l1);
+		v1.setUser(l2);
+		v2.setUser(l2);
+		
+		s.persist(u1);
+		s.persist(u2);
+		s.persist(v1);
+		s.persist(v2);
+		
+		t.commit();
+		System.out.println("Ibnserted");
+		s.close();
+		
+	}
+
+}
+
+
+Hibernate4
+
+pom.xml
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>com.pack</groupId>
+  <artifactId>Hibernate4</artifactId>
+  <version>0.0.1-SNAPSHOT</version>
+  <name>Hibernate4</name>
+  <dependencies>
+	        <dependency>
+	            <groupId>mysql</groupId>
+	            <artifactId>mysql-connector-java</artifactId>
+	            <version>8.0.13</version>
+	        </dependency>
+	       <dependency>
+	            <groupId>antlr</groupId>
+	            <artifactId>antlr</artifactId>
+	            <version>2.7.7</version>
+	        </dependency>
+	        
+	
+	
+	
+	        <dependency>
+	            <groupId>org.hibernate</groupId>
+	            <artifactId>hibernate-commons-annotations</artifactId>
+	            <version>3.2.0.Final</version>
+	        </dependency>
+	
+	
+	
+	        <dependency>
+	            <groupId>org.hibernate</groupId>
+	            <artifactId>hibernate-core</artifactId>
+	            <version>4.1.4.Final</version>
+	        </dependency>
+	
+	
+	
+	        <dependency>
+	            <groupId>org.slf4j</groupId>
+	            <artifactId>slf4j-api</artifactId>
+	            <version>1.6.1</version>
+	        </dependency>
+	
+	
+	
+	        <dependency>
+	            <groupId>javassist</groupId>
+	            <artifactId>javassist</artifactId>
+	            <version>3.12.0.GA</version>
+	        </dependency>
+	    </dependencies>
+	
+	
+	
+	    <build>
+	        <plugins>
+	            <plugin>
+	                <artifactId>maven-compiler-plugin</artifactId>
+	                <version>3.5.1</version>
+	                <configuration>
+	                    <source>1.6</source>
+	                    <target>1.6</target>
+	                </configuration>
+	            </plugin>
+	        </plugins>
+	    </build>
+</project>
+
+
+hibernate.cfg.xml
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-configuration PUBLIC
+          "-//Hibernate/Hibernate Configuration DTD 3.0//EN"
+          "http://hibernate.sourceforge.net/hibernate-configuration-3.0.dtd">
+
+<hibernate-configuration>
+
+    <session-factory>
+        <property name="hbm2ddl.auto">update</property>
+        <property name="dialect">org.hibernate.dialect.MySQL5Dialect</property>
+        <property name="connection.url">jdbc:mysql://localhost:3306/Hibernate</property>
+        <property name="connection.username">root</property>
+        <property name="connection.password">root</property>
+        <property name="connection.driver_class">com.mysql.jdbc.Driver</property>
+        <property name="show_sql">true</property>
+        <property name="format_sql">true</property>
+        <property name="use_sql_comments">true</property>
+        <mapping resource="Employee.hbm.xml"/>
+        <mapping class="com.pack.Employee1"/>
+        <mapping class="com.pack.RegularEmployee1"/>
+        <mapping class="com.pack.ContractEmployee1"/>
+    </session-factory>
+
+</hibernate-configuration>
+
+
+Employee.hbm.xml
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC
+          "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+          "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd"> 
+ 
+<hibernate-mapping>
+<class name="com.pack.Employee" table="emp121" discriminator-value="emp">
+<id name="id">
+<generator class="increment"></generator>
+</id>
+           
+<discriminator column="emptype" type="string"></discriminator>
+<property name="name"></property>
+<subclass name="com.pack.RegularEmployee" discriminator-value="reg_emp">
+<property name="salary"></property>
+<property name="bonus"></property>
+</subclass>
+           
+<subclass name="com.pack.ContractEmployee" discriminator-value="con_emp">
+<property name="pay_per_hour"></property>
+<property name="duration"></property>
+</subclass>
+           
+</class>
+           
+</hibernate-mapping>
+
+
+Employee.java
+package com.pack;
+
+public class Employee {
+   private int id;
+   private String name;
+public int getId() {
+	return id;
+}
+public void setId(int id) {
+	this.id = id;
+}
+public String getName() {
+	return name;
+}
+public void setName(String name) {
+	this.name = name;
+}
+public Employee(int id, String name) {
+	super();
+	this.id = id;
+	this.name = name;
+}
+public Employee() {
+	super();
+	// TODO Auto-generated constructor stub
+}
+   
+}
+
+
+RegularEmployee.java
+package com.pack;
+
+public class RegularEmployee extends Employee{
+   private double salary;
+   private double bonus;
+public double getSalary() {
+	return salary;
+}
+public void setSalary(double salary) {
+	this.salary = salary;
+}
+public double getBonus() {
+	return bonus;
+}
+public void setBonus(double bonus) {
+	this.bonus = bonus;
+}
+public RegularEmployee(int id, String name, double salary, double bonus) {
+	super(id, name);
+	this.salary = salary;
+	this.bonus = bonus;
+}
+public RegularEmployee() {
+	super();
+	// TODO Auto-generated constructor stub
+}
+public RegularEmployee(int id, String name) {
+	super(id, name);
+	// TODO Auto-generated constructor stub
+}
+   
+}
+
+
+ContractEmployee.java
+package com.pack;
+
+public class ContractEmployee extends Employee{
+   private int pay_per_hour;
+   private int duration;
+public int getPay_per_hour() {
+	return pay_per_hour;
+}
+public void setPay_per_hour(int pay_per_hour) {
+	this.pay_per_hour = pay_per_hour;
+}
+public int getDuration() {
+	return duration;
+}
+public void setDuration(int duration) {
+	this.duration = duration;
+}
+public ContractEmployee(int id, String name, int pay_per_hour, int duration) {
+	super(id, name);
+	this.pay_per_hour = pay_per_hour;
+	this.duration = duration;
+}
+public ContractEmployee() {
+	super();
+	// TODO Auto-generated constructor stub
+}
+public ContractEmployee(int id, String name) {
+	super(id, name);
+	// TODO Auto-generated constructor stub
+}
+   
+}
+
+
+Main.java
+package com.pack;
+
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
+import org.hibernate.Transaction;
+import org.hibernate.cfg.Configuration;
+
+public class Main {
+
+	public static void main(String[] args) {
+		Configuration cfg=new Configuration().configure();
+		SessionFactory sf=cfg.buildSessionFactory();
+		Session s =sf.openSession();
+		Transaction t=s.beginTransaction();
+		
+		Employee e1=new Employee();
+		e1.setName("Ramesh");
+		
+		RegularEmployee r=new RegularEmployee();
+		r.setName("Rajesh");
+		r.setSalary(20000.0);
+		r.setBonus(500);
+		
+		ContractEmployee c=new ContractEmployee();
+		c.setName("Dinesh");
+		c.setPay_per_hour(400);
+		c.setDuration(5);
+		
+		s.persist(e1);
+		s.persist(r);
+		s.persist(c);
+		t.commit();
+		System.out.println("Inserted");
+        s.close();
+	}
+
+}
+
+
+Employee1.java
+package com.pack;
+
+import javax.persistence.DiscriminatorColumn;
+import javax.persistence.DiscriminatorType;
+import javax.persistence.DiscriminatorValue;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.Inheritance;
+import javax.persistence.InheritanceType;
+import javax.persistence.Table;
+
+@Entity
+@Table(name="emp122")
+@Inheritance(strategy=InheritanceType.SINGLE_TABLE)
+@DiscriminatorColumn(name="empType",discriminatorType=DiscriminatorType.STRING)
+@DiscriminatorValue(value="emp")
+public class Employee1 {
+   @Id
+   @GeneratedValue(strategy=GenerationType.IDENTITY)
+   private int id;
+   private String name;
+public int getId() {
+	return id;
+}
+public void setId(int id) {
+	this.id = id;
+}
+public String getName() {
+	return name;
+}
+public void setName(String name) {
+	this.name = name;
+}
+public Employee1(int id, String name) {
+	super();
+	this.id = id;
+	this.name = name;
+}
+public Employee1() {
+	super();
+	// TODO Auto-generated constructor stub
+}
+   
+   
+}
+ 
+
+RegularEmployee1.java
+package com.pack;
+
+import javax.persistence.DiscriminatorValue;
+import javax.persistence.Entity;
+
+@Entity
+@DiscriminatorValue(value="reg_emp")
+public class RegularEmployee1 extends Employee1{
+   private double salary;
+   private double bonus;
+public double getSalary() {
+	return salary;
+}
+public void setSalary(double salary) {
+	this.salary = salary;
+}
+public double getBonus() {
+	return bonus;
+}
+public void setBonus(double bonus) {
+	this.bonus = bonus;
+}
+public RegularEmployee1(int id, String name, double salary, double bonus) {
+	super(id, name);
+	this.salary = salary;
+	this.bonus = bonus;
+}
+public RegularEmployee1() {
+	super();
+	// TODO Auto-generated constructor stub
+}
+public RegularEmployee1(int id, String name) {
+	super(id, name);
+	// TODO Auto-generated constructor stub
+}
+   
+}
+
+
+ContractEmployee1.java
+package com.pack;
+
+import javax.persistence.DiscriminatorValue;
+import javax.persistence.Entity;
+
+@Entity
+@DiscriminatorValue(value="con_emp")
+public class ContractEmployee1 extends Employee1 {
+   private int pay_per_hour;
+   private int duration;
+public int getPay_per_hour() {
+	return pay_per_hour;
+}
+public void setPay_per_hour(int pay_per_hour) {
+	this.pay_per_hour = pay_per_hour;
+}
+public int getDuration() {
+	return duration;
+}
+public void setDuration(int duration) {
+	this.duration = duration;
+}
+public ContractEmployee1(int id, String name, int pay_per_hour, int duration) {
+	super(id, name);
+	this.pay_per_hour = pay_per_hour;
+	this.duration = duration;
+}
+public ContractEmployee1() {
+	super();
+	// TODO Auto-generated constructor stub
+}
+public ContractEmployee1(int id, String name) {
+	super(id, name);
+	// TODO Auto-generated constructor stub
+}
+   
+}
+
+
+Main1.java
+package com.pack;
+
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
+import org.hibernate.Transaction;
+import org.hibernate.cfg.Configuration;
+
+public class Main1 {
+
+	public static void main(String[] args) {
+		Configuration cfg=new Configuration().configure();
+		SessionFactory sf=cfg.buildSessionFactory();
+		Session s =sf.openSession();
+		Transaction t=s.beginTransaction();
+		
+		Employee1 e1=new Employee1();
+		e1.setName("Sujeesh");
+		
+		RegularEmployee1 r1=new RegularEmployee1();
+		r1.setName("Sathish");
+		r1.setSalary(30000);
+		r1.setBonus(5000);
+		
+		ContractEmployee1 c1=new ContractEmployee1();
+		c1.setName("Sajan");
+		c1.setPay_per_hour(1000);
+		c1.setDuration(3);
+		
+		s.persist(e1);
+		s.persist(r1);
+		s.persist(c1);
+		t.commit();
+		System.out.println("Inserted");
+		s.close();
+
+	}
+
+}
+
+
+Hibernate5
+
+pom.xml
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>com.pack</groupId>
+  <artifactId>Hibernate5</artifactId>
+  <version>0.0.1-SNAPSHOT</version>
+  <name>Hibernate5</name>
+  <dependencies>
+	        <dependency>
+	            <groupId>mysql</groupId>
+	            <artifactId>mysql-connector-java</artifactId>
+	            <version>8.0.13</version>
+	        </dependency>
+	       <dependency>
+	            <groupId>antlr</groupId>
+	            <artifactId>antlr</artifactId>
+	            <version>2.7.7</version>
+	        </dependency>
+	        
+	
+	
+	
+	        <dependency>
+	            <groupId>org.hibernate</groupId>
+	            <artifactId>hibernate-commons-annotations</artifactId>
+	            <version>3.2.0.Final</version>
+	        </dependency>
+	
+	
+	
+	        <dependency>
+	            <groupId>org.hibernate</groupId>
+	            <artifactId>hibernate-core</artifactId>
+	            <version>4.1.4.Final</version>
+	        </dependency>
+	
+	
+	
+	        <dependency>
+	            <groupId>org.slf4j</groupId>
+	            <artifactId>slf4j-api</artifactId>
+	            <version>1.6.1</version>
+	        </dependency>
+	
+	
+	
+	        <dependency>
+	            <groupId>javassist</groupId>
+	            <artifactId>javassist</artifactId>
+	            <version>3.12.0.GA</version>
+	        </dependency>
+	    </dependencies>
+	
+	
+	
+	    <build>
+	        <plugins>
+	            <plugin>
+	                <artifactId>maven-compiler-plugin</artifactId>
+	                <version>3.5.1</version>
+	                <configuration>
+	                    <source>1.6</source>
+	                    <target>1.6</target>
+	                </configuration>
+	            </plugin>
+	        </plugins>
+	    </build>
+</project>
+
+
+hibernate.cfg.xml
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-configuration PUBLIC
+          "-//Hibernate/Hibernate Configuration DTD 3.0//EN"
+          "http://hibernate.sourceforge.net/hibernate-configuration-3.0.dtd">
+
+<hibernate-configuration>
+
+    <session-factory>
+        <property name="hbm2ddl.auto">update</property>
+        <property name="dialect">org.hibernate.dialect.MySQL5Dialect</property>
+        <property name="connection.url">jdbc:mysql://localhost:3306/Hibernate</property>
+        <property name="connection.username">root</property>
+        <property name="connection.password">root</property>
+        <property name="connection.driver_class">com.mysql.jdbc.Driver</property>
+        <property name="show_sql">true</property>
+        <property name="format_sql">true</property>
+        <property name="use_sql_comments">true</property>
+        
+        <mapping class="com.pack.Employee1"/>
+        <mapping class="com.pack.RegularEmployee1"/>
+        <mapping class="com.pack.ContractEmployee1"/>
+    </session-factory>
+
+</hibernate-configuration>
+
+
+Employee.hbm.xml
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC
+          "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+          "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd"> 
+ 
+<hibernate-mapping>
+<class name="com.pack.Employee" table="emp131">
+<id name="id">
+<generator class="increment"></generator>
+</id>
+       
+<property name="name"></property>
+
+<union-subclass name="com.pack.RegularEmployee" table="regemp131">
+<property name="salary"></property>
+<property name="bonus"></property>
+</union-subclass>
+           
+<union-subclass name="com.pack.ContractEmployee" table="contemp131">
+<property name="pay_per_hour"></property>
+<property name="duration"></property>
+</union-subclass>
+           
+</class>
+           
+</hibernate-mapping>
+
+
+Employee.java
+package com.pack;
+
+public class Employee {
+    private int id;
+    private String name;
+	public int getId() {
+		return id;
+	}
+	public void setId(int id) {
+		this.id = id;
+	}
+	public String getName() {
+		return name;
+	}
+	public void setName(String name) {
+		this.name = name;
+	}
+	public Employee(int id, String name) {
+		super();
+		this.id = id;
+		this.name = name;
+	}
+	public Employee() {
+		super();
+		// TODO Auto-generated constructor stub
+	}
+    
+}
+
+
+RegularEmployee.java
+package com.pack;
+
+public class RegularEmployee extends Employee{
+   private double salary;
+   private double bonus;
+public double getSalary() {
+	return salary;
+}
+public void setSalary(double salary) {
+	this.salary = salary;
+}
+public double getBonus() {
+	return bonus;
+}
+public void setBonus(double bonus) {
+	this.bonus = bonus;
+}
+public RegularEmployee(int id, String name, double salary, double bonus) {
+	super(id, name);
+	this.salary = salary;
+	this.bonus = bonus;
+}
+public RegularEmployee() {
+	super();
+	// TODO Auto-generated constructor stub
+}
+
+   
+}
+
+
+ContractEmployee.java
+package com.pack;
+
+public class ContractEmployee extends Employee{
+   private int pay_per_hour;
+   private int duration;
+public int getPay_per_hour() {
+	return pay_per_hour;
+}
+public void setPay_per_hour(int pay_per_hour) {
+	this.pay_per_hour = pay_per_hour;
+}
+public int getDuration() {
+	return duration;
+}
+public void setDuration(int duration) {
+	this.duration = duration;
+}
+public ContractEmployee(int id, String name, int pay_per_hour, int duration) {
+	super(id, name);
+	this.pay_per_hour = pay_per_hour;
+	this.duration = duration;
+}
+public ContractEmployee() {
+	super();
+	// TODO Auto-generated constructor stub
+}
+
+   
+}
+
+
+Main.java
+package com.pack;
+
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
+import org.hibernate.Transaction;
+import org.hibernate.cfg.Configuration;
+
+public class Main {
+
+	public static void main(String[] args) {
+		Configuration cfg=new Configuration().configure();
+		SessionFactory sf=cfg.buildSessionFactory();
+		Session s =sf.openSession();
+		Transaction t=s.beginTransaction();
+		
+		Employee e1=new Employee();
+		e1.setName("Ramesh");
+		
+		RegularEmployee r=new RegularEmployee();
+		r.setName("Rajesh");
+		r.setSalary(20000.0);
+		r.setBonus(500);
+		
+		ContractEmployee c=new ContractEmployee();
+		c.setName("Dinesh");
+		c.setPay_per_hour(400);
+		c.setDuration(5);
+		
+		s.persist(e1);
+		s.persist(r);
+		s.persist(c);
+		t.commit();
+		System.out.println("Inserted");
+        s.close();
+	}
+
+}
+
+
+Employee1.java
+package com.pack;
+
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.Inheritance;
+import javax.persistence.InheritanceType;
+import javax.persistence.Table;
+
+@Entity
+@Table(name="emp141")
+@Inheritance(strategy=InheritanceType.TABLE_PER_CLASS)
+public class Employee1 {
+	@Id
+    private int id;
+    private String name;
+	public int getId() {
+		return id;
+	}
+	public void setId(int id) {
+		this.id = id;
+	}
+	public String getName() {
+		return name;
+	}
+	public void setName(String name) {
+		this.name = name;
+	}
+	public Employee1(int id, String name) {
+		super();
+		this.id = id;
+		this.name = name;
+	}
+	public Employee1() {
+		super();
+		// TODO Auto-generated constructor stub
+	}
+    
+}
+
+
+RegularEmployee1.java
+package com.pack;
+
+import javax.persistence.AttributeOverride;
+import javax.persistence.AttributeOverrides;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Table;
+
+@Entity
+@Table(name="regemp141")
+@AttributeOverrides({
+	@AttributeOverride(name="id",column=@Column(name="id")),
+	@AttributeOverride(name="name",column=@Column(name="name"))
+})
+public class RegularEmployee1 extends Employee1{
+  private double salary;
+  private double bonus;
+public double getSalary() {
+	return salary;
+}
+public void setSalary(double salary) {
+	this.salary = salary;
+}
+public double getBonus() {
+	return bonus;
+}
+public void setBonus(double bonus) {
+	this.bonus = bonus;
+}
+public RegularEmployee1(int id, String name, double salary, double bonus) {
+	super(id, name);
+	this.salary = salary;
+	this.bonus = bonus;
+}
+public RegularEmployee1() {
+	super();
+	// TODO Auto-generated constructor stub
+}
+public RegularEmployee1(int id, String name) {
+	super(id, name);
+	// TODO Auto-generated constructor stub
+}
+  
+}
+
+
+ContractEmployee1.java
+package com.pack;
+
+import javax.persistence.AttributeOverride;
+import javax.persistence.AttributeOverrides;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Table;
+
+@Entity
+@Table(name="contemp141")
+@AttributeOverrides({
+	@AttributeOverride(name="id",column=@Column(name="id")),
+	@AttributeOverride(name="name",column=@Column(name="name"))
+})
+public class ContractEmployee1 extends Employee1 {
+   private int pay_per_hour;
+   private int duration;
+public int getPay_per_hour() {
+	return pay_per_hour;
+}
+public void setPay_per_hour(int pay_per_hour) {
+	this.pay_per_hour = pay_per_hour;
+}
+public int getDuration() {
+	return duration;
+}
+public void setDuration(int duration) {
+	this.duration = duration;
+}
+public ContractEmployee1(int id, String name, int pay_per_hour, int duration) {
+	super(id, name);
+	this.pay_per_hour = pay_per_hour;
+	this.duration = duration;
+}
+public ContractEmployee1() {
+	super();
+	// TODO Auto-generated constructor stub
+}
+public ContractEmployee1(int id, String name) {
+	super(id, name);
+	// TODO Auto-generated constructor stub
+}
+   
+}
+
+
+Main1.java
+package com.pack;
+
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
+import org.hibernate.Transaction;
+import org.hibernate.cfg.Configuration;
+
+public class Main1 {
+
+	public static void main(String[] args) {
+		Configuration cfg=new Configuration().configure();
+		SessionFactory sf=cfg.buildSessionFactory();
+		Session s =sf.openSession();
+		Transaction t=s.beginTransaction();
+		
+		Employee1 e1=new Employee1();
+		e1.setId(100);
+		e1.setName("Sujeesh");
+		
+		RegularEmployee1 r1=new RegularEmployee1();
+		r1.setId(101);
+		r1.setName("Sathish");
+		r1.setSalary(30000);
+		r1.setBonus(5000);
+		
+		ContractEmployee1 c1=new ContractEmployee1();
+		c1.setId(102);
+		c1.setName("Sajan");
+		c1.setPay_per_hour(1000);
+		c1.setDuration(3);
+		
+		s.persist(e1);
+		s.persist(r1);
+		s.persist(c1);
+		t.commit();
+		System.out.println("Inserted");
+		s.close();
+
+	}
+
+}
+
+
+Hibernate6
+
+pom.xml
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>com.pack</groupId>
+  <artifactId>Hibernate6</artifactId>
+  <version>0.0.1-SNAPSHOT</version>
+  <name>Hibernate6</name>
+  <dependencies>
+	        <dependency>
+	            <groupId>mysql</groupId>
+	            <artifactId>mysql-connector-java</artifactId>
+	            <version>8.0.13</version>
+	        </dependency>
+	       <dependency>
+	            <groupId>antlr</groupId>
+	            <artifactId>antlr</artifactId>
+	            <version>2.7.7</version>
+	        </dependency>
+	        
+	
+	
+	
+	        <dependency>
+	            <groupId>org.hibernate</groupId>
+	            <artifactId>hibernate-commons-annotations</artifactId>
+	            <version>3.2.0.Final</version>
+	        </dependency>
+	
+	
+	
+	        <dependency>
+	            <groupId>org.hibernate</groupId>
+	            <artifactId>hibernate-core</artifactId>
+	            <version>4.1.4.Final</version>
+	        </dependency>
+	
+	
+	
+	        <dependency>
+	            <groupId>org.slf4j</groupId>
+	            <artifactId>slf4j-api</artifactId>
+	            <version>1.6.1</version>
+	        </dependency>
+	
+	
+	
+	        <dependency>
+	            <groupId>javassist</groupId>
+	            <artifactId>javassist</artifactId>
+	            <version>3.12.0.GA</version>
+	        </dependency>
+	    </dependencies>
+	
+	
+	
+	    <build>
+	        <plugins>
+	            <plugin>
+	                <artifactId>maven-compiler-plugin</artifactId>
+	                <version>3.5.1</version>
+	                <configuration>
+	                    <source>1.6</source>
+	                    <target>1.6</target>
+	                </configuration>
+	            </plugin>
+	        </plugins>
+	    </build>
+</project>
+
+
+hibernate.cfg.xml
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-configuration PUBLIC
+          "-//Hibernate/Hibernate Configuration DTD 3.0//EN"
+          "http://hibernate.sourceforge.net/hibernate-configuration-3.0.dtd">
+
+<hibernate-configuration>
+
+    <session-factory>
+        <property name="hbm2ddl.auto">update</property>
+        <property name="dialect">org.hibernate.dialect.MySQL5Dialect</property>
+        <property name="connection.url">jdbc:mysql://localhost:3306/Hibernate</property>
+        <property name="connection.username">root</property>
+        <property name="connection.password">root</property>
+        <property name="connection.driver_class">com.mysql.jdbc.Driver</property>
+        <property name="show_sql">true</property>
+        <property name="format_sql">true</property>
+        <property name="use_sql_comments">true</property>
+        <mapping resource="Employee.hbm.xml"/>
+        <mapping class="com.pack.Employee1"/>
+        <mapping class="com.pack.RegularEmployee1"/>
+        <mapping class="com.pack.ContractEmployee1"/>
+    </session-factory>
+
+</hibernate-configuration>
+
+
+Employee.hbm.xml
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC
+          "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+          "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd"> 
+ 
+<hibernate-mapping>
+<class name="com.pack.Employee" table="emp151">
+<id name="id">
+<generator class="increment"></generator>
+</id>
+       
+<property name="name"></property>
+<joined-subclass name="com.pack.RegularEmployee" table="regemp151">
+<key column="eid"/>
+<property name="salary"></property>
+<property name="bonus"></property>
+</joined-subclass>
+           
+<joined-subclass name="com.pack.ContractEmployee" table="contemp151">
+<key column="eid"/>
+<property name="pay_per_hour"></property>
+<property name="duration"></property>
+</joined-subclass>
+           
+</class>
+           
+</hibernate-mapping>
+
+
+Employee1.java
+package com.pack;
+
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.Inheritance;
+import javax.persistence.InheritanceType;
+import javax.persistence.Table;
+
+@Entity
+@Table(name="emp161")
+@Inheritance(strategy=InheritanceType.JOINED)
+public class Employee1 {
+	@Id
+    private int id;
+    private String name;
+	public int getId() {
+		return id;
+	}
+	public void setId(int id) {
+		this.id = id;
+	}
+	public String getName() {
+		return name;
+	}
+	public void setName(String name) {
+		this.name = name;
+	}
+	public Employee1(int id, String name) {
+		super();
+		this.id = id;
+		this.name = name;
+	}
+	public Employee1() {
+		super();
+		// TODO Auto-generated constructor stub
+	}
+    
+}
+
+
+RegularEmployee1.java
+package com.pack;
+
+import javax.persistence.AttributeOverride;
+import javax.persistence.AttributeOverrides;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.PrimaryKeyJoinColumn;
+import javax.persistence.Table;
+
+@Entity
+@Table(name="regemp161")
+@PrimaryKeyJoinColumn(name="id")
+public class RegularEmployee1 extends Employee1{
+  private double salary;
+  private double bonus;
+public double getSalary() {
+	return salary;
+}
+public void setSalary(double salary) {
+	this.salary = salary;
+}
+public double getBonus() {
+	return bonus;
+}
+public void setBonus(double bonus) {
+	this.bonus = bonus;
+}
+public RegularEmployee1(int id, String name, double salary, double bonus) {
+	super(id, name);
+	this.salary = salary;
+	this.bonus = bonus;
+}
+public RegularEmployee1() {
+	super();
+	// TODO Auto-generated constructor stub
+}
+public RegularEmployee1(int id, String name) {
+	super(id, name);
+	// TODO Auto-generated constructor stub
+}
+  
+}
+
+
+ContractEmployee1.java
+package com.pack;
+
+import javax.persistence.AttributeOverride;
+import javax.persistence.AttributeOverrides;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.PrimaryKeyJoinColumn;
+import javax.persistence.Table;
+
+@Entity
+@Table(name="contemp161")
+@PrimaryKeyJoinColumn(name="id")
+public class ContractEmployee1 extends Employee1 {
+   private int pay_per_hour;
+   private int duration;
+public int getPay_per_hour() {
+	return pay_per_hour;
+}
+public void setPay_per_hour(int pay_per_hour) {
+	this.pay_per_hour = pay_per_hour;
+}
+public int getDuration() {
+	return duration;
+}
+public void setDuration(int duration) {
+	this.duration = duration;
+}
+public ContractEmployee1(int id, String name, int pay_per_hour, int duration) {
+	super(id, name);
+	this.pay_per_hour = pay_per_hour;
+	this.duration = duration;
+}
+public ContractEmployee1() {
+	super();
+	// TODO Auto-generated constructor stub
+}
+public ContractEmployee1(int id, String name) {
+	super(id, name);
+	// TODO Auto-generated constructor stub
+}
+   
+}
+
+
+Main1.java
+package com.pack;
+
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
+import org.hibernate.Transaction;
+import org.hibernate.cfg.Configuration;
+
+public class Main1 {
+
+	public static void main(String[] args) {
+		Configuration cfg=new Configuration().configure();
+		SessionFactory sf=cfg.buildSessionFactory();
+		Session s =sf.openSession();
+		Transaction t=s.beginTransaction();
+		
+		Employee1 e1=new Employee1();
+		e1.setId(100);
+		e1.setName("Sujeesh");
+		
+		RegularEmployee1 r1=new RegularEmployee1();
+		r1.setId(101);
+		r1.setName("Sathish");
+		r1.setSalary(30000);
+		r1.setBonus(5000);
+		
+		ContractEmployee1 c1=new ContractEmployee1();
+		c1.setId(102);
+		c1.setName("Sajan");
+		c1.setPay_per_hour(1000);
+		c1.setDuration(3);
+		
+		s.persist(e1);
+		s.persist(r1);
+		s.persist(c1);
+		t.commit();
+		System.out.println("Inserted");
+		s.close();
+
+	}
+
+}
+
+
+Hibernate7
+
+pom.xml
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>com.pack</groupId>
+  <artifactId>Hibernate7</artifactId>
+  <version>0.0.1-SNAPSHOT</version>
+  <name>Hibernate7</name>
+   <dependencies>
+	        <dependency>
+	            <groupId>mysql</groupId>
+	            <artifactId>mysql-connector-java</artifactId>
+	            <version>8.0.13</version>
+	        </dependency>
+	       <dependency>
+	            <groupId>antlr</groupId>
+	            <artifactId>antlr</artifactId>
+	            <version>2.7.7</version>
+	        </dependency>
+	        
+	
+	
+	
+	        <dependency>
+	            <groupId>org.hibernate</groupId>
+	            <artifactId>hibernate-commons-annotations</artifactId>
+	            <version>3.2.0.Final</version>
+	        </dependency>
+	
+	
+	
+	        <dependency>
+	            <groupId>org.hibernate</groupId>
+	            <artifactId>hibernate-core</artifactId>
+	            <version>4.1.4.Final</version>
+	        </dependency>
+	
+	
+	
+	        <dependency>
+	            <groupId>org.slf4j</groupId>
+	            <artifactId>slf4j-api</artifactId>
+	            <version>1.6.1</version>
+	        </dependency>
+	
+	
+	
+	        <dependency>
+	            <groupId>javassist</groupId>
+	            <artifactId>javassist</artifactId>
+	            <version>3.12.0.GA</version>
+	        </dependency>
+	    </dependencies>
+	
+	
+	
+	    <build>
+	        <plugins>
+	            <plugin>
+	                <artifactId>maven-compiler-plugin</artifactId>
+	                <version>3.5.1</version>
+	                <configuration>
+	                    <source>1.6</source>
+	                    <target>1.6</target>
+	                </configuration>
+	            </plugin>
+	        </plugins>
+	    </build>
+</project>
+
+
+hibernate.cfg.xml
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-configuration PUBLIC
+          "-//Hibernate/Hibernate Configuration DTD 3.0//EN"
+          "http://hibernate.sourceforge.net/hibernate-configuration-3.0.dtd">
+
+<hibernate-configuration>
+
+    <session-factory>
+        <property name="hbm2ddl.auto">update</property>
+        <property name="dialect">org.hibernate.dialect.MySQL5Dialect</property>
+        <property name="connection.url">jdbc:mysql://localhost:3306/Hibernate</property>
+        <property name="connection.username">root</property>
+        <property name="connection.password">root</property>
+        <property name="connection.driver_class">com.mysql.jdbc.Driver</property>
+        <property name="show_sql">true</property>
+        <property name="format_sql">true</property>
+        <property name="use_sql_comments">true</property>
+        <mapping class="com.pack.Student"/>
+    </session-factory>
+
+</hibernate-configuration>
+
+
+Student.java
+package com.pack;
+
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.Table;
+
+import org.hibernate.annotations.NamedNativeQueries;
+import org.hibernate.annotations.NamedNativeQuery;
+import org.hibernate.annotations.NamedQueries;
+import org.hibernate.annotations.NamedQuery;
+
+@Entity
+@Table(name="stud2000")
+@NamedQueries({
+	@NamedQuery(name="findStudent",query="from Student st"),
+	@NamedQuery(name="findStudentByName",query="select st.name from Student st where st.id=:stuid")
+})
+@NamedNativeQueries(value= {
+		@NamedNativeQuery(name="findAllStudent",query="select * from stud2000",
+				resultClass=Student.class),
+		@NamedNativeQuery(name="findById",query="select * from stud2000 where id=?",
+		         resultClass=Student.class)
+})
+public class Student {
+   @Id
+   private int id;
+   private String name;
+   private String address;
+   private int age;
+   private String city;
+public int getId() {
+	return id;
+}
+public void setId(int id) {
+	this.id = id;
+}
+public String getName() {
+	return name;
+}
+public void setName(String name) {
+	this.name = name;
+}
+public String getAddress() {
+	return address;
+}
+public void setAddress(String address) {
+	this.address = address;
+}
+public int getAge() {
+	return age;
+}
+public void setAge(int age) {
+	this.age = age;
+}
+public String getCity() {
+	return city;
+}
+public void setCity(String city) {
+	this.city = city;
+}
+public Student(int id, String name, String address, int age, String city) {
+	super();
+	this.id = id;
+	this.name = name;
+	this.address = address;
+	this.age = age;
+	this.city = city;
+}
+public Student() {
+	super();
+	// TODO Auto-generated constructor stub
+}  
+}
+
+
+Main.java
+package com.pack;
+
+import java.util.Iterator;
+import java.util.List;
+
+import org.hibernate.Query;
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
+import org.hibernate.Transaction;
+import org.hibernate.cfg.Configuration;
+
+public class Main {
+
+	public static void main(String[] args) {
+		Configuration c = new Configuration().configure();
+		SessionFactory sf = c.buildSessionFactory();
+		Session s = sf.openSession();
+		Transaction t = s.beginTransaction();
+		
+		/*Student st=new Student();
+		st.setId(105);
+		st.setName("Amy");
+		st.setAge(25);
+		st.setAddress("dil street");
+		st.setCity("Hyderabad");		
+		s.persist(st);*/
+		
+		//1. select all object 
+		/*Query q=s.createQuery("select st from Student st");
+		List l=q.list();
+		Iterator i=l.iterator();
+		while(i.hasNext()) {
+			    Student s1=(Student)i.next();
+			    System.out.println(s1.getId()+" "+s1.getName()+" "+s1.getAge()+" "+s1.getAddress()+
+			    		" "+s1.getCity()+"\n");
+		}
+		*/
+		//2. select specific properties
+		/*Query q1=s.createQuery("select st.name,st.city from Student st");
+		List l1=q1.list();
+		Iterator it=l1.iterator();
+		while(it.hasNext()) {
+			   Object[] o=(Object[])it.next();
+			   System.out.println(o[0]+" "+o[1]);
+		}
+		*/
+		//3. Select single property
+		/*Query q2=s.createQuery("select st.age from Student st");
+		List l2=q2.list();
+		Iterator i2=l2.iterator();
+		while(i2.hasNext()) {
+			     Integer age=(Integer)i2.next();
+			     System.out.println(age);
+		}*/
+		
+		//4. select single object 
+		/*Query q=s.createQuery("select st from Student st where st.id=103");
+		Student s1=(Student)q.uniqueResult();
+		System.out.println(s1.getId()+" "+s1.getName()+" "+s1.getAge()+" "+s1.getAddress()+
+	    		" "+s1.getCity());*/
+		
+		//5. select single property for single object 
+		Query q=s.createQuery("select st.city from Student st where st.id=103");
+		String city=(String)q.uniqueResult();
+		System.out.println(city);
+		
+		
+		t.commit();
+		System.out.println("Inserted");
+		s.close();
+	}
+
+}
+
+
+Main1.java
+package com.pack;
+
+import java.util.Iterator;
+import java.util.List;
+import java.util.Scanner;
+
+import org.hibernate.Query;
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
+import org.hibernate.Transaction;
+import org.hibernate.cfg.Configuration;
+
+public class Main1 {
+
+	public static void main(String[] args) {
+		Configuration c = new Configuration().configure();
+		SessionFactory sf = c.buildSessionFactory();
+		Session s = sf.openSession();
+		Transaction t = s.beginTransaction();
+		
+		Scanner sc=new Scanner(System.in);
+		System.out.println("Enter student id:");
+		int stuid=Integer.parseInt(sc.nextLine());
+		//Named parameter - : with any name
+		/*Query q=s.createQuery("select st from Student st where id=:abc");
+		q.setParameter("abc", stuid);
+		Student st=(Student)q.uniqueResult();
+		System.out.println(st.getName()+" "+st.getAge()+" "+st.getAddress()+" "+st.getCity());*/
+		
+		//Positional parameter -  ?1 etc
+		/*Query q=s.createQuery("select st from Student st where st.id=?0");
+		q.setParameter("0",stuid);	
+		Student st=(Student)q.uniqueResult();
+		System.out.println(st.getName()+" "+st.getAge()+" "+st.getAddress()+" "+st.getCity());*/
+		
+		/*Query q=s.createQuery("update Student st set st.address=:add, st.city=:ct where st.id=:sid");
+		q.setParameter("add", "siva street");
+		q.setParameter("ct", "Goa");
+		q.setParameter("sid", stuid);
+		int result=q.executeUpdate();
+		System.out.println(result);*/
+		
+		/*Query q=s.createQuery("update Student st set st.address=?, st.city=? where st.id=?");
+		q.setParameter(0, "san street");
+		q.setParameter(1, "Assam");
+		q.setParameter(2, stuid);
+		int result=q.executeUpdate();
+		System.out.println(result);*/
+		
+		//Pagination
+		Query q=s.createQuery("select st from Student st");
+		q.setFirstResult(2); //start from 0th position
+		q.setMaxResults(2);
+		List l=q.list();
+		Iterator i=l.iterator();
+		while(i.hasNext()) {
+			    Student st=(Student)i.next();
+			    System.out.println(st.getName()+" "+st.getAddress());
+		}
+		
+		t.commit();
+		
+	}
+
+}
+
+
+Main2.java
+package com.pack;
+
+import java.util.Iterator;
+import java.util.List;
+
+import org.hibernate.Criteria;
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
+import org.hibernate.Transaction;
+import org.hibernate.cfg.Configuration;
+import org.hibernate.criterion.Criterion;
+import org.hibernate.criterion.LogicalExpression;
+import org.hibernate.criterion.Order;
+import org.hibernate.criterion.ProjectionList;
+import org.hibernate.criterion.Projections;
+import org.hibernate.criterion.Restrictions;
+
+public class Main2 {
+
+	public static void main(String[] args) {
+		Configuration c = new Configuration().configure();
+		SessionFactory sf = c.buildSessionFactory();
+		Session s = sf.openSession();
+		Transaction t = s.beginTransaction();
+		
+		/*Criteria cr=s.createCriteria(Student.class);
+		cr.add(Restrictions.lt("age",25));
+		cr.add(Restrictions.le("age", 25));
+		List l=cr.list();
+		Iterator i=l.iterator();
+		while(i.hasNext()) {
+			   Student st=(Student) i.next();
+			   System.out.println(st.getName()+" "+st.getAddress());
+		}*/
+		
+		/*Criteria cr=s.createCriteria(Student.class);
+		Criterion age=Restrictions.gt("age", 24);
+		Criterion name=Restrictions.like("name", "R%");
+		LogicalExpression logExp=Restrictions.or(age, name);
+		cr.add(logExp);
+		cr.addOrder(Order.asc("name"));
+		List l=cr.list();
+		Iterator i=l.iterator();
+		while(i.hasNext()) {
+			   Student st=(Student) i.next();
+			   System.out.println(st.getName()+" "+st.getAddress());
+		}*/
+		
+		//HCQL with Projection - used to select single value- rowCount(), min(), max(), 
+		//avg(), sum(),countDistinct()
+		/*Criteria cr=s.createCriteria(Student.class);
+		//cr.setProjection(Projections.rowCount());
+		cr.setProjection(Projections.max("age"));
+		Object o=cr.uniqueResult();
+		System.out.println(o);*/
+		
+		//HCQL with Projection to get single property from entity class
+		/*Criteria cr=s.createCriteria(Student.class);
+		cr.setProjection(Projections.property("name"));
+		List l=cr.list();
+		Iterator i=l.iterator();
+		while(i.hasNext()) {
+			   String sname=(String)i.next();
+			   System.out.println(sname);
+		}*/
+		
+		//HCQL with Projection to get multiple property from entity class
+		Criteria cr=s.createCriteria(Student.class);
+		ProjectionList p= Projections.projectionList();
+		p.add(Projections.property("name"));
+		p.add(Projections.property("age"));
+		cr.setProjection(p);
+		List l=cr.list();
+		Iterator i=l.iterator();
+		while(i.hasNext()) {
+			  Object[] o=(Object[]) i.next();
+			   System.out.println(o[0]+" "+o[1]);
+			   
+		}
+
+	}
+
+}
+
+
+Main3.java
+package com.pack;
+
+import java.util.Iterator;
+import java.util.List;
+
+import org.hibernate.SQLQuery;
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
+import org.hibernate.Transaction;
+import org.hibernate.cfg.Configuration;
+
+public class Main3 {
+
+	public static void main(String[] args) {
+		Configuration c = new Configuration().configure();
+		SessionFactory sf = c.buildSessionFactory();
+		Session s = sf.openSession();
+		Transaction t = s.beginTransaction();
+		
+		/*SQLQuery q=s.createSQLQuery("select * from stud2000");
+		List l=q.list();
+		Iterator i=l.iterator();
+		while(i.hasNext()) {
+			  Object[] o=(Object[])i.next();
+			  System.out.println(o[0]+" "+o[1]+" "+o[2]+" "+o[3]+" "+o[4]);
+		}*/
+		
+		SQLQuery q=s.createSQLQuery("select * from stud2000");
+		q.addEntity(Student.class);
+		List l=q.list();
+		Iterator i=l.iterator();
+		while(i.hasNext()) {
+			   Student st=(Student)  i.next();
+			   System.out.println(st.getId()+" "+st.getName()+" "+st.getAddress());
+		}
+		
+
+	}
+
+}
+
+
+Main4.java
+package com.pack;
+
+import java.util.Iterator;
+import java.util.List;
+
+import org.hibernate.Query;
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
+import org.hibernate.Transaction;
+import org.hibernate.cfg.Configuration;
+
+public class Main4 {
+
+	public static void main(String[] args) {
+		Configuration c = new Configuration().configure();
+		SessionFactory sf = c.buildSessionFactory();
+		Session s = sf.openSession();
+		Transaction t = s.beginTransaction();
+		
+		/*Query q=s.getNamedQuery("findStudent");
+		List l=q.list();
+		Iterator i=l.iterator();
+		while(i.hasNext()) {
+			       Student st=(Student) i.next();
+			       System.out.println(st.getAddress()+" "+st.getCity()+" "+st.getName());
+		}*/
+		
+		/*Query q=s.getNamedQuery("findStudentByName");
+		q.setParameter("stuid", 100);
+		String str=(String)q.uniqueResult();
+		System.out.println("Name is "+str);*/
+		
+		/*Query q=s.getNamedQuery("findAllStudent");
+		List l=q.list();
+		Iterator i=l.iterator();
+		while(i.hasNext()) {
+			       Student st=(Student) i.next();
+			       System.out.println(st.getAddress()+" "+st.getCity()+" "+st.getName());
+		}*/
+		
+		Query q=s.getNamedQuery("findById");
+		q.setParameter(0, 102);
+		Student st=(Student)q.uniqueResult();
+		System.out.println(st.getAddress()+" "+st.getCity()+" "+st.getName());
+	}
+
+}
+
+
+HibernateCaching
+
+pom.xml
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>com.pack</groupId>
+  <artifactId>HibernateCaching</artifactId>
+  <version>0.0.1-SNAPSHOT</version>
+  <name>HibernateCaching</name>
+   <dependencies>
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+      <version>3.8.1</version>
+      <scope>test</scope>
+    </dependency>
+    
+     <dependency>
+    <groupId>org.hibernate</groupId>
+    <artifactId>hibernate-core</artifactId>
+    <version>5.2.16.Final</version>
+</dependency>
+  
+<dependency>
+    <groupId>net.sf.ehcache</groupId>
+    <artifactId>ehcache</artifactId>
+    <version>2.10.3</version>
+</dependency>
+    <dependency>
+            <groupId>mysql</groupId>
+            <artifactId>mysql-connector-java</artifactId>
+            <version>8.0.11</version>
+        </dependency>
+   
+<dependency>
+    <groupId>org.hibernate</groupId>
+    <artifactId>hibernate-ehcache</artifactId>
+    <version>5.2.16.Final</version>
+</dependency>
+    
+  </dependencies> 
+</project>
+
+
+hibernate.cfg.xml
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-configuration PUBLIC
+          "-//Hibernate/Hibernate Configuration DTD 3.0//EN"
+          "http://hibernate.sourceforge.net/hibernate-configuration-3.0.dtd">
+
+<hibernate-configuration>
+
+    <session-factory>
+        <property name="hbm2ddl.auto">update</property>
+        <property name="dialect">org.hibernate.dialect.MySQL5Dialect</property>
+        <property name="connection.url">jdbc:mysql://localhost:3306/Hibernate</property>
+        <property name="connection.username">root</property>
+        <property name="connection.password">root</property>
+        <property name="connection.driver_class">com.mysql.jdbc.Driver</property>
+        <property name="show_sql">true</property>
+        <property name="format_sql">true</property>
+        <property name="use_sql_comments">true</property>
+        <property name="cache.use_second_level_cache">true</property>
+        <property name="cache.region.factory_class">org.hibernate.cache.ehcache.EhCacheRegionFactory</property>
+        <mapping class="com.pack.Employee"/>
+    </session-factory>
+
+</hibernate-configuration>
+
+
+Employee.java
+package com.pack;
+
+import javax.persistence.Cacheable;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.Table;
+
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
+
+@Entity
+@Table(name="emp7000")
+@Cacheable
+@Cache(usage=CacheConcurrencyStrategy.READ_ONLY)
+public class Employee {
+   @Id
+   private int id;
+   private String name;
+   private double salary;
+public int getId() {
+	return id;
+}
+public void setId(int id) {
+	this.id = id;
+}
+public String getName() {
+	return name;
+}
+public void setName(String name) {
+	this.name = name;
+}
+public double getSalary() {
+	return salary;
+}
+public void setSalary(double salary) {
+	this.salary = salary;
+}
+public Employee(int id, String name, double salary) {
+	super();
+	this.id = id;
+	this.name = name;
+	this.salary = salary;
+}
+public Employee() {
+	super();
+	// TODO Auto-generated constructor stub
+}
+   
+}
+
+
+Main.java
+package com.pack;
+
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
+import org.hibernate.Transaction;
+import org.hibernate.cfg.Configuration;
+
+public class Main {
+
+	public static void main(String[] args) {
+		Configuration cfg=new Configuration().configure();
+		SessionFactory sf=cfg.buildSessionFactory();
+		Session s=sf.openSession();
+		Transaction t=s.beginTransaction();
+		
+		/*Employee e=new Employee();
+		e.setId(1);
+		e.setName("Ram");
+		e.setSalary(20000);
+		s.persist(e);*/
+		
+		Employee e=(Employee)s.get(Employee.class, 1);
+		System.out.println(e.getName());		
+		t.commit();
+		s.close();
+		
+		Session s1=sf.openSession();
+		Transaction t1=s1.beginTransaction();
+		Employee e1=(Employee)s1.get(Employee.class, 1);
+		System.out.println(e1.getName());
+		t1.commit();
+		s1.close();
+
+	}
+
+}
+
+
+JPA
+
+pom.xml
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>com.pack</groupId>
+  <artifactId>JPA</artifactId>
+  <version>0.0.1-SNAPSHOT</version>
+  <name>JPA</name>
+   <dependencies>
+        <dependency>
+            <groupId>mysql</groupId>
+            <artifactId>mysql-connector-java</artifactId>
+            <version>8.0.11</version>
+        </dependency>
+        <dependency>
+            <groupId>org.hibernate.javax.persistence</groupId>
+            <artifactId>hibernate-jpa-2.0-api</artifactId>
+            <version>1.0.1.Final</version>
+        </dependency>
+        <dependency>
+            <groupId>org.hibernate</groupId>
+            <artifactId>hibernate-entitymanager</artifactId>
+            <version>4.0.1.Final</version>
+        </dependency>
+    </dependencies>
+ 
+    <build>
+        <plugins>
+            <plugin>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.5.1</version>
+                <configuration>
+                    <source>1.6</source>
+                    <target>1.6</target>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+</project>
+
+
+persistence.xml
+<?xml version="1.0" encoding="UTF-8"?>
+<persistence xmlns="http://java.sun.com/xml/ns/persistence" version="2.0">
+    <persistence-unit name="person_jpa" transaction-type="RESOURCE_LOCAL">
+       
+
+        <class>com.pack.Person</class>
+        <class>com.pack.Address</class>
+        <class>com.pack.Employee</class>
+        <properties>
+            <property name="javax.persistence.jdbc.url" value="jdbc:mysql://localhost:3306/jpa"/>
+            <property name="javax.persistence.jdbc.driver" value="com.mysql.jdbc.Driver"/>
+            <property name="javax.persistence.jdbc.user" value="root"/>
+            <property name="javax.persistence.jdbc.password" value="root"/>
+
+            <property name="hibernate.dialect" value="org.hibernate.dialect.MySQL5Dialect"/>
+            <property name="hibernate.show_sql" value="true"/>
+            <property name="hibernate.format_sql" value="true"/>
+            <property name="hibernate.hbm2ddl.auto" value="update"/>
+        </properties>
+    </persistence-unit>
+</persistence>
+
+
+Person.java
+package com.pack;
+
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.OneToOne;
+import javax.persistence.Table;
+
+@Entity
+@Table(name="jpa_person_1to1")
+public class Person {
+   @Id
+   @GeneratedValue(strategy=GenerationType.AUTO)
+   private Integer personId;
+   private String name;
+   private Integer age;
+   private Double salary;
+   
+   @OneToOne
+   private Address address;
+   
+   
+   
+public Address getAddress() {
+	return address;
+}
+public void setAddress(Address address) {
+	this.address = address;
+}
+public Integer getPersonId() {
+	return personId;
+}
+public void setPersonId(Integer personId) {
+	this.personId = personId;
+}
+public String getName() {
+	return name;
+}
+public void setName(String name) {
+	this.name = name;
+}
+public Integer getAge() {
+	return age;
+}
+public void setAge(Integer age) {
+	this.age = age;
+}
+public Double getSalary() {
+	return salary;
+}
+public void setSalary(Double salary) {
+	this.salary = salary;
+}
+public Person(Integer personId, String name, Integer age, Double salary) {
+	super();
+	this.personId = personId;
+	this.name = name;
+	this.age = age;
+	this.salary = salary;
+}
+public Person() {
+	super();
+	// TODO Auto-generated constructor stub
+}
+@Override
+public String toString() {
+	return "Person [personId=" + personId + ", name=" + name + ", age=" + age + ", salary=" + salary + "]";
+}
+   
+}
+
+
+Main.java
+package com.pack;
+
+import javax.persistence.EntityManager;
+import javax.persistence.EntityManagerFactory;
+import javax.persistence.Persistence;
+
+public class Main {
+
+	public static void main(String[] args) {
+		EntityManagerFactory emf= Persistence.createEntityManagerFactory("person_jpa");
+		EntityManager em=emf.createEntityManager();
+		em.getTransaction().begin();
+		
+		Person person=new Person();
+		person.setName("Ramu");
+		person.setAge(24);
+		person.setSalary(25000.0);
+		
+		//save the entity
+		em.persist(person);
+		
+		//find the entity
+		Person p1=em.find(Person.class, 1);
+		System.out.println(p1.getName());
+				
+		//Update the entity
+		p1.setName("Rajan");
+		em.persist(p1);
+				
+		//delete the entity
+		//em.remove(p1);
+		
+		em.getTransaction().commit();
+		em.close();
+	}
+
+}
+
+Employee.java
+package com.pack;
+
+import java.util.Arrays;
+import java.util.List;
+
+import javax.persistence.ElementCollection;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+import javax.persistence.OrderColumn;
+import javax.persistence.Table;
+
+@Entity
+@Table(name="emp23")
+public class Employee {
+  @Id
+  @GeneratedValue
+  private long id;
+  private String name;
+  private double salary;
+  private String dept;
+  @ElementCollection
+  @OrderColumn
+  private List<String> phoneNumbers;
+public long getId() {
+	return id;
+}
+public void setId(long id) {
+	this.id = id;
+}
+public String getName() {
+	return name;
+}
+public void setName(String name) {
+	this.name = name;
+}
+public double getSalary() {
+	return salary;
+}
+public void setSalary(double salary) {
+	this.salary = salary;
+}
+public String getDept() {
+	return dept;
+}
+public void setDept(String dept) {
+	this.dept = dept;
+}
+public List<String> getPhoneNumbers() {
+	return phoneNumbers;
+}
+public void setPhoneNumbers(List<String> phoneNumbers) {
+	this.phoneNumbers = phoneNumbers;
+}
+public Employee(long id, String name, double salary, String dept, List<String> phoneNumbers) {
+	super();
+	this.id = id;
+	this.name = name;
+	this.salary = salary;
+	this.dept = dept;
+	this.phoneNumbers = phoneNumbers;
+}
+public Employee() {
+	super();
+	// TODO Auto-generated constructor stub
+}
+public static Employee create(String name, double salary, String dept,
+        String... phones) {
+Employee e = new Employee();
+e.setName(name);
+e.setSalary(salary);
+e.setDept(dept);
+e.setPhoneNumbers(Arrays.asList(phones));
+return e;
+}  
+}
+
+
+
+Main1.java
+package com.pack;
+
+import java.util.Arrays;
+import java.util.List;
+
+import javax.persistence.EntityManager;
+import javax.persistence.EntityManagerFactory;
+import javax.persistence.Persistence;
+import javax.persistence.Query;
+
+
+
+public class Main1 {
+	private static EntityManagerFactory entityManagerFactory =
+	          Persistence.createEntityManagerFactory("person_jpa");
+
+	  public static void main(String[] args) {
+	      try {
+	          persistEmployees();
+	          nativeQuery("Select * FROM emp23");
+	          nativeQuery("Select * FROM Employee_PhoneNumbers");
+	      } finally {
+	          entityManagerFactory.close();
+	      }
+	  }
+
+	  public static void persistEmployees() {
+	      Employee employee1 = Employee.create("Diana", 2000, "IT",
+	               "234", "121");
+	      Employee employee2 = Employee.create("Denise", 2500, "Admin",
+	              "666", "444", "333");
+	      Employee employee3 = Employee.create("Linda", 4500, "Sales",
+	              "555");
+	      EntityManager em = entityManagerFactory.createEntityManager();
+	      em.getTransaction().begin();
+	      em.persist(employee1);
+	      em.persist(employee2);
+	      em.persist(employee3);
+	      em.getTransaction().commit();
+	  }
+
+	  public static void nativeQuery(String s) {
+	      EntityManager em = entityManagerFactory.createEntityManager();
+	      System.out.printf("'%s'%n", s);
+	      Query query = em.createNativeQuery(s);
+	      List list = query.getResultList();
+	      for (Object o : list) {
+	          if (o instanceof Object[]) {
+	              System.out.println(Arrays.toString((Object[]) o));
+	          } else {
+	              System.out.println(o);
+	          }
+	      }
+	      em.close();
+	  }
+}
+
+
+Employee1.java
+package com.pack;
+
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+
+@Entity
+public class Employee1 {
+  @Id
+  @GeneratedValue
+  private long id;
+  private String name;
+  private String dept;
+public long getId() {
+	return id;
+}
+public void setId(long id) {
+	this.id = id;
+}
+public String getName() {
+	return name;
+}
+public void setName(String name) {
+	this.name = name;
+}
+public String getDept() {
+	return dept;
+}
+public void setDept(String dept) {
+	this.dept = dept;
+}
+public Employee1(long id, String name, String dept) {
+	super();
+	this.id = id;
+	this.name = name;
+	this.dept = dept;
+}
+public Employee1() {
+	super();
+	// TODO Auto-generated constructor stub
+}
+    
+}
+
+Main2.java
+package com.pack;
+
+import java.util.List;
+
+import javax.persistence.EntityManager;
+import javax.persistence.EntityManagerFactory;
+import javax.persistence.Persistence;
+
+public class Main2 {
+	public static void main(String[] args) {
+		  EntityManagerFactory emf =
+	              Persistence.createEntityManagerFactory("person_jpa");
+		  Employee1 e = new Employee1();
+	      e.setName("Jackie");
+	      e.setDept("Account");
+	      System.out.println("-- Persisting entity --");
+	      System.out.println(e);
+
+	      EntityManager em = emf.createEntityManager();
+	      em.getTransaction().begin();
+	      em.persist(e);
+	      //need flush before detaching so changes made so far will
+	      //be synchronized to the database
+	      em.flush();
+	      //manually detaching
+	      em.clear();
+	      //this will not synchronized to the database
+	      e.setDept("Admin");
+	      em.getTransaction().commit();
+	      em.close();
+	}
+}
+
+
+Address.java
+package com.pack;
+
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.Table;
+
+@Entity
+@Table(name="jpa_addr")
+public class Address {
+
+	@Id
+	@GeneratedValue(strategy=GenerationType.AUTO)
+	private Integer id;
+	private String street;
+	private String city;
+	public Integer getId() {
+		return id;
+	}
+	public void setId(Integer id) {
+		this.id = id;
+	}
+	public String getStreet() {
+		return street;
+	}
+	public void setStreet(String street) {
+		this.street = street;
+	}
+	public String getCity() {
+		return city;
+	}
+	public void setCity(String city) {
+		this.city = city;
+	}
+	public Address(Integer id, String street, String city) {
+		super();
+		this.id = id;
+		this.street = street;
+		this.city = city;
+	}
+	public Address() {
+		super();
+		// TODO Auto-generated constructor stub
+	}
+	
+	
+}
+
+
+OneToOneMain.java
+package com.pack;
+
+import javax.persistence.EntityManager;
+import javax.persistence.EntityManagerFactory;
+import javax.persistence.Persistence;
+
+public class OneToOneMain {
+
+	public static void main(String[] args) {
+		EntityManagerFactory emf= Persistence.createEntityManagerFactory("person_jpa");
+		EntityManager em=emf.createEntityManager();
+		em.getTransaction().begin();
+		
+		Person person=new Person();
+		person.setName("Ramu");
+		person.setAge(24);
+		person.setSalary(25000.0);
+		
+		Address addr=new Address();
+		addr.setStreet("PKD");
+		addr.setCity("Chennai");
+		
+		person.setAddress(addr);
+		
+		em.persist(addr);
+		em.persist(person);
+		
+		em.getTransaction().commit();
+		em.close();
+
+	}
+
+}
+
+JPAQLMain.java
+package com.pack;
+
+import java.util.List;
+
+import javax.persistence.EntityManager;
+import javax.persistence.EntityManagerFactory;
+import javax.persistence.Persistence;
+import javax.persistence.Query;
+
+public class JPAQLMain {
+
+	public static void main(String[] args) {
+	
+		EntityManagerFactory emf= Persistence.createEntityManagerFactory("person_jpa");
+		EntityManager em=emf.createEntityManager();
+		em.getTransaction().begin();
+		
+		//Find name using JPAql
+		Query query = em.createQuery("select p.name from Person p");
+	    List<String> list=query.getResultList();
+	    for(String s1:list)
+	    	System.out.println(s1);
+	    
+	    /*query = em.createQuery("update Person p set p.salary =:sal where p.id=:pid");
+	    query.setParameter("sal", 40000.0);
+	    query.setParameter("pid", 2);*/
+	    
+	    query = em.createQuery("update Person p set p.salary =?1 where p.id=?2");
+	    query.setParameter(1, 50000.0);
+	    query.setParameter(2, 2);
+	    int i=query.executeUpdate();
+	    
+	    
+	    query = em.createQuery("Select count(p) from Person p");
+	    long count=(Long) query.getSingleResult();
+        System.out.println(count);
+	}
+
+}
+
+
