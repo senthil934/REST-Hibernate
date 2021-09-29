@@ -1,0 +1,883 @@
+SpringHibernateIntegration
+
+pom.xml
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>com.pack</groupId>
+  <artifactId>SpringHibernateIntegration</artifactId>
+  <version>0.0.1-SNAPSHOT</version>
+  <packaging>war</packaging>
+  <name>SpringHibernateIntegration</name>
+   <properties>
+		<java.version>1.8</java.version>
+		<springframework.version>4.3.11.RELEASE</springframework.version>
+		<hibernate.version>4.3.6.Final</hibernate.version>
+		<mysql.version>8.0.19</mysql.version>
+		<testng.version>6.9.4</testng.version>
+		<mockito.version>1.10.19</mockito.version>
+		<org.aspectj-version>1.7.4</org.aspectj-version>
+		<org.slf4j-version>1.7.5</org.slf4j-version>
+		
+	</properties>
+	<dependencies>
+		<!-- Spring -->
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-core</artifactId>
+			<version>${springframework.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.hamcrest</groupId>
+			<artifactId>hamcrest-library</artifactId>
+			<version>1.3</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>com.fasterxml.jackson.core</groupId>
+			<artifactId>jackson-databind</artifactId>
+			<version>2.9.4</version>
+		</dependency>
+		<dependency>
+			<groupId>com.fasterxml.jackson.core</groupId>
+			<artifactId>jackson-annotations</artifactId>
+			<version>2.9.4</version>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-web</artifactId>
+			<version>${springframework.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-webmvc</artifactId>
+			<version>${springframework.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-tx</artifactId>
+			<version>${springframework.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-orm</artifactId>
+			<version>${springframework.version}</version>
+		</dependency>
+
+		<!-- Hibernate -->
+		<dependency>
+			<groupId>org.hibernate</groupId>
+			<artifactId>hibernate-core</artifactId>
+			<version>${hibernate.version}</version>
+		</dependency>
+
+		<!-- jsr303 validation -->
+		<dependency>
+			<groupId>javax.validation</groupId>
+			<artifactId>validation-api</artifactId>
+			<version>1.1.0.Final</version>
+		</dependency>
+		<dependency>
+			<groupId>org.hibernate</groupId>
+			<artifactId>hibernate-validator</artifactId>
+			<version>5.1.3.Final</version>
+		</dependency>
+
+		<!-- MySQL -->
+		<dependency>
+			<groupId>mysql</groupId>
+			<artifactId>mysql-connector-java</artifactId>
+			<version>${mysql.version}</version>
+		</dependency>
+
+
+		<!-- Servlet+JSP+JSTL -->
+		<dependency>
+			<groupId>javax.servlet</groupId>
+			<artifactId>javax.servlet-api</artifactId>
+			<version>3.1.0</version>
+		</dependency>
+		<dependency>
+			<groupId>javax.servlet.jsp</groupId>
+			<artifactId>javax.servlet.jsp-api</artifactId>
+			<version>2.3.1</version>
+		</dependency>
+		<dependency>
+			<groupId>javax.servlet</groupId>
+			<artifactId>jstl</artifactId>
+			<version>1.2</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.commons</groupId>
+			<artifactId>commons-dbcp2</artifactId>
+			<version>2.0</version>
+		</dependency>
+
+		<!-- Logging -->
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-api</artifactId>
+			<version>${org.slf4j-version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>jcl-over-slf4j</artifactId>
+			<version>${org.slf4j-version}</version>
+			<scope>runtime</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-log4j12</artifactId>
+			<version>${org.slf4j-version}</version>
+			<scope>runtime</scope>
+		</dependency>
+		<!-- https://mvnrepository.com/artifact/log4j/log4j -->
+		<dependency>
+			<groupId>log4j</groupId>
+			<artifactId>log4j</artifactId>
+			<version>1.2.17</version>
+		</dependency>
+        <dependency>
+			<groupId>commons-dbcp</groupId>
+			<artifactId>commons-dbcp</artifactId>
+			<version>1.4</version>
+		</dependency>
+		<!-- Testing dependencies -->
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-test</artifactId>
+			<version>${springframework.version}</version>
+			<scope>test</scope>
+		</dependency>
+		<!-- https://mvnrepository.com/artifact/junit/junit -->
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<version>4.12</version>
+			<scope>test</scope>
+		</dependency>
+		
+		<dependency>
+			<groupId>org.mockito</groupId>
+			<artifactId>mockito-all</artifactId>
+			<version>${mockito.version}</version>
+			<scope>test</scope>
+		</dependency>
+
+		<!-- https://mvnrepository.com/artifact/org.sonarsource.scanner.maven/sonar-maven-plugin -->
+
+	</dependencies>
+	
+
+	<build>
+		<pluginManagement>
+			<plugins>
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-surefire-plugin</artifactId>
+					<version>2.19.1</version>
+					<configuration>
+    <additionalClasspathElements>
+      <additionalClasspathElement>${basedir}/src/test/resources</additionalClasspathElement>
+    </additionalClasspathElements>
+</configuration>
+				</plugin>
+
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-compiler-plugin</artifactId>
+					<version>3.8.1</version>
+					<configuration>
+						<source>1.8</source>
+						<target>1.8</target>
+					</configuration>
+				</plugin>
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-war-plugin</artifactId>
+					<version>2.4</version>
+					<configuration>
+						<!-- <warSourceDirectory>src/main/webapp</warSourceDirectory> <warName>EmployeeManagement</warName> -->
+						<failOnMissingWebXml>false</failOnMissingWebXml>
+					</configuration>
+				</plugin>
+			</plugins>
+		</pluginManagement>
+		<finalName>SpringHibernateIntegration</finalName>
+	</build>
+</project>
+
+
+jdbc.properties
+jdbc.driverClassName=com.mysql.jdbc.Driver
+jdbc.dialect=org.hibernate.dialect.MySQLDialect
+jdbc.databaseurl=jdbc:mysql://localhost:3306/Hibernate?useSSL=false
+jdbc.username=root
+jdbc.password=root
+
+
+web.xml
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns="http://java.sun.com/xml/ns/javaee"
+       xmlns:web="http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd"
+       xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd"
+       id="WebApp_ID" version="2.5">
+       <display-name>SpringExample11</display-name>
+       <servlet>
+              <servlet-name>appServlet</servlet-name>
+              <servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
+              <init-param>
+                 <param-name>contextConfigLocation</param-name>
+                 <param-value>/WEB-INF/spring/dispatcher-servlet.xml</param-value>
+              </init-param>
+              <load-on-startup>1</load-on-startup>
+       </servlet>
+       <servlet-mapping>
+              <servlet-name>appServlet</servlet-name>
+              <url-pattern>/</url-pattern>
+       </servlet-mapping>
+
+</web-app>
+
+
+dispatcher-servlet.xml
+<?xml version="1.0" encoding="UTF-8"?>
+<beans:beans
+       xmlns="http://www.springframework.org/schema/mvc"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:beans="http://www.springframework.org/schema/beans"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:tx="http://www.springframework.org/schema/tx"
+       xmlns:p="http://www.springframework.org/schema/p"
+       xmlns:mvc="http://www.springframework.org/schema/mvc"
+       xsi:schemaLocation="http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc.xsd
+              http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+              http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
+              http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-4.0.xsd
+              http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc-3.0.xsd">
+
+
+       <context:component-scan base-package="com.pack"/>
+       
+       <beans:bean
+		class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+		<beans:property name="prefix" value="/WEB-INF/jsp/" />
+		<beans:property name="suffix" value=".jsp" />
+	   </beans:bean>
+	   
+	   <mvc:annotation-driven/>
+	   
+	   <beans:bean id="propertyConfigurer"
+		class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+		<beans:property name="location"
+			value="/WEB-INF/jdbc.properties"></beans:property>
+	   </beans:bean>
+	   
+	 <beans:bean id="dataSource"
+		class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
+		<beans:property name="driverClassName" value="${jdbc.driverClassName}" />
+		<beans:property name="url" value="${jdbc.databaseurl}" />
+		<beans:property name="username" value="${jdbc.username}" />
+		<beans:property name="password" value="${jdbc.password}" />
+	 </beans:bean>
+	 
+	 <beans:bean id="sessionFactory"
+		class="org.springframework.orm.hibernate4.LocalSessionFactoryBean">
+		<beans:property name="dataSource" ref="dataSource" />
+		<beans:property name="annotatedClasses">
+			<beans:list>
+				<beans:value>com.pack.model.Employee</beans:value>
+			</beans:list>
+		</beans:property>
+		<beans:property name="hibernateProperties">
+			<beans:props>
+				<beans:prop key="hibernate.dialect">org.hibernate.dialect.MySQLDialect
+				</beans:prop>
+				<beans:prop key="hibernate.show_sql">true</beans:prop>
+				<beans:prop key="hibernate.hbm2ddl.auto">update</beans:prop>
+			</beans:props>
+		</beans:property>
+	</beans:bean>
+	
+	<tx:annotation-driven
+		transaction-manager="transactionManager" />
+
+	<beans:bean id="transactionManager"
+		class="org.springframework.orm.hibernate4.HibernateTransactionManager">
+		<beans:property name="sessionFactory"
+			ref="sessionFactory" />
+	</beans:bean>
+	
+	<beans:bean id="messageSource"
+		class="org.springframework.context.support.ReloadableResourceBundleMessageSource">
+		<beans:property name="basename" value="classpath:messages" />
+	</beans:bean>
+
+</beans:beans>
+
+
+EmployeeRegister.java
+<%@ page language="java" contentType="text/html; charset=ISO-8859-1"
+    pageEncoding="ISO-8859-1"%>
+    <%@ taglib uri="http://www.springframework.org/tags/form" prefix="form" %>
+    <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+<title>Employee Registration Page</title>
+</head>
+<body>
+<h3>Employee Registration form</h3>
+<c:url var="empAction" value="/insertEmp"/>
+<form:form action="${empAction}" method="post" modelAttribute="employeeForm">
+<table>
+  <tr>
+     <td>Employee Name:</td>
+     <td><form:input type="text" path="name"/><font color="red"><form:errors path="name"/></font></td>
+  </tr>
+  <tr>
+     <td>Employee Age:</td>
+     <td><form:input type="text" path="age"/><font color="red"><form:errors path="age"/></font></td>
+  </tr>
+  <tr>
+     <td>Address:</td>
+     <td><form:input type="text" path="address"/><font color="red"><form:errors path="address"/></font></td>
+  </tr>
+  <tr>
+     <td>Gender</td>
+     <td><form:radiobutton path="gender" value="male"/>Male
+         <form:radiobutton path="gender" value="female"/>Female
+         <font color="red"><form:errors path="gender"/></font>
+     </td>
+  </tr>
+   <tr>
+     <td>Date of Join:</td>
+     <td><form:input type="date" path="doj"/><font color="red"><form:errors path="doj"/></font></td>
+  </tr>
+   <tr>
+     <td>Email:</td>
+     <td><form:input type="email" path="email"/><font color="red"><form:errors path="email"/></font></td>
+  </tr>
+   <tr>
+     <td><input type="submit" value="Add Employee"/></td>
+     <td><input type="reset" value="Cancel"/></td>
+  </tr>
+</table>
+</form:form>
+</body>
+</html>
+
+
+EmployeeSuccess.jsp
+<%@ page language="java" contentType="text/html; charset=ISO-8859-1"
+    pageEncoding="ISO-8859-1"%>
+    <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+<title>Insert title here</title>
+
+</head>
+<body>
+<h1>Employee Details</h1>
+<table border="1">
+<tr>
+   <th>Employee Id</th>
+   <th>Name</th>
+   <th>Age</th>
+   <th>Address</th>
+   <th>Gender</th>
+   <th>Date of Join</th>
+   <th>Email</th>
+   <th>Action</th>
+</tr>
+<c:forEach items="${employeeList}" var="empl">
+<tr>
+   <td>${empl.employeeid}</td>
+   <td>${empl.name}</td>
+   <td>${empl.age}</td>
+   <td>${empl.address}</td>
+   <td>${empl.gender}</td>
+   <td>${empl.doj}</td>
+   <td>${empl.email}</td>
+   <td><a href="<c:url value='/fetchById/${empl.employeeid}'/>">Edit</a>
+   <a href="<c:url value='/deleteEmp/${empl.employeeid}'/>">Delete</a></td>
+</tr>
+</c:forEach>
+</table>
+
+</body>
+</html>
+
+
+
+EmployeeUpdate.jsp
+<%@ page language="java" contentType="text/html; charset=ISO-8859-1"
+    pageEncoding="ISO-8859-1"%>
+    <%@ taglib uri="http://www.springframework.org/tags/form" prefix="form" %>
+    <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+<title>Employee Updation Page</title>
+</head>
+<body>
+<h3>Employee Updation Details</h3>
+<c:url var="updateaction" value="/updateEmp"/>
+<form:form action="${updateaction}" method="post" modelAttribute="editForm">
+<table>
+ <tr>
+    <td>Employee Id:</td>
+    <td><form:input type="text" path="employeeid" readonly="true"/></td>
+ </tr>
+ <tr>
+    <td>Employee name:</td>
+    <td><form:input type="text" path="name"/><font color="red"><form:errors path="name"/></font></td>
+ </tr>
+ <tr>
+    <td>Age:</td>
+    <td><form:input type="text" path="age" readonly="true"/></td>
+ </tr>
+ <tr>
+    <td>Address:</td>
+    <td><form:input type="text" path="address"/><font color="red"><form:errors path="address"/></font></td>
+ </tr>
+ <tr>
+    <td>Gender</td>
+    <td><form:radiobutton path="gender" value="male" onclick="return false"/>Male
+        <form:radiobutton path="gender" value="female" onclick="return false"/>Female
+    </td>
+ </tr>
+ <tr>
+    <td>Date of Join:</td>
+    <td><form:input type="date" path="doj" /><font color="red"><form:errors path="doj"/></font></td>
+ </tr>
+ <tr>
+    <td>Email</td>
+    <td><form:input type="text" path="email" /><font color="red"><form:errors path="email"/></font></td>
+ </tr>
+ <tr>
+    <td><input type="submit" value="Update Employee"/></td>
+ </tr>
+</table>
+</form:form>
+</body>
+</html>
+
+
+messages.properties
+NotEmpty.employeeForm.name=*Name should not be empty
+Size.employeeForm.name=*Name should be between {1} and {2} characters
+NotNull.employeeForm.age=*Age should not be empty
+Min.employeeForm.age=*Age should not less than {1} years
+Max.employeeForm.age=*Age should not more than {1} years
+NotEmpty.employeeForm.address=*Address should not be empty
+NotEmpty.employeeForm.gender=*Please select any one gender
+NotNull.employeeForm.doj=*Please select proper date of join
+NotEmpty.employeeForm.email=*Email should not be empty
+Email.employeeForm.email=*Please enter valid email
+
+
+log4j.xml
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE log4j:configuration PUBLIC "-//APACHE//DTD LOG4J 1.2//EN" "log4j.dtd">
+<log4j:configuration xmlns:log4j="http://jakarta.apache.org/log4j/">
+
+<appender name="console" class="org.apache.log4j.ConsoleAppender">
+<param name="Target" value="System.out"/>
+<layout class="org.apache.log4j.PatternLayout">
+<param name="ConversionPattern" value="%d{yyyy-MM-dd HH:mm:ss} %-5p %c{1}:%L - %m%n" />
+</layout>
+</appender>
+
+<appender name="fileAppender" class="org.apache.log4j.RollingFileAppender">
+<param name="File" value="demoApplication.log"/>
+<layout class="org.apache.log4j.PatternLayout">
+<param name="ConversionPattern" value="%d{yyyy-MM-dd HH:mm:ss} %-5p %c{1}:%L - %m%n" />
+</layout>
+</appender>
+
+<logger name="com.pack">
+<level value="info" />
+</logger>
+
+<!-- 3rdparty Loggers -->
+<logger name="org.springframework.core">
+<level value="info" />
+</logger>
+
+<logger name="org.hibernate">
+<level value="info" />
+</logger>
+
+<logger name="org.springframework.beans">
+<level value="info" />
+</logger>
+
+<logger name="org.springframework.context">
+<level value="info" />
+</logger>
+
+<logger name="org.springframework.web">
+<level value="info" />
+</logger>
+
+<!-- Root Logger -->
+<root>
+<priority value="warn" />
+<appender-ref ref="console" />
+<appender-ref ref="fileAppender" />
+</root>
+
+</log4j:configuration>
+
+
+
+EmployeeController.java
+package com.pack.controller;
+
+import java.util.List;
+import java.util.Random;
+
+import org.apache.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.ModelMap;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+
+import com.pack.model.Employee;
+import com.pack.service.EmployeeService;
+
+@Controller
+public class EmployeeController {
+	
+	Logger logger=Logger.getLogger(EmployeeController.class);
+	
+	@Autowired
+	private EmployeeService employeeService;
+	
+	@RequestMapping(value="/")
+	public String employeeRegistrationPage(ModelMap map) {
+		logger.info("Inside employeeRegistrationPage()");
+		Employee employee = new Employee();
+		map.addAttribute("employeeForm",employee);
+		return "EmployeeRegister";
+	}
+	
+	@RequestMapping(value="/insertEmp",method=RequestMethod.POST)
+	public String saveEmployee(@Validated @ModelAttribute("employeeForm")Employee empl,
+			BindingResult result,ModelMap map) {
+		logger.info("Inside saveEmployee()");
+		String response="";
+		if(result.hasErrors()) {
+			response="EmployeeRegister";
+		}
+		else {
+			Random r=new Random();
+			int empid=r.nextInt(99999)+10000;
+			empl.setEmployeeid(empid);
+			employeeService.insertEmployee(empl);
+			List<Employee> empList=employeeService.fetchAllEmployee();
+			map.addAttribute("employeeList",empList);
+			response="EmployeeSuccess";
+		}
+		return response;
+	}
+	
+	@RequestMapping(value="/deleteEmp/{id}")
+	public String deleteEmployee(@PathVariable("id") Integer empId,ModelMap map) {
+		logger.info("Inside deleteEmployee()");
+		 employeeService.deleteEmployee(empId);
+		 List<Employee> empList=employeeService.fetchAllEmployee();
+		 map.addAttribute("employeeList",empList);
+		 return "EmployeeSuccess";
+	}
+	
+	@RequestMapping(value="/fetchById/{eid}")
+	public String fetchEmployeeById(@PathVariable("eid") Integer empId,ModelMap map) {
+		logger.info("Inside fetchEmployeeById()");
+		 Employee employee=employeeService.fetchEmployeeById(empId);
+		 map.addAttribute("editForm", employee);
+		 return "EmployeeUpdate";
+	}
+	
+	@RequestMapping(value="/updateEmp",method=RequestMethod.POST)
+	public String updateEmployee(@Validated @ModelAttribute("editForm")Employee emp,
+			BindingResult result,ModelMap map) {
+		logger.info("Inside updateEmployee()");
+		String response="";
+		if(result.hasErrors()) {
+			response="EmployeeUpdate";
+		}
+		else {
+		   employeeService.updateEmployee(emp);
+		   List<Employee> empList=employeeService.fetchAllEmployee();
+		   map.addAttribute("employeeList",empList);
+		   return "EmployeeSuccess";
+		}
+		return response;
+	}
+
+}
+
+
+EmployeeDao.java
+package com.pack.dao;
+
+import java.util.List;
+
+import com.pack.model.Employee;
+
+public interface EmployeeDao {
+  public void insertEmployee(Employee emp);
+  public List<Employee> fetchAllEmployee();
+  public void deleteEmployee(int empId);
+  public Employee fetchEmployeeById(Integer empId);
+  public void updateEmployee(Employee emp);
+}
+
+
+EmployeeDaoImpl.java
+package com.pack.dao;
+
+import java.util.List;
+
+import org.apache.log4j.Logger;
+import org.hibernate.Query;
+import org.hibernate.SessionFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.pack.model.Employee;
+
+@Repository
+@Transactional
+public class EmployeeDaoImpl implements EmployeeDao{
+	
+	Logger logger=Logger.getLogger(EmployeeDaoImpl.class);
+	
+	@Autowired
+	private SessionFactory sessionFactory;
+
+	@Override
+	public void insertEmployee(Employee emp) {
+		logger.info("Inside insertEmployee() dao");
+		sessionFactory.getCurrentSession().save(emp);
+	}
+
+	@Override
+	public List<Employee> fetchAllEmployee() {
+		logger.info("Inside fetchAllEmployee() dao");
+		Query query=sessionFactory.getCurrentSession().createQuery("select e from Employee e");
+		List elist=query.list();
+		return elist;
+	}
+
+	@Override
+	public void deleteEmployee(int empId) {
+		logger.info("Inside deleteEmployee() dao");
+        Employee emp=(Employee)sessionFactory.getCurrentSession().get(Employee.class,empId);
+        sessionFactory.getCurrentSession().delete(emp);
+        
+        //Query q=sessionFactory.getCurrentSession.
+                 //createQuery("delete from Employee e where e.employeeid=?");
+        //q.setParameter(0,empId);
+        //q.executeUpdate();
+    }
+
+	@Override
+	public Employee fetchEmployeeById(Integer empId) {
+		logger.info("Inside fetchEmployeeById() dao");
+		Employee emp=(Employee)sessionFactory.getCurrentSession().get(Employee.class,empId);
+		return emp;
+	}
+
+	@Override
+	public void updateEmployee(Employee emp) {
+		logger.info("Inside updateEmployee() dao");
+		sessionFactory.getCurrentSession().update(emp);
+	}
+
+}
+
+
+Employee.java
+package com.pack.model;
+
+import java.util.Date;
+
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.Table;
+import javax.validation.constraints.Max;
+import javax.validation.constraints.Min;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
+
+import org.hibernate.validator.constraints.Email;
+import org.hibernate.validator.constraints.NotEmpty;
+import org.springframework.format.annotation.DateTimeFormat;
+
+@Entity
+@Table(name="emp3000")
+public class Employee {
+   @Id
+   private Integer employeeid;
+   @NotEmpty
+   @Size(min=6,max=25)
+   private String name;
+   @NotNull
+   @Min(value=20)
+   @Max(value=50)
+   private Integer age;
+   @NotEmpty
+   private String address;
+   @NotEmpty
+   private String gender;
+   @NotNull
+   @DateTimeFormat(pattern = "yyyy-MM-dd")
+   private Date doj;
+   @NotEmpty
+   @Email
+   private String email;
+public Integer getEmployeeid() {
+	return employeeid;
+}
+public void setEmployeeid(Integer employeeid) {
+	this.employeeid = employeeid;
+}
+public String getName() {
+	return name;
+}
+public void setName(String name) {
+	this.name = name;
+}
+public Integer getAge() {
+	return age;
+}
+public void setAge(Integer age) {
+	this.age = age;
+}
+public String getAddress() {
+	return address;
+}
+public void setAddress(String address) {
+	this.address = address;
+}
+public String getGender() {
+	return gender;
+}
+public void setGender(String gender) {
+	this.gender = gender;
+}
+public Date getDoj() {
+	return doj;
+}
+public void setDoj(Date doj) {
+	this.doj = doj;
+}
+public String getEmail() {
+	return email;
+}
+public void setEmail(String email) {
+	this.email = email;
+}
+public Employee(Integer employeeid, String name, Integer age, String address, String gender, Date doj, String email) {
+	super();
+	this.employeeid = employeeid;
+	this.name = name;
+	this.age = age;
+	this.address = address;
+	this.gender = gender;
+	this.doj = doj;
+	this.email = email;
+}
+public Employee() {
+	super();
+	// TODO Auto-generated constructor stub
+}
+   
+}
+
+
+EmployeeService.java
+package com.pack.service;
+
+import java.util.List;
+
+import com.pack.model.Employee;
+
+public interface EmployeeService {
+   public void insertEmployee(Employee empl);
+   public List<Employee> fetchAllEmployee();
+   public void deleteEmployee(int empId);
+   public Employee fetchEmployeeById(Integer empId);
+   public void updateEmployee(Employee emp);
+}
+
+
+EmployeeServiceImpl.java
+package com.pack.service;
+
+import java.util.List;
+
+import org.apache.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.pack.dao.EmployeeDao;
+import com.pack.model.Employee;
+
+@Service
+@Transactional
+public class EmployeeServiceImpl implements EmployeeService {
+	
+	Logger logger=Logger.getLogger(EmployeeServiceImpl.class);
+	
+	@Autowired
+	private EmployeeDao employeeDao;
+
+	@Override
+	public void insertEmployee(Employee empl) {
+		logger.info("Inside insertEmployee() service");
+		employeeDao.insertEmployee(empl);
+	}
+
+	@Override
+	public List<Employee> fetchAllEmployee() {
+		logger.info("Inside fetchAllEmployee() service");
+		List<Employee> empList=employeeDao.fetchAllEmployee();
+		return empList;
+	}
+
+	@Override
+	public void deleteEmployee(int empId) {
+		logger.info("Inside deleteEmployee() service");
+		employeeDao.deleteEmployee(empId);
+	}
+
+	@Override
+	public Employee fetchEmployeeById(Integer empId) {
+		logger.info("Inside fetchEmployeeById() service");
+	    Employee emp=employeeDao.fetchEmployeeById(empId);
+		return emp;
+	}
+
+	@Override
+	public void updateEmployee(Employee emp) {
+		logger.info("Inside updateEmployee() service");
+		employeeDao.updateEmployee(emp);
+	}
+
+}
+
