@@ -1,0 +1,180 @@
+Sonarqube
+   - It is open source continuous code quality integration tool with which we can identify code vulnerabilities, the bugs and the code quality 
+   - It can track all the repositories at a common place, u can have a profile set in sonarqube and based on that profile ur code will be scanned and then ur vulnerabilities will be identified
+   - written in java lang and support for various lang like c#,PHP,Ruby to do code quality
+   - If we use Sonarqube 5 yrs back, they dont have  online version, but right now they have online version, called https://sonarcloud.io where u can have ur open source project configured for free and publish ur stats into that particular sonar instance.
+   Click Explore, we can see code quality of different projects published by different open source contributors across the world
+   - provides reports of code quality issues such as duplicate code, how many unit test case are in project and what is % of unit test case failed or success
+   - provides information about code coverage which tells what % of code is covered by test cases whether it is integration or unit test cases
+   - provides report about code complexity which tells whatever coding we have done is in simplied manner or complex way
+    - Provides historical report (ie) when u run sonarqube it provides report and based on the report developer or manager takes corrective action. Once u fix those issue,again second time if we run the sonarqube,it is going to give the comparison with historical report with current report, so that whatever changes have done by developer really improved the code quality or not.
+   - support with other tools like ANT, Maven and Gradle 
+   - SonarLint plugin in eclipse - the developer can analyze the code quality in development itself
+
+
+
+SonarQube server is central processing unit to process the analysis provided by the sonar runner. Sonar runner is tool which actually analyse your project code and send the report to sonarqube server to process the results.
+
+
+There are three types of issues:  https://rules.sonarsource.com/java/type/Code%20Smell
+
+Bug – A coding error that will break your code and needs to be fixed immediately.
+Vulnerability – A point in your code that's open to attack.
+Code Smell – A maintainability issue that makes your code confusing and difficult to maintain. 
+eg: 
+1. Methods should not return constants
+2. "catch" clauses should do more than rethrow
+3. The diamond operator ("<>") should be used
+
+
+The SonarQube platform consists of five components: analyzers, server, plugins installed on the server, database, and sonarqube scanner (higher version) or runner(lower version)
+
+When we run mvn sonar:sonar, Analyzers are responsible for running line-by-line code analysis. They can provide information about technical debt, code coverage, code complexity, detected problems, etc. The problems, detected in code, can be some bugs, potential bugs, things that can lead to mistakes in future, etc. When the analysis is done, the results can be viewed on the web page hosted by SonarQube web server and store inside the database(by default H2 database)
+
+Sonarqube scanner used to run ur sonarqube analyser.So when u run mvn sonar:sonar, the scanner will be enable by default and ask analyser to analysis entire code and after that generate the report to server and then store in to database.
+
+severity: Blocker, Critical, Major, Minor and Info
+
+The great thing about SonarQube is that all the data is stored in relational database with which all the developers are generally familiar. The database of our choice was a MySQL database. Primarily, this happened because we are avoid supporters of open source technologies. If you have other preferences when it comes to databases or you have more experience in working with another database, some of supported databases are: PostgreSQL, Oracle, etc.
+
+
+Sonarqube - it is on-premises tool (ie) if u want to embed with maven or gradle u have to just add dependency, so that inside ur maven or gradle appl we can use sonarqube
+Sonarlint - separate IDE to check code coverage like eclipse
+Sonar cloud - in cloud environment we want to check static code analysis
+
+Example:
+
+1. Start the sonarqube - Go to C:\Softwares\sonarqube-7.0\bin\windows-x86-64 and click startsonar
+
+2. Create simple maven project 
+New - Maven Project - Next - Catalog: Internal - Select maven-archetype-quickstart
+
+3. In pom.xml we add junit5 and sonar plugin 
+ <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <java.version>1.8</java.version>
+        <junit.jupiter.version>5.0.0-M3</junit.jupiter.version>
+        <junit.platform.version>1.0.0-M3</junit.platform.version>
+    </properties>
+
+    <build>
+        <plugins>
+            <plugin>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.1</version>
+                <configuration>
+                    <source>${java.version}</source>
+                    <target>${java.version}</target>
+                </configuration>
+            </plugin>
+            <plugin>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>2.19</version>
+                <dependencies>
+                    <dependency>
+                        <groupId>org.junit.platform</groupId>
+                        <artifactId>junit-platform-surefire-provider</artifactId>
+                        <version>1.0.0-M3</version>
+                    </dependency>
+                </dependencies>
+            </plugin>
+            <plugin>
+               <groupId>org.sonarsource.scanner.maven</groupId>
+<artifactId>sonar-maven-plugin</artifactId>
+<version>3.3.0.603</version>
+       </plugin>
+        </plugins>
+    </build>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-engine</artifactId>
+            <version>5.0.0-M3</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.junit.platform</groupId>
+            <artifactId>junit-platform-runner</artifactId>
+            <version>${junit.platform.version}</version>
+        </dependency>
+
+    </dependencies>
+
+4. Create App.java
+
+public class App {
+	public static void main(String[] args) {
+		System.out.println("Hello World!");
+	}
+
+	class A {
+		private String TEST = "";
+
+		A() {
+
+		}
+
+		public void show(int num) {
+			num = 10;
+			if (num == 0) {
+				System.out.println("Zero");
+			}
+		}
+	}
+}
+
+5. Once we add sonar plugin, maven will provide a task called sonar:sonar 
+   >mvn clean install
+   >mvn sonar:sonar 
+
+6. Copy the link from sonar to see sonarqube dashboard of that project
+   Goto Issues and check what are the issues 
+
+7. In order to go for code coverage we can go for JACOCO(Java Code Coverage) plugin. We add jacoco plugin in pom.xml
+
+<plugin>
+   <groupId>org.jacoco</groupId>
+   <artifactId>jacoco-maven-plugin</artifactId>
+   <version>0.7.9</version>
+</plugin>
+
+8. To lanuch jacoco as part of maven build we run
+>mvn clean org.jacoco:jacoco-maven-plugin:prepare-agent install
+
+Now it will create jacoco.exec inside target folder of our project 
+
+9. Now run >mvn sonar:sonar
+It will display the code coverage in red color, means the code is not covered
+
+10. In order to have code coverage we write test
+
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+public class AppTest {
+
+    @Test
+    public void testApp()
+    {
+    		App a = new App();
+    		a.m1();
+    		a.getData();
+    		assertTrue(true);
+    	
+    }
+}
+
+11. Now run jacoco plugin which create jacoco file and that file will upload in sonar 
+>mvn clean org.jacoco:jacoco-maven-plugin:prepare-agent install
+
+12. Now run >mvn sonar:sonar which upload that jacoco file into sonar 
+
+13. Now we can see code coverage is green for that method because we wrote test case 
+
+
+
+What is code smell?
+    Code smells are not bugs and not prevent the program from functioning but instead it will slow down development or increase the risk or bugs in future 
+    It is bad pattern which when we see, we can recognize that there might be possible defect in there code. For example if we assign a variable to null and immediately calling method on it then we get NPE so that is code smell
+   Sonarqube is a tool to find code smell. In sonar dashboard - Rules - Java - Code smell, we can see 307 code smells in Java
