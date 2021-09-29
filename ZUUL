@@ -1,0 +1,1390 @@
+Example 2 – Refer DoctorService, DiagnosisService, ZuulProxy2
+https://github.com/Java-Techie-jt/spring-cloud-zuul
+
+
+DoctorService project
+
+pom.xml
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>com.pack</groupId>
+	<artifactId>DoctorService</artifactId>
+	<version>0.0.1-SNAPSHOT</version>
+	<name>DoctorService</name>
+	<description>Demo project for Spring Boot</description>
+
+	<parent>
+		<groupId>org.springframework.boot</groupId>
+		<artifactId>spring-boot-starter-parent</artifactId>
+		<version>2.0.6.RELEASE</version>
+		<relativePath/> <!-- lookup parent from repository -->
+	</parent>
+
+	<properties>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+		<java.version>1.8</java.version>
+	</properties>
+
+	<dependencies>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-web</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-test</artifactId>
+			<scope>test</scope>
+		</dependency>
+	</dependencies>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.springframework.boot</groupId>
+				<artifactId>spring-boot-maven-plugin</artifactId>
+			</plugin>
+		</plugins>
+	</build>
+	
+
+</project>
+
+
+
+application.properties
+spring.application.name=doctor-service
+server.port=8081
+
+
+DoctorServiceApplication.java
+
+package com.pack.DoctorService;
+
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RestController;
+
+@SpringBootApplication
+@RestController
+public class DoctorServiceApplication {
+
+	public static void main(String[] args) {
+		SpringApplication.run(DoctorServiceApplication.class, args);
+	}
+
+	@GetMapping("/getDS")
+	public String getDoctorService() {
+		return "Doctor microservice called...";
+	}
+
+	@GetMapping("/welcome/{name}")
+	public String wish(@PathVariable String name) {
+		return "Hi "+name+" Welcome to Doctor Service";
+	}
+}
+
+
+
+DiagnosisService project
+
+pom.xml
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>com.pack</groupId>
+	<artifactId>DiagnosisService</artifactId>
+	<version>0.0.1-SNAPSHOT</version>
+	<name>DiagnosisService</name>
+	<description>Demo project for Spring Boot</description>
+
+	<parent>
+		<groupId>org.springframework.boot</groupId>
+		<artifactId>spring-boot-starter-parent</artifactId>
+		<version>2.0.6.RELEASE</version>
+		<relativePath/> <!-- lookup parent from repository -->
+	</parent>
+
+	<properties>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+		<java.version>1.8</java.version>
+	</properties>
+
+	<dependencies>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-web</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-test</artifactId>
+			<scope>test</scope>
+		</dependency>
+	</dependencies>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.springframework.boot</groupId>
+				<artifactId>spring-boot-maven-plugin</artifactId>
+			</plugin>
+		</plugins>
+	</build>
+	
+
+</project>
+
+
+application.properties
+spring.application.name=diagnosis-service
+server.port=8082
+
+
+DiagnosisServiceApplication.java
+package com.pack.DiagnosisService;
+
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+@SpringBootApplication
+@RestController
+public class DiagnosisServiceApplication {
+
+	@GetMapping("/getDiagnosis")
+	public String getDoctorService() {
+		return "Diagnosis microservice called...";
+	}
+	
+	public static void main(String[] args) {
+		SpringApplication.run(DiagnosisServiceApplication.class, args);
+	}
+
+}
+
+
+ZuulProxy2 project
+
+pom.xml
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>com.pack</groupId>
+	<artifactId>ZuulProxy2</artifactId>
+	<version>0.0.1-SNAPSHOT</version>
+	<name>ZuulProxy2</name>
+	<description>Demo project for Spring Boot</description>
+
+	<parent>
+		<groupId>org.springframework.boot</groupId>
+		<artifactId>spring-boot-starter-parent</artifactId>
+		<version>2.0.6.RELEASE</version>
+		<relativePath/> <!-- lookup parent from repository -->
+	</parent>
+
+	<properties>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+		<java.version>1.8</java.version>
+		<spring-cloud.version>Finchley.SR1</spring-cloud.version>
+	</properties>
+
+	<dependencies>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-web</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.cloud</groupId>
+			<artifactId>spring-cloud-starter-netflix-zuul</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-devtools</artifactId>
+			<scope>runtime</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-test</artifactId>
+			<scope>test</scope>
+		</dependency>
+	</dependencies>
+
+	<dependencyManagement>
+		<dependencies>
+			<dependency>
+				<groupId>org.springframework.cloud</groupId>
+				<artifactId>spring-cloud-dependencies</artifactId>
+				<version>${spring-cloud.version}</version>
+				<type>pom</type>
+				<scope>import</scope>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.springframework.boot</groupId>
+				<artifactId>spring-boot-maven-plugin</artifactId>
+			</plugin>
+		</plugins>
+	</build>
+	
+</project>
+
+
+application.properties
+zuul.routes.doctor-service.path=/doctor-api/**
+zuul.routes.doctor-service.url=http://localhost:8081/
+zuul.routes.diagnosis-service.url=http://localhost:8082/getDiagnosis
+
+ribbon.eureka.enabled=false
+server.port=8089
+
+
+ZuulProxy2Application.java
+package com.pack.ZuulProxy2;
+
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.cloud.netflix.zuul.EnableZuulProxy;
+
+@SpringBootApplication
+@EnableZuulProxy
+public class ZuulProxy2Application {
+
+	public static void main(String[] args) {
+		SpringApplication.run(ZuulProxy2Application.class, args);
+	}
+
+}
+
+
+ErrorFilter.java
+package com.pack.ZuulProxy2.filter;
+
+import javax.servlet.http.HttpServletResponse;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
+
+import com.netflix.zuul.ZuulFilter;
+import com.netflix.zuul.context.RequestContext;
+
+@Component
+public class ErrorFilter extends ZuulFilter {
+	private static Logger log = LoggerFactory.getLogger(ErrorFilter.class);
+
+	  @Override
+	  public String filterType() {
+	    return "error";
+	  }
+
+	  @Override
+	  public int filterOrder() {
+	    return 1;
+	  }
+
+	  public boolean shouldFilter() {
+	    return true;
+	  }
+
+	  public Object run() {
+	    HttpServletResponse response = RequestContext.getCurrentContext().getResponse();
+	    
+	    log.info("ErrorFilter: " + String.format("response status is %d", response.getStatus()));
+	    
+	    return null;
+	  }
+}
+
+
+PostFilter.java
+package com.pack.ZuulProxy2.filter;
+
+import javax.servlet.http.HttpServletResponse;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
+
+import com.netflix.zuul.ZuulFilter;
+import com.netflix.zuul.context.RequestContext;
+import com.netflix.zuul.exception.ZuulException;
+
+@Component
+public class PostFilter extends ZuulFilter {
+	private static Logger log = LoggerFactory.getLogger(PostFilter.class);
+
+	public Object run() throws ZuulException {
+        HttpServletResponse response = RequestContext.getCurrentContext().getResponse();
+	    log.info("PostFilter: " + String.format("response's content type is %s", response.getStatus()));
+		return null;
+	}
+
+	public boolean shouldFilter() {
+		// TODO Auto-generated method stub
+		return true;
+	}
+
+	@Override
+	public int filterOrder() {
+		// TODO Auto-generated method stub
+		return 1;
+	}
+
+	@Override
+	public String filterType() {
+		// TODO Auto-generated method stub
+		return "post";
+	}
+}
+
+
+PreFilter.java
+package com.pack.ZuulProxy2.filter;
+
+import javax.servlet.http.HttpServletRequest;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
+
+import com.netflix.zuul.ZuulFilter;
+import com.netflix.zuul.context.RequestContext;
+import com.netflix.zuul.exception.ZuulException;
+
+@Component
+public class PreFilter extends ZuulFilter {
+	private static Logger log = LoggerFactory.getLogger(PreFilter.class);
+
+	public Object run() throws ZuulException {
+		 RequestContext ctx = RequestContext.getCurrentContext();
+		    HttpServletRequest request = ctx.getRequest();
+
+		    log.info("PreFilter: " + String.format("%s request to %s", request.getMethod(), request.getRequestURL().toString()));
+		    
+		return null;
+	}
+
+	public boolean shouldFilter() {
+		// TODO Auto-generated method stub
+		return true;
+	}
+
+	@Override
+	public int filterOrder() {
+		// TODO Auto-generated method stub
+		return 1;
+	}
+
+	@Override
+	public String filterType() {
+		// TODO Auto-generated method stub
+		return "pre";
+	}
+}
+
+
+RouteFilter.java
+package com.pack.ZuulProxy2.filter;
+
+import javax.servlet.http.HttpServletRequest;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
+
+import com.netflix.zuul.ZuulFilter;
+import com.netflix.zuul.context.RequestContext;
+import com.netflix.zuul.exception.ZuulException;
+
+@Component
+public class RouteFilter extends ZuulFilter {
+	private static Logger log = LoggerFactory.getLogger(RouteFilter.class);
+
+	public Object run() throws ZuulException {
+		RequestContext ctx = RequestContext.getCurrentContext();
+		HttpServletRequest request = ctx.getRequest();
+
+		log.info("RouteFilter: " + String.format("%s request to %s", request.getMethod(), request.getRequestURL().toString()));
+		
+		return null;
+	}
+
+	public boolean shouldFilter() {
+		// TODO Auto-generated method stub
+		return true;
+	}
+
+	@Override
+	public int filterOrder() {
+		// TODO Auto-generated method stub
+		return 1;
+	}
+
+	@Override
+	public String filterType() {
+		// TODO Auto-generated method stub
+		return "route";
+	}
+}
+
+
+
+Example 3 - ZuulEurekaServer,ZuulConsumer1, ZuulConsumer2, ZuulApiGateway, ZuulFilter
+Refer https://www.youtube.com/watch?v=Iaz2apI0Ago
+
+ZuulEurekaServer project
+
+pom.xml
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>com.pack</groupId>
+	<artifactId>ZuulEurekaServer</artifactId>
+	<version>0.0.1-SNAPSHOT</version>
+	<name>ZuulEurekaServer</name>
+	<description>Demo project for Spring Boot</description>
+
+	<parent>
+		<groupId>org.springframework.boot</groupId>
+		<artifactId>spring-boot-starter-parent</artifactId>
+		<version>1.5.3.RELEASE</version>
+		<relativePath/> <!-- lookup parent from repository -->
+	</parent>
+
+	<properties>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+		<java.version>1.8</java.version>
+	</properties>
+
+	<dependencies>
+		<dependency>
+			<groupId>org.springframework.cloud</groupId>
+			<artifactId>spring-cloud-starter</artifactId>
+		</dependency>
+		<!-- Eureka registration server -->
+		<dependency>
+			<groupId>org.springframework.cloud</groupId>
+			<artifactId>spring-cloud-starter-eureka-server</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-web</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-test</artifactId>
+			<scope>test</scope>
+		</dependency>
+	</dependencies>
+
+	<dependencyManagement>
+		<dependencies>
+			<dependency>
+				<groupId>org.springframework.cloud</groupId>
+				<artifactId>spring-cloud-dependencies</artifactId>
+				<version>Camden.SR5</version>
+				<type>pom</type>
+				<scope>import</scope>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.springframework.boot</groupId>
+				<artifactId>spring-boot-maven-plugin</artifactId>
+			</plugin>
+		</plugins>
+	</build>
+
+</project>
+
+
+application.yml
+server:
+  port: 8082
+  
+eureka:
+  client:
+    register-with-eureka: false
+    fetch-registry: false
+    service-url:
+      defaultZone: http://localhost:8082/eureka/
+      
+spring:
+  application:
+    name: eureka-server
+
+
+ZuulEurekaServerApplication.java
+package com.pack.ZuulEurekaServer;
+
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.cloud.netflix.eureka.server.EnableEurekaServer;
+
+@SpringBootApplication
+@EnableEurekaServer
+public class ZuulEurekaServerApplication {
+
+	public static void main(String[] args) {
+		SpringApplication.run(ZuulEurekaServerApplication.class, args);
+	}
+
+}
+
+
+ZuulConsumer1 project
+
+pom.xml
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>com.pack</groupId>
+	<artifactId>ZuulConsumer1</artifactId>
+	<version>0.0.1-SNAPSHOT</version>
+	<name>ZuulConsumer1</name>
+	<description>Demo project for Spring Boot</description>
+
+    <parent>
+		<groupId>org.springframework.boot</groupId>
+		<artifactId>spring-boot-starter-parent</artifactId>
+		<version>1.4.3.RELEASE</version>
+		<relativePath/> <!-- lookup parent from repository -->
+	</parent>
+
+	<properties>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+		<java.version>1.8</java.version>
+	</properties>
+
+	<dependencies>
+		<dependency>
+			<groupId>org.springframework.cloud</groupId>
+			<artifactId>spring-cloud-starter</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.cloud</groupId>
+			<artifactId>spring-cloud-starter-eureka</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-web</artifactId>
+		</dependency>
+      
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-test</artifactId>
+			<scope>test</scope>
+		</dependency>
+	</dependencies>
+
+	<dependencyManagement>
+		<dependencies>
+			<dependency>
+				<groupId>org.springframework.cloud</groupId>
+				<artifactId>spring-cloud-dependencies</artifactId>
+				<version>Camden.SR3</version>
+				<type>pom</type>
+				<scope>import</scope>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.springframework.boot</groupId>
+				<artifactId>spring-boot-maven-plugin</artifactId>
+			</plugin>
+		</plugins>
+	</build>
+
+</project>
+
+
+application.yml
+server:
+  port: 8083
+  
+spring:
+  application:
+    name: consumer1
+    
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8082/eureka/
+  instance:
+    metadata-map:
+      instanceId: ${spring:application:name}:${server:port}
+
+
+ZuulConsumer1Application.java
+package com.pack.ZuulConsumer1;
+
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
+
+@SpringBootApplication
+@EnableDiscoveryClient
+public class ZuulConsumer1Application {
+
+	public static void main(String[] args) {
+		SpringApplication.run(ZuulConsumer1Application.class, args);
+	}
+
+}
+
+
+User.java
+package com.pack.ZuulConsumer1;
+
+public class User {
+   private Integer id;
+   private String name;
+   private String address;
+   private String country;
+public Integer getId() {
+	return id;
+}
+public void setId(Integer id) {
+	this.id = id;
+}
+public String getName() {
+	return name;
+}
+public void setName(String name) {
+	this.name = name;
+}
+public String getAddress() {
+	return address;
+}
+public void setAddress(String address) {
+	this.address = address;
+}
+public String getCountry() {
+	return country;
+}
+public void setCountry(String country) {
+	this.country = country;
+}
+   
+}
+
+
+Consumer1Controller.java
+package com.pack.ZuulConsumer1;
+
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RestController;
+
+@RestController
+@RequestMapping("/consumer1")
+public class Consumer1Controller {
+	
+	@RequestMapping(value="/get/{name}",method=RequestMethod.GET)
+	public String get(@PathVariable("name")String name) {
+		System.out.println("Consumer1 response "+name);
+		return "Consumer1 response "+name;
+	} 
+	
+	@RequestMapping(value="/post",method=RequestMethod.POST)
+	public String post(@RequestBody User user) {
+		System.out.println("Consumer1 post response "+user.getName());
+		return "Consumer1 post response "+user.getName();
+	}
+
+}
+
+
+ZuulConsumer2 project
+
+pom.xml
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>com.pack</groupId>
+	<artifactId>ZuulConsumer2</artifactId>
+	<version>0.0.1-SNAPSHOT</version>
+	<name>ZuulConsumer2</name>
+	<description>Demo project for Spring Boot</description>
+
+	 <parent>
+		<groupId>org.springframework.boot</groupId>
+		<artifactId>spring-boot-starter-parent</artifactId>
+		<version>1.4.3.RELEASE</version>
+		<relativePath/> <!-- lookup parent from repository -->
+	</parent>
+
+	<properties>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+		<java.version>1.8</java.version>
+	</properties>
+
+	<dependencies>
+		<dependency>
+			<groupId>org.springframework.cloud</groupId>
+			<artifactId>spring-cloud-starter</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.cloud</groupId>
+			<artifactId>spring-cloud-starter-eureka</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-web</artifactId>
+		</dependency>
+      
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-test</artifactId>
+			<scope>test</scope>
+		</dependency>
+	</dependencies>
+
+	<dependencyManagement>
+		<dependencies>
+			<dependency>
+				<groupId>org.springframework.cloud</groupId>
+				<artifactId>spring-cloud-dependencies</artifactId>
+				<version>Camden.SR3</version>
+				<type>pom</type>
+				<scope>import</scope>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.springframework.boot</groupId>
+				<artifactId>spring-boot-maven-plugin</artifactId>
+			</plugin>
+		</plugins>
+	</build>
+
+</project>
+
+
+application.yml
+server:
+  port: 8084
+  
+spring:
+  application:
+    name: consumer2
+    
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8082/eureka/
+  instance:
+    metadata-map:
+      instanceId: ${spring:application:name}:${server:port}    
+      
+        
+
+ZuulConsumer2Application.java
+package com.pack.ZuulConsumer2;
+
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
+
+@SpringBootApplication
+@EnableDiscoveryClient
+public class ZuulConsumer2Application {
+
+	public static void main(String[] args) {
+		SpringApplication.run(ZuulConsumer2Application.class, args);
+	}
+
+}
+
+
+Consumer2Controller.java
+package com.pack.ZuulConsumer2;
+
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RestController;
+
+@RestController
+@RequestMapping("/consumer2")
+public class Consumer2Controller {
+	
+	@RequestMapping(value="/get/{name}",method=RequestMethod.GET)
+	public String get(@PathVariable("name")String name) {
+		return "Consumer2 response "+name;
+	}
+
+}
+
+
+ZuulApiGateway project
+
+pom.xml
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>com.pack</groupId>
+	<artifactId>ZuulApiGateway</artifactId>
+	<version>0.0.1-SNAPSHOT</version>
+	<name>ZuulApiGateway</name>
+	<description>Demo project for Spring Boot</description>
+
+	<parent>
+		<groupId>org.springframework.boot</groupId>
+		<artifactId>spring-boot-starter-parent</artifactId>
+		<version>2.0.6.RELEASE</version>
+		<relativePath /> <!-- lookup parent from repository -->
+	</parent>
+
+	<properties>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<project.reporting.outputEncoding>UTF-8
+		</project.reporting.outputEncoding>
+		<java.version>1.8</java.version>
+		<spring-cloud.version>Finchley.SR1</spring-cloud.version>
+	</properties>
+
+	<dependencies>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-web</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.cloud</groupId>
+			<artifactId>spring-cloud-starter-netflix-zuul</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.cloud</groupId>
+			<artifactId>spring-cloud-starter-netflix-ribbon</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.cloud</groupId>
+			<artifactId>spring-cloud-starter-netflix-eureka-client</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-devtools</artifactId>
+			<scope>runtime</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-test</artifactId>
+			<scope>test</scope>
+		</dependency>
+	</dependencies>
+
+	<dependencyManagement>
+		<dependencies>
+			<dependency>
+				<groupId>org.springframework.cloud</groupId>
+				<artifactId>spring-cloud-dependencies</artifactId>
+				<version>${spring-cloud.version}</version>
+				<type>pom</type>
+				<scope>import</scope>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.springframework.boot</groupId>
+				<artifactId>spring-boot-maven-plugin</artifactId>
+			</plugin>
+		</plugins>
+	</build>
+</project>
+
+
+application.yml
+server:
+  port: 8081
+  
+spring:
+  application:
+    name: zuul-apigateway
+    
+zuul:
+  host:
+    connect-timeout-millis: 20000
+    socket-timeout-millis: 2000
+  routes:
+    consumer1:
+      path: /con1/**
+    consumer2:
+      path: /con2/**
+
+eureka:
+  client:
+    service-url:
+       defaultZone: http://localhost:8082/eureka/
+  instance:
+    metadata-map:
+       instanceId: ${spring:application:name}:${server:port}
+       
+hystrix:
+  command:
+     default:
+       execution:
+         isolation:
+           thread:
+             timeoutInMilliseconds: 20000
+             
+ribbon:
+  ReadTimeout: 20000
+  ConnectTimeout: 20000
+          
+  
+ZuulApiGatewayApplication.java
+package com.pack.ZuulApiGateway;
+
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.cloud.netflix.eureka.EnableEurekaClient;
+import org.springframework.cloud.netflix.zuul.EnableZuulProxy;
+
+@SpringBootApplication
+@EnableEurekaClient
+@EnableZuulProxy
+public class ZuulApiGatewayApplication {
+
+	public static void main(String[] args) {
+		SpringApplication.run(ZuulApiGatewayApplication.class, args);
+	}
+
+}
+
+
+ZuulFilter project
+
+pom.xml
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>com.pack</groupId>
+	<artifactId>ZuulFilter</artifactId>
+	<version>0.0.1-SNAPSHOT</version>
+	<name>ZuulFilter</name>
+	<description>Demo project for Spring Boot</description>
+
+	<parent>
+		<groupId>org.springframework.boot</groupId>
+		<artifactId>spring-boot-starter-parent</artifactId>
+		<version>2.0.1.RELEASE</version>
+		<relativePath /> <!-- lookup parent from repository -->
+	</parent>
+
+	<properties>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<project.reporting.outputEncoding>UTF-8
+		</project.reporting.outputEncoding>
+		<java.version>1.8</java.version>
+		<spring-cloud.version>Finchley.SR1</spring-cloud.version>
+	</properties>
+
+	<dependencies>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-web</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.cloud</groupId>
+			<artifactId>spring-cloud-starter-netflix-zuul</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.cloud</groupId>
+			<artifactId>spring-cloud-starter-netflix-ribbon</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.cloud</groupId>
+			<artifactId>spring-cloud-starter-netflix-eureka-client</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-devtools</artifactId>
+			<scope>runtime</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-test</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>commons-io</groupId>
+			<artifactId>commons-io</artifactId>
+			<version>2.4</version>
+		</dependency>
+	</dependencies>
+
+	<dependencyManagement>
+		<dependencies>
+			<dependency>
+				<groupId>org.springframework.cloud</groupId>
+				<artifactId>spring-cloud-dependencies</artifactId>
+				<version>${spring-cloud.version}</version>
+				<type>pom</type>
+				<scope>import</scope>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.springframework.boot</groupId>
+				<artifactId>spring-boot-maven-plugin</artifactId>
+			</plugin>
+		</plugins>
+	</build>
+</project>
+
+
+application.yml
+server:
+  port: 8081
+  
+spring:
+  application:
+    name: zuul-apigateway
+    
+zuul:
+  host:
+    connect-timeout-millis: 20000
+    socket-timeout-millis: 2000
+  routes:
+    consumer1:
+      path: /con1/**
+    consumer2:
+      path: /con2/**
+
+eureka:
+  client:
+    service-url:
+       defaultZone: http://localhost:8082/eureka/
+  instance:
+    metadata-map:
+       instanceId: ${spring:application:name}:${server:port}
+       
+hystrix:
+  command:
+     default:
+       execution:
+         isolation:
+           thread:
+             timeoutInMilliseconds: 20000
+             
+ribbon:
+  ReadTimeout: 20000
+  ConnectTimeout: 20000
+          
+
+ZuulFilterApplication.java
+package com.pack.ZuulFilter;
+
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.cloud.netflix.eureka.EnableEurekaClient;
+import org.springframework.cloud.netflix.zuul.EnableZuulProxy;
+
+@SpringBootApplication
+@EnableEurekaClient
+@EnableZuulProxy
+public class ZuulFilterApplication {
+
+	public static void main(String[] args) {
+		SpringApplication.run(ZuulFilterApplication.class, args);
+	}
+
+}
+
+
+ZuulConfiguration.java
+package com.pack.ZuulFilter;
+
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+
+@Configuration
+public class ZuulConfiguration {
+	
+	@Bean
+	public PreFilter preFilter() {
+		return new PreFilter();
+	}
+	@Bean
+	public PostFilter postFilter() {
+		return new PostFilter();
+	}
+	@Bean
+	public RouteFilter routeFilter() {
+		return new RouteFilter();
+	}
+	@Bean
+	public ErrorFilter errorFilter() {
+		return new ErrorFilter();
+	}
+
+}
+
+
+ErrorFilter.java
+package com.pack.ZuulFilter;
+
+import java.io.IOException;
+
+import javax.servlet.http.HttpServletRequest;
+
+import org.apache.commons.io.IOUtils;
+
+import com.netflix.zuul.ZuulFilter;
+import com.netflix.zuul.context.RequestContext;
+import com.netflix.zuul.exception.ZuulException;
+
+public class ErrorFilter extends ZuulFilter {
+
+	@Override
+	public Object run() throws ZuulException {
+		RequestContext context=RequestContext.getCurrentContext();
+		HttpServletRequest req=context.getRequest();
+		if(req.getMethod().equalsIgnoreCase("post")) {
+			try {
+				System.out.println("--------Error filter executed-------- "+req.getRequestURI()+"---"+IOUtils.toString(req.getReader()));	
+			}
+			catch(IOException e) {
+				e.printStackTrace();
+			}
+		}
+		if(req.getMethod().equalsIgnoreCase("get")) {
+			System.out.println("--------Error filter executed-------- "+req.getRequestURI());
+		}
+		return null;
+	}
+
+	@Override
+	public boolean shouldFilter() {
+		// TODO Auto-generated method stub
+		return true;
+	}
+
+	@Override
+	public int filterOrder() {
+		// TODO Auto-generated method stub
+		return 1;
+	}
+
+	@Override
+	public String filterType() {
+		// TODO Auto-generated method stub
+		return "error";
+	}
+
+}
+
+
+PostFilter.java
+package com.pack.ZuulFilter;
+
+import java.io.IOException;
+
+import javax.servlet.http.HttpServletRequest;
+
+import org.apache.commons.io.IOUtils;
+
+import com.netflix.zuul.ZuulFilter;
+import com.netflix.zuul.context.RequestContext;
+import com.netflix.zuul.exception.ZuulException;
+
+public class PostFilter extends ZuulFilter {
+
+	@Override
+	public Object run() throws ZuulException {
+		RequestContext context=RequestContext.getCurrentContext();
+		HttpServletRequest req=context.getRequest();
+		if(req.getMethod().equalsIgnoreCase("post")) {
+			try {
+				System.out.println("--------Post filter executed-------- "+req.getRequestURI()+"---"+IOUtils.toString(req.getReader()));	
+			}
+			catch(IOException e) {
+				e.printStackTrace();
+			}
+		}
+		if(req.getMethod().equalsIgnoreCase("get")) {
+			System.out.println("--------Post filter executed-------- "+req.getRequestURI());
+		}
+		return null;
+	}
+
+	@Override
+	public boolean shouldFilter() {
+		// TODO Auto-generated method stub
+		return true;
+	}
+
+	@Override
+	public int filterOrder() {
+		// TODO Auto-generated method stub
+		return 2;
+	}
+
+	@Override
+	public String filterType() {
+		// TODO Auto-generated method stub
+		return "post";
+	}
+
+}
+
+
+PreFilter.java
+package com.pack.ZuulFilter;
+
+import java.io.IOException;
+
+import javax.servlet.http.HttpServletRequest;
+
+import org.apache.commons.io.IOUtils;
+
+import com.netflix.zuul.ZuulFilter;
+import com.netflix.zuul.context.RequestContext;
+import com.netflix.zuul.exception.ZuulException;
+
+public class PreFilter extends ZuulFilter {
+
+	@Override
+	public Object run() throws ZuulException {
+		RequestContext context=RequestContext.getCurrentContext();
+		HttpServletRequest req=context.getRequest();
+		if(req.getMethod().equalsIgnoreCase("post")) {
+			try {
+				System.out.println("--------Pre filter executed-------- "+req.getRequestURI()+"---"+IOUtils.toString(req.getReader()));	
+			}
+			catch(IOException e) {
+				e.printStackTrace();
+			}
+		}
+		if(req.getMethod().equalsIgnoreCase("get")) {
+			System.out.println("--------Pre filter executed-------- "+req.getRequestURI());
+		}
+		return null;
+	}
+
+	@Override
+	public boolean shouldFilter() {
+		// TODO Auto-generated method stub
+		return true;
+	}
+
+	@Override
+	public int filterOrder() {
+		// TODO Auto-generated method stub
+		return 4;
+	}
+
+	@Override
+	public String filterType() {
+		// TODO Auto-generated method stub
+		return "pre";
+	}
+
+}
+
+
+RouteFilter.java
+package com.pack.ZuulFilter;
+
+import java.io.IOException;
+
+import javax.servlet.http.HttpServletRequest;
+
+import org.apache.commons.io.IOUtils;
+
+import com.netflix.zuul.ZuulFilter;
+import com.netflix.zuul.context.RequestContext;
+import com.netflix.zuul.exception.ZuulException;
+
+public class RouteFilter extends ZuulFilter {
+
+	@Override
+	public Object run() throws ZuulException {
+		RequestContext context=RequestContext.getCurrentContext();
+		HttpServletRequest req=context.getRequest();
+		if(req.getMethod().equalsIgnoreCase("post")) {
+			try {
+				System.out.println("--------Route filter executed-------- "+req.getRequestURI()+"---"+IOUtils.toString(req.getReader()));	
+			}
+			catch(IOException e) {
+				e.printStackTrace();
+			}
+		}
+		if(req.getMethod().equalsIgnoreCase("get")) {
+			System.out.println("--------Route filter executed-------- "+req.getRequestURI());
+		}
+		return null;
+	}
+
+	@Override
+	public boolean shouldFilter() {
+		// TODO Auto-generated method stub
+		return true;
+	}
+
+	@Override
+	public int filterOrder() {
+		// TODO Auto-generated method stub
+		return 3;
+	}
+
+	@Override
+	public String filterType() {
+		// TODO Auto-generated method stub
+		return "route";
+	}
+
+}
+ 
+  
+  
+  
+  
+  
+    
+  
+  
+  
+  
+  
