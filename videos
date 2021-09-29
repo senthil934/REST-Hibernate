@@ -1,0 +1,379 @@
+DevOps
+
+1. https://web.microsoftstream.com/video/b3eecfb5-43d6-476a-afbd-9c7e9ddc9fcf
+
+2. https://web.microsoftstream.com/video/552f2a3d-7792-4609-ab4f-6dfbfb91bac3
+
+3. https://web.microsoftstream.com/video/88d34163-d827-4815-a0a0-0b90fdba2f91
+
+Github by Jason
+
+https://web.microsoftstream.com/video/58c3dafe-2aec-43b5-9599-99e985d44c89
+
+Jenkins
+
+1. https://web.microsoftstream.com/video/570ed784-7114-4e34-9c76-0dfc6ea1073f
+
+2. https://web.microsoftstream.com/video/c895917c-2ea7-4376-bee5-e60206fc6556
+
+3. https://web.microsoftstream.com/video/2e544bb0-4b22-4e04-a47b-3d7dc631459e
+
+4. https://web.microsoftstream.com/video/5f6f1c9a-fe54-4008-9fda-040493e1f3f4
+
+5. https://web.microsoftstream.com/video/88175503-6211-43e2-a4d2-c55ad04b9d46
+
+6. https://web.microsoftstream.com/video/13be4fd8-f550-4d36-953d-b521248416ff
+
+
+
+<profiles>
+        <profile>
+            <id>sonar</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+            <properties>
+                <sonar.host.url>
+                    http://localhost:9000
+                </sonar.host.url>
+                <sonar.sources>src/main</sonar.sources>
+                     <sonar.java.coveragePlugin>jacoco</sonar.java.coveragePlugin>
+                <sonar.dynamicAnalysis>reuseReports</sonar.dynamicAnalysis>
+                <sonar.jacoco.reportPaths>${project.basedir}\target\jacoco.exec
+                </sonar.jacoco.reportPaths>
+                <sonar.language>java</sonar.language>
+                <sonar.exclusions>
+      **/**/CustomUserDetails.java,
+      **/UserDetailsServiceImpl.java,
+      **/AirportManagementSystemApplication.java
+    </sonar.exclusions>
+            </properties>
+            <build>
+                <plugins>
+                  
+                    <plugin>
+                        <groupId>org.sonarsource.scanner.maven</groupId>
+                        <artifactId>sonar-maven-plugin</artifactId>
+                        <version>3.6.0.1398</version>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.jacoco</groupId>
+                        <artifactId>jacoco-maven-plugin</artifactId>
+                        <version>0.8.4</version>
+                        <configuration>
+                            <destFile>${sonar.jacoco.reportPaths}</destFile>
+                            <append>true</append>
+                        </configuration>
+                        <executions>
+                            <execution>
+                                <id>agent</id>
+                                <goals>
+                                    <goal>prepare-agent</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
+
+
+
+https://dev.to/martinbelev/how-to-enable-junit-5-in-new-spring-boot-project-29a8
+
+
+
+The SonarQube platform consists of four components: analyzers, server, plugins installed on the server and, last but not least, database
+?
+
+    
+The SonarQube platform consists of four components: analyzers, server, plugins installed on the server and, last but not least, database
+
+  
+Analyzers are responsible for running line-by-line code analysis. They can provide information about technical debt, code coverage, code complexity, detected problems, etc. The problems, detected in code, can be some bugs, potential bugs, things that can lead to mistakes in future, etc. When the analysis is done, the results can be viewed on the web page hosted by SonarQube web server
+?  
+ 
+severity: Blocker, Critical, Major, Minor and Info 
+
+The great thing about SonarQube is that all the data is stored in relational database with which all the developers are generally familiar. The database of our choice was a MySQL database. Primarily, this happened because we are avid supporters of open source technologies. If you have other preferences when it comes to databases or you have more experience in working with another database, some of supported databases are: PostgreSQL, Oracle, etc.
+Guide: How to modify OpenJDK 8 to show thread name in LinuxWhat to do when your OpenJDK 8 is broken & can't show thread name in Linux? Check the solution from our software engineer, Milan Mimica.www.infobip.com
+
+
+
+Delete Local Branch
+
+To delete the local branch use one of the following:
+
+
+$ git branch -d branch_name
+
+$ git branch -D branch_name
+
+
+
+
+Note: The -d option is an alias for --delete, which only deletes the branch if it has already been fully merged in its upstream branch. You could also use -D, which is an alias for --delete --force, which deletes the branch "irrespective of its merged status." [Source: man git-branch]
+Also note that git branch -d branch_name will fail if you are currently in the branch you want to remove. The message starts with error: Cannot delete the branch 'branch_name'. If so, first switch to some other branch, for example: git checkout master
+
+
+   
+
+
+Pipeline concepts
+
+
+The following concepts are key aspects of Jenkins Pipeline, which tie in closely to Pipeline syntax (see the overview below).
+
+
+Pipeline
+
+
+A Pipeline is a user-defined model of a CD pipeline. A Pipeline’s code defines your entire build process, which typically includes stages for building an application, testing it and then delivering it.
+
+
+Also, a pipeline block is a key part of Declarative Pipeline syntax.
+
+
+
+Node
+
+
+A node is a machine which is part of the Jenkins environment and is capable of executing a Pipeline.
+
+
+Also, a node block is a key part of Scripted Pipeline syntax.
+
+
+
+Stage
+
+
+A stage block defines a conceptually distinct subset of tasks performed through the entire Pipeline (e.g. "Build", "Test" and "Deploy" stages), which is used by many plugins to visualize or present Jenkins Pipeline status/progress. [6]
+
+
+
+Step
+
+
+A single task. Fundamentally, a step tells Jenkins what to do at a particular point in time (or "step" in the process). For example, to execute the shell command make use the sh step: sh 'make'. When a plugin extends the Pipeline DSL, [1] that typically means the plugin has implemented a new step.
+
+
+
+
+Pipeline syntax overview
+
+
+The following Pipeline code skeletons illustrate the fundamental differences between Declarative Pipeline syntax and Scripted Pipeline syntax.
+
+
+Be aware that both stages and steps (above) are common elements of both Declarative and Scripted Pipeline syntax.
+
+
+Declarative Pipeline fundamentals
+
+
+In Declarative Pipeline syntax, the pipeline block defines all the work done throughout your entire Pipeline.
+
+
+
+Jenkinsfile (Declarative Pipeline)
+
+pipeline {????????
+    agent any 
+    stages {????????
+        stage('Build') {???????? 
+            steps {????????
+                // 
+            }????????
+        }????????
+        stage('Test') {???????? 
+            steps {????????
+                // 
+            }????????
+        }????????
+        stage('Deploy') {???????? 
+            steps {????????
+                // 
+            }????????
+        }????????
+    }????????
+}????????
+
+
+
+
+
+ 
+Execute this Pipeline or any of its stages, on any available agent.
+
+ 
+Defines the "Build" stage.
+
+ 
+Perform some steps related to the "Build" stage.
+
+ 
+Defines the "Test" stage.
+
+ 
+Perform some steps related to the "Test" stage.
+
+ 
+Defines the "Deploy" stage.
+
+ 
+Perform some steps related to the "Deploy" stage.
+
+
+
+
+Scripted Pipeline fundamentals
+
+
+In Scripted Pipeline syntax, one or more node blocks do the core work throughout the entire Pipeline. Although this is not a mandatory requirement of Scripted Pipeline syntax, confining your Pipeline’s work inside of a node block does two things:
+
+
+
+	
+	
+Schedules the steps contained within the block to run by adding an item to the Jenkins queue. As soon as an executor is free on a node, the steps will run.
+	
+	
+	
+Creates a workspace (a directory specific to that particular Pipeline) where work can be done on files checked out from source control.
+	Caution: Depending on your Jenkins configuration, some workspaces may not get automatically cleaned up after a period of inactivity. See tickets and discussion linked from JENKINS-2111 for more information.
+	
+
+
+
+Jenkinsfile (Scripted Pipeline)
+
+node {????????  
+    stage('Build') {???????? 
+        // 
+    }????????
+    stage('Test') {???????? 
+        // 
+    }????????
+    stage('Deploy') {???????? 
+        // 
+    }????????
+}????????
+
+
+
+
+
+ 
+Execute this Pipeline or any of its stages, on any available agent.
+
+ 
+Defines the "Build" stage. stage blocks are optional in Scripted Pipeline syntax. However, implementing stage blocks in a Scripted Pipeline provides clearer visualization of each `stage’s
+ subset of tasks/steps in the Jenkins UI.
+
+ 
+Perform some steps related to the "Build" stage.
+
+ 
+Defines the "Test" stage.
+
+ 
+Perform some steps related to the "Test" stage.
+
+ 
+Defines the "Deploy" stage.
+
+ 
+Perform some steps related to the "Deploy" stage.
+
+
+
+
+
+
+Pipeline example
+
+
+Here is an example of a Jenkinsfile using Declarative Pipeline syntax - its Scripted syntax equivalent can be accessed by clicking the Toggle Scripted Pipeline link below:
+
+
+
+Jenkinsfile (Declarative Pipeline)
+
+pipeline {???????? 
+    agent any 
+    options {????????
+        skipStagesAfterUnstable()
+    }????????
+    stages {????????
+        stage('Build') {???????? 
+            steps {???????? 
+                sh 'make' 
+            }????????
+        }????????
+        stage('Test'){????????
+            steps {????????
+                sh 'make check'
+                junit 'reports/**/*.xml' 
+            }????????
+        }????????
+        stage('Deploy') {????????
+            steps {????????
+                sh 'make publish'
+            }????????
+        }????????
+    }????????
+}????????
+
+
+
+
+
+?
+
+
+   https://www.jenkins.io/doc/book/pipeline/#:~:text=A%20Jenkinsfile%20can%20be%20written,over%20Scripted%20Pipeline%20syntax%2C%20and
+PipelineJenkins – an open source automation server which enables developers around the world to reliably build, test, and deploy their softwarewww.jenkins.io
+
+
+
+API Design
+
+https://hclo365-my.sharepoint.com/personal/senthil_kumart_hcl_com/_layouts/15/onedrive.aspx?id=%2Fpersonal%2Fsenthil%5Fkumart%5Fhcl%5Fcom%2FDocuments%2FRecordings%2FTraining%20Confirmation%5F%20Java%20Full%20stack%28Mode%202%29%20%2D%20Senthil%20Batch%20%5F%2018th%20Jan%2721%20to%2023rd%20Feb%2721%5FFF%5FLSH%5F11230%5FFF%5FFS%5F11229%2D20210212%5F091615%2DMeeting%20Recording%2Emp4&parent=%2Fpersonal%2Fsenthil%5Fkumart%5Fhcl%5Fcom%2FDocuments%2FRecordings&originalPath=aHR0cHM6Ly9oY2xvMzY1LW15LnNoYXJlcG9pbnQuY29tLzp2Oi9nL3BlcnNvbmFsL3NlbnRoaWxfa3VtYXJ0X2hjbF9jb20vRWJYNmhvVmttSnhJaS11UUlUZ3ludUFCVE5fNDV6Q2tnR2E4ZlZtYVVkRFRzUT9ydGltZT04MUhKX0xCRzJVZw
+
+https://hclo365-my.sharepoint.com/personal/thikkavarapuv_saimo_hcl_com/_layouts/15/onedrive.aspx?id=%2Fpersonal%2Fthikkavarapuv%5Fsaimo%5Fhcl%5Fcom%2FDocuments%2FRecordings%2FTraining%20Confirmation%5F%20Java%20Full%20stack%28Mode%202%29%20%2D%20Senthil%20Batch%20%5F%2018th%20Jan%2721%20to%2023rd%20Feb%2721%5FFF%5FLSH%5F11230%5FFF%5FFS%5F11229%2D20210217%5F100731%2DMeeting%20Recording%2Emp4&parent=%2Fpersonal%2Fthikkavarapuv%5Fsaimo%5Fhcl%5Fcom%2FDocuments%2FRecordings&originalPath=aHR0cHM6Ly9oY2xvMzY1LW15LnNoYXJlcG9pbnQuY29tLzp2Oi9nL3BlcnNvbmFsL3RoaWtrYXZhcmFwdXZfc2FpbW9faGNsX2NvbS9FYzd6UnM3VS1xdEFwc3l5dFI0M0EyUUJaTU5mdVhTa0Nnd1hwVXBiRTBzbUx3P3J0aW1lPUhOcDVDTEJHMlVn
+
+
+
+Sonarqube
+
+https://hclo365-my.sharepoint.com/personal/thikkavarapuv_saimo_hcl_com/_layouts/15/onedrive.aspx?id=%2Fpersonal%2Fthikkavarapuv%5Fsaimo%5Fhcl%5Fcom%2FDocuments%2FRecordings%2FTraining%20Confirmation%5F%20Java%20Full%20stack%28Mode%202%29%20%2D%20Senthil%20Batch%20%5F%2018th%20Jan%2721%20to%2023rd%20Feb%2721%5FFF%5FLSH%5F11230%5FFF%5FFS%5F11229%2D20210210%5F145013%2DMeeting%20Recording%2Emp4&parent=%2Fpersonal%2Fthikkavarapuv%5Fsaimo%5Fhcl%5Fcom%2FDocuments%2FRecordings&originalPath=aHR0cHM6Ly9oY2xvMzY1LW15LnNoYXJlcG9pbnQuY29tLzp2Oi9nL3BlcnNvbmFsL3RoaWtrYXZhcmFwdXZfc2FpbW9faGNsX2NvbS9FUWw0V0puMThHeEhnS25UTHB3VS16a0JwTUZVMDdGSVk2aDFmdElocnNwVTF3P3J0aW1lPVZkQl9DckpHMlVn
+
+
+
+DevOps Introduction
+
+1. https://web.microsoftstream.com/video/c8949192-93c8-4804-84aa-b4909dfe1f1f
+
+Github
+
+1. https://web.microsoftstream.com/video/8fe3c17c-6af6-47cd-94ca-bb42aa1725fc
+
+2. https://web.microsoftstream.com/video/8ae74970-cbe5-46a7-bc06-884f634044ac
+
+Jenkins
+
+1. https://web.microsoftstream.com/video/523846d5-d0c2-4dea-aee0-0dc98e03ece9
+
+2. https://web.microsoftstream.com/video/c3453710-2132-4289-b982-c11a6f060be5
+
+3. https://hclo365-my.sharepoint.com/personal/thikkavarapuv_saimo_hcl_com/_layouts/15/onedrive.aspx?id=%2Fpersonal%2Fthikkavarapuv%5Fsaimo%5Fhcl%5Fcom%2FDocuments%2FRecordings%2FTraining%20Confirmation%5F%20Java%20Full%20stack%28Mode%202%29%20%2D%20Senthil%20Batch%20%5F%2018th%20Jan%2721%20to%2023rd%20Feb%2721%5FFF%5FLSH%5F11230%5FFF%5FFS%5F11229%2D20210210%5F145013%2DMeeting%20Recording%2Emp4&parent=%2Fpersonal%2Fthikkavarapuv%5Fsaimo%5Fhcl%5Fcom%2FDocuments%2FRecordings&originalPath=aHR0cHM6Ly9oY2xvMzY1LW15LnNoYXJlcG9pbnQuY29tLzp2Oi9nL3BlcnNvbmFsL3RoaWtrYXZhcmFwdXZfc2FpbW9faGNsX2NvbS9FUWw0V0puMThHeEhnS25UTHB3VS16a0JwTUZVMDdGSVk2aDFmdElocnNwVTF3P3J0aW1lPUREb2FwTFJHMlVn
+
+
+
+
+4. https://web.microsoftstream.com/video/3e29301c-b2b2-40ca-9303-bba325ff604e
+
+
+5. https://hclo365-my.sharepoint.com/personal/thikkavarapuv_saimo_hcl_com/_layouts/15/onedrive.aspx?id=%2Fpersonal%2Fthikkavarapuv%5Fsaimo%5Fhcl%5Fcom%2FDocuments%2FRecordings%2FTraining%20Confirmation%5F%20Java%20Full%20stack%28Mode%202%29%20%2D%20Senthil%20Batch%20%5F%2018th%20Jan%2721%20to%2023rd%20Feb%2721%5FFF%5FLSH%5F11230%5FFF%5FFS%5F11229%2D20210211%5F092241%2DMeeting%20Recording%2Emp4&parent=%2Fpersonal%2Fthikkavarapuv%5Fsaimo%5Fhcl%5Fcom%2FDocuments%2FRecordings&originalPath=aHR0cHM6Ly9oY2xvMzY1LW15LnNoYXJlcG9pbnQuY29tLzp2Oi9nL3BlcnNvbmFsL3RoaWtrYXZhcmFwdXZfc2FpbW9faGNsX2NvbS9FVTlqNjNlZEpEUkFsVGNQc3lOaF83RUJkaTBmaWRsa0dTRkZxWVZlSXNVMmp3P3J0aW1lPXpnR0thYlZHMlVn
