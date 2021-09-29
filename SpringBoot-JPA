@@ -1,0 +1,1709 @@
+SpringBoot-JPA1
+
+pom.xml
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>org.springframework.boot</groupId>
+		<artifactId>spring-boot-starter-parent</artifactId>
+		<version>2.4.0</version>
+		<relativePath/> <!-- lookup parent from repository -->
+	</parent>
+	<groupId>com.pack</groupId>
+	<artifactId>SpringBoot-JPA1</artifactId>
+	<version>0.0.1-SNAPSHOT</version>
+	<name>SpringBoot-JPA1</name>
+	<description>Demo project for Spring Boot</description>
+
+	<properties>
+		<java.version>1.8</java.version>
+	</properties>
+
+	<dependencies>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-data-jpa</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>mysql</groupId>
+			<artifactId>mysql-connector-java</artifactId>
+			<scope>runtime</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-test</artifactId>
+			<scope>test</scope>
+		</dependency>
+	</dependencies>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.springframework.boot</groupId>
+				<artifactId>spring-boot-maven-plugin</artifactId>
+			</plugin>
+		</plugins>
+	</build>
+
+</project>
+
+
+application.properties
+spring.jpa.hibernate.ddl-auto=update
+spring.datasource.url=jdbc:mysql://localhost:3306/jpa
+spring.datasource.username=root
+spring.datasource.password=root
+
+
+SpringBootJpa1Application.java
+package com.pack.SpringBootJPA1;
+
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Optional;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.CommandLineRunner;
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+
+@SpringBootApplication
+public class SpringBootJpa1Application implements CommandLineRunner {
+   
+	@Autowired
+	EmployeeRepository repo;
+	
+	@Autowired
+	DiagnosisRepository drepo;
+	
+	@Autowired
+	PatientRepository prepo;
+	
+	@Autowired
+	PersonRepository personRepository;
+	
+	@Autowired
+	DepartmentRepository departmentRepository;
+	
+	@Autowired
+	StudentRepository stuRepo;
+	
+	public static void main(String[] args) {
+		SpringApplication.run(SpringBootJpa1Application.class, args);
+	}
+
+	@Override
+	public void run(String... args) throws Exception {
+		//createEmployee();
+		//findAllEmployees();
+		//checkEmployeeAndDelete(10);
+		//updateEmployee(11);
+		//derivedQueryInfo();
+		//limitedQueryInfo();
+		//likeExpressionInfo();
+		//countQueryInfo();
+		//onetoone();
+		//countBasedonDept();
+		//createPersonDept();
+		//departmentIsNull();
+		createStudent();
+	}
+
+	private void createStudent() {
+		/*List<Student> list=new ArrayList<>();
+		Student s1=new Student(10,"Ram",23,"male","chennai");
+		//stuRepo.save(s1);
+		list.add(s1);
+		Student s2=new Student(11,"Sam",25,"male","Bangalore");
+		list.add(s2);
+		Student s3=new Student(12,"Saj",20,"male","Mumbai");
+		list.add(s3);
+		Student s4=new Student(13,"Lea",24,"female","Delhi");
+		list.add(s4);
+		Student s5=new Student(14,"Mary",25,"female","Kerela");
+		list.add(s5);
+		Student s6=new Student(15,"Jackie",26,"female","Goa");
+		list.add(s6);
+		stuRepo.saveAll(list);*/
+		//List<Student> l=stuRepo.findAll();
+		//l.forEach(System.out::println); 
+		
+		/*Optional<Student> o=stuRepo.findById(11);
+		Student st=o.get();
+		st.setAddress("Kashmir");
+		stuRepo.save(st);
+		
+		stuRepo.deleteById(15);*/
+		
+		//List<Student> l1=stuRepo.findByGender("male");
+		//List<Student> l1=stuRepo.findByNameLike("S%");
+		//List<Student> l1=stuRepo.findByGenderAndAgeGreaterThan("male", 22);
+		//l1.forEach(System.out::println);
+		//long l=stuRepo.countByNameEndingWith("m");
+		long l=stuRepo.countByGender("female");
+		System.out.println(l);
+	}
+
+	private void departmentIsNull() {
+		//List<Person> list=personRepository.findByDepartmentIsNull();
+		//list.forEach(System.out::println);
+		//Person p=personRepository.findTop1ByOrderByHireDateAsc();
+		//System.out.println(p);
+		//List<Person> list=personRepository.findAllByOrderByPersonIdDesc();
+		//list.forEach(System.out::println);
+		List<Object[]> list=personRepository.findEmployeeJoinOnFriday(); 
+		Iterator i=list.iterator();
+		while(i.hasNext()) {
+			Object[] o=(Object[]) i.next();
+			System.out.println(o[0]+" "+o[1]);
+		}
+	}
+
+	private void createPersonDept() {
+		List<Department> deptList=new ArrayList<>();
+		 Department d1=new Department(1,"HR");
+		 deptList.add(d1);
+		 Department d2=new Department(2,"Admin");
+		 deptList.add(d2);
+		 Department d3=new Department(3,"Sales");
+		 deptList.add(d3);
+		 Department d4=new Department(4,"IT");
+		 deptList.add(d4);
+		 departmentRepository.saveAll(deptList);
+		 List<Person> personList=Arrays.asList(
+				 new Person(100, "Ram", "Kumar", "ram@gmail.com", "838388282", LocalDate.of(2020, 07, 23), "Developer", 40000.0, d1),
+				 new Person(101, "Sam", "Kumar", "sam@gmail.com", "838383382", LocalDate.of(2020, 10, 20), "Programmer", 35000.0, d2),
+				 new Person(103, "Bam", "Singh", "bam@gmail.com", "788383382", LocalDate.of(2021, 01, 02), "Team leader", 65000.0, d2),
+				 new Person(104, "Renny", "Jim", "renny@gmail.com", "888385682", LocalDate.of(2020, 11, 02), "Manager", 85000.0, d3),
+				 new Person(105, "Adam", "Martin", "adam@gmail.com", "988383382", LocalDate.of(2019, 8, 12), "Team leader", 68000.0, d3),
+				 new Person(106, "Ricky", "Maryin", "rick@gmail.com", "968383382", LocalDate.of(2000, 11, 22), "Senior Manager", 75000.0, d4),
+				 new Person(107, "Johny", "Smith", "johny@gmail.com", "798383382", LocalDate.of(2000, 01, 12), "Senior Manager", 85000.0));
+		personRepository.saveAll(personList);
+	}
+
+	private void countBasedonDept() {
+		//List<Employee> lt=repo.findAllByOrderByNameAsc();
+		//lt.forEach(System.out::println);
+		
+		List<Object[]> list=repo.countByDepts();
+		Iterator i=list.iterator();
+		while(i.hasNext()) {
+			Object[] o=(Object[]) i.next();
+			System.out.println(o[0]+" "+o[1]);
+		}
+	}
+
+	private void onetoone() {
+		Patient opt=prepo.findById(1).get();
+		Diagnosis d=new Diagnosis();
+		d.setDia_id(10);
+		d.setSymtoms("Heart diesean");
+		d.setPhy_name("Narayana");
+		d.setPatient(opt);
+		drepo.save(d);
+		
+	}
+
+	private void countQueryInfo() {
+		 System.out.println(" -- finding the employee count in IT dept --");
+	      long count = repo.countByDept("IT");
+	      System.out.println(count);
+
+	      System.out.println(" -- finding the employee count with salary greater or equal to 4000  --");
+	      count = repo.countBySalaryGreaterThanEqual(30000.0);
+	      System.out.println(count);
+
+	      System.out.println(" -- finding the employee count with name ending with 'e'  --");
+	      count = repo.countByNameEndingWith("e");
+	      System.out.println(count);
+
+	      System.out.println(" -- finding the employee count with name like '%a_a' --");
+	      count = repo.countByNameLike("R%");
+	      System.out.println(count);
+	      
+	      System.out.println("---- Distinct male employee -----");
+	      List<Employee> list = repo.findDistinctByGender("male");
+	      list.forEach(System.out::println);
+	}
+
+	private void likeExpressionInfo() {
+		System.out.println(" -- finding employee with name like %ana --");
+	      List<Employee> list = repo.findByNameLike("R%");
+	      list.forEach(System.out::println);
+
+	      System.out.println(" -- finding employee with dept name more than 3 chars --");
+	      list = repo.findByDeptLike("___%");
+	      list.forEach(System.out::println);
+	}
+
+	private void limitedQueryInfo() {
+		System.out.println(" -- finding the employee with max salary --");
+	      Employee emp = repo.findTopByOrderBySalaryDesc();
+	      System.out.println(emp);
+
+	      System.out.println(" -- finding the employee with min salary --");
+	      emp = repo.findTopByOrderBySalaryAsc();
+	      System.out.println(emp);
+
+	      System.out.println(" -- finding the top 3 employees with max salary --");
+	      List<Employee> list = repo.findTop3ByOrderBySalaryDesc();
+	      list.stream().forEach(System.out::println);
+
+	      System.out.println(" -- finding the top 3 employees with min salary --");
+	      list = repo.findTop3ByOrderBySalaryAsc();
+	      list.stream().forEach(System.out::println);
+
+	      System.out.println(" -- finding the first 2 employees with salary 30000 --");
+	      list = repo.findFirst2BySalary(30000.0);
+	      list.stream().forEach(System.out::println);
+
+	      System.out.println(" -- finding the top 2 employees with max salary in HR dept --");
+	     // List<Employee> list = repo.findFirst2ByDeptOrderBySalaryDesc("HR");
+	      //List<Employee> list = repo.findTop3ByDeptOrderBySalaryDesc("HR");
+	      List<Employee> list1 = repo.findByOrderByNameAsc();
+	      list1.stream().forEach(System.out::println);
+		
+	}
+
+	private void derivedQueryInfo() {
+		 System.out.println(" -- finding by dept --");
+	      List<Employee> list = repo.findByDept("HR");
+	      Iterator<Employee> i=list.iterator();
+	      while(i.hasNext()) {
+	    	  Employee e=(Employee)i.next();
+	    	  System.out.println(e);
+	      }
+
+	      System.out.println(" -- finding by salary greater than 3000 --");
+	      List<Employee> list2 = repo.findBySalaryGreaterThan(30000.0);
+	      list2.stream().forEach(System.out::println);
+
+	      System.out.println(" -- finding by dept=HR and salary less than 40000 --");
+	      List<Employee> list3 = repo.findByDeptAndSalaryLessThan("HR", 40000.0);
+	      list3.stream().forEach(System.out::println);
+		
+		 List<Employee> list4 = repo.findByNameLikeAndSalaryGreaterThanOrderByNameDesc("R%", 35000);
+	      list4.stream().forEach(System.out::println);
+	}
+
+	private void updateEmployee(int id) {
+		if (repo.existsById(id)) {
+	          System.out.println("-- updating --");
+	          Employee employee2 = repo.findById(id).orElseThrow(RuntimeException::new);
+	          System.out.println(employee2);
+	          employee2.setSalary(55000.0);
+	          repo.save(employee2);
+	      }
+	}
+
+	private void checkEmployeeAndDelete(int id) {
+		if (repo.existsById(id)) {
+	          System.out.println("-- finding by id --");
+	          Optional<Employee> employeeOptional = repo.findById(id);
+	          Employee employee = employeeOptional.orElseThrow(RuntimeException::new);
+	          System.out.println(employee);
+
+	          System.out.println("-- deleting --");
+	          repo.delete(employee);
+	      }
+		
+	}
+
+	private void findAllEmployees() {
+		System.out.println("---Find single object----");
+		Optional<Employee> opt=repo.findById(11);
+		Employee emp=opt.get();
+		System.out.println(emp);
+		System.out.println("----Find multiple Object -----");
+		Iterable<Employee> all = repo.findAll();
+		System.out.println("All Employees: ");
+        all.forEach(item -> System.out.println(item));
+	}
+
+	private void createEmployee() {
+		//Step1
+	  Employee e1=new Employee(10,"Ram","male","ram@gmail.com",20000.0,"HR");
+	  repo.save(e1);  //used to save single Employee object
+		//Step 2
+		List<Employee> list=new ArrayList<>();
+		Employee e2=new Employee(11,"Sam","male","sam@gmail.com",30000.0,"Finance");
+		list.add(e2);
+		Employee e3=new Employee(12,"Penny","female","penny@gmail.com",35000.0,"Admin");
+		list.add(e3);
+		Employee e4=new Employee(14,"Rajesh","male","rajesh@gmail.com",40000.0,"HR");
+		list.add(e4);
+		Employee e5=new Employee(15,"Suchi","female","suchi@gmail.com",45000.0,"Sales");
+		list.add(e5);
+		repo.saveAll(list); //save multiple employee object 
+		System.out.println("Inserted Successfully");
+	}
+
+}
+
+
+Student.java
+package com.pack.SpringBootJPA1;
+
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.Table;
+
+@Entity
+@Table(name="stu200")
+public class Student {
+	@Id
+	//@GeneratedValue(strategy=GenerationType.AUTO)
+	private Integer id;
+	private String name;
+	private Integer age;
+	private String gender;
+	private String address;
+	public Integer getId() {
+		return id;
+	}
+	public void setId(Integer id) {
+		this.id = id;
+	}
+	public String getName() {
+		return name;
+	}
+	public void setName(String name) {
+		this.name = name;
+	}
+	public Integer getAge() {
+		return age;
+	}
+	public void setAge(Integer age) {
+		this.age = age;
+	}
+	public String getGender() {
+		return gender;
+	}
+	public void setGender(String gender) {
+		this.gender = gender;
+	}
+	public String getAddress() {
+		return address;
+	}
+	public void setAddress(String address) {
+		this.address = address;
+	}
+	public Student(Integer id, String name, Integer age, String gender, String address) {
+		super();
+		this.id = id;
+		this.name = name;
+		this.age = age;
+		this.gender = gender;
+		this.address = address;
+	}
+	public Student() {
+		super();
+		// TODO Auto-generated constructor stub
+	}
+	@Override
+	public String toString() {
+		return "Student [id=" + id + ", name=" + name + ", age=" + age + ", gender=" + gender + ", address=" + address
+				+ "]";
+	}
+    
+	
+}
+
+
+StudentRepository.java
+package com.pack.SpringBootJPA1;
+
+import java.util.List;
+
+import org.springframework.data.jpa.repository.JpaRepository;
+
+public interface StudentRepository extends JpaRepository<Student,Integer>{
+    List<Student> findByGender(String gender);
+    List<Student> findByNameLike(String name);
+    List<Student> findByGenderAndAgeGreaterThan(String gender,int age);
+    
+    long countByNameEndingWith(String endString);
+    long countByGender(String gender);
+}
+
+
+Employee.java
+package com.pack.SpringBootJPA1;
+
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.Table;
+
+@Entity
+@Table(name="emp1000")
+public class Employee {
+
+	@Id
+	private Integer id;
+	private String name;
+	private String gender;
+	private String email;
+	private Double salary;
+	private String dept;
+	
+	public Integer getId() {
+		return id;
+	}
+	public void setId(Integer id) {
+		this.id = id;
+	}
+	public String getName() {
+		return name;
+	}
+	public void setName(String name) {
+		this.name = name;
+	}
+	public String getGender() {
+		return gender;
+	}
+	public void setGender(String gender) {
+		this.gender = gender;
+	}
+	public String getEmail() {
+		return email;
+	}
+	public void setEmail(String email) {
+		this.email = email;
+	}
+	public Double getSalary() {
+		return salary;
+	}
+	public void setSalary(Double salary) {
+		this.salary = salary;
+	}
+	
+	public String getDept() {
+		return dept;
+	}
+	public void setDept(String dept) {
+		this.dept = dept;
+	}
+	public Employee(Integer id, String name, String gender, String email, Double salary,String dept) {
+		super();
+		this.id = id;
+		this.name = name;
+		this.gender = gender;
+		this.email = email;
+		this.salary = salary;
+		this.dept = dept;
+	}
+	public Employee() {
+		super();
+		// TODO Auto-generated constructor stub
+	}
+	@Override
+	public String toString() {
+		return "Employee [id=" + id + ", name=" + name + ", gender=" + gender + ", email=" + email + ", salary="
+				+ salary + ", dept=" + dept + "]";
+	}
+	
+}
+
+
+EmployeeRepository.java
+package com.pack.SpringBootJPA1;
+
+import java.util.List;
+import java.util.Map;
+
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.CrudRepository;
+
+public interface EmployeeRepository extends CrudRepository<Employee,Integer> {
+	  //Derived Query
+	  List<Employee> findByDept(String deptName);
+	  
+	  List<Employee> findAllByOrderByNameAsc();
+	  List<Employee> findBySalaryGreaterThan(double salary);
+	  List<Employee> findByDeptAndSalaryLessThan(String deptName, double salary);
+	  
+	  List<Employee> findByNameLikeAndSalaryGreaterThanOrderByNameDesc(String name, double salary);
+	  
+	  //Limited Query
+	  Employee findTopByOrderBySalaryDesc();  //findTopByOrderBySalaryDesc()
+	  Employee findTopByOrderBySalaryAsc();
+	  List<Employee> findByOrderByNameAsc();
+	  List<Employee> findTop3ByOrderBySalaryDesc();
+	  List<Employee> findTop3ByOrderBySalaryAsc();
+	  List<Employee> findFirst2BySalary(double salary);
+	  List<Employee> findFirst2ByDeptOrderBySalaryDesc(String deptName);
+	  List<Employee> findTop3ByDeptOrderBySalaryDesc(String deptName);
+	  //LIKE Expression
+	  List<Employee> findByNameLike(String nameString);
+	  List<Employee> findByDeptLike(String deptString);
+	  
+	  //count query
+	  long countByDept(String deptName);
+	  long countBySalaryGreaterThanEqual(double salary);
+	  long countByNameEndingWith(String endString);
+	  long countByNameLike(String likeString);
+	  
+	  @Query(value = "Select dept,count(dept) from emp1000 group by dept", nativeQuery = true)
+	  List<Object[]> countByDepts();
+	  
+	  List<Employee> findDistinctByGender(String gen);
+	  
+	  
+}
+
+
+Person.java
+package com.pack.SpringBootJPA1;
+
+import java.time.LocalDate;
+
+import javax.persistence.CascadeType;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.OneToOne;
+
+@Entity
+public class Person {
+   @Id
+   private Integer personId;
+   private String firstName;
+   private String lastName;
+   private String email;
+   private String phoneNumber;
+   private LocalDate hireDate;
+   private String designation;
+   private Double salary;
+   
+   @OneToOne(cascade=CascadeType.ALL)
+   @JoinColumn(name="departmentId")
+   private Department department;
+
+public Integer getPersonId() {
+	return personId;
+}
+
+public void setPersonId(Integer personId) {
+	this.personId = personId;
+}
+
+public String getFirstName() {
+	return firstName;
+}
+
+public void setFirstName(String firstName) {
+	this.firstName = firstName;
+}
+
+public String getLastName() {
+	return lastName;
+}
+
+public void setLastName(String lastName) {
+	this.lastName = lastName;
+}
+
+public String getEmail() {
+	return email;
+}
+
+public void setEmail(String email) {
+	this.email = email;
+}
+
+public String getPhoneNumber() {
+	return phoneNumber;
+}
+
+public void setPhoneNumber(String phoneNumber) {
+	this.phoneNumber = phoneNumber;
+}
+
+public LocalDate getHireDate() {
+	return hireDate;
+}
+
+public void setHireDate(LocalDate hireDate) {
+	this.hireDate = hireDate;
+}
+
+public String getDesignation() {
+	return designation;
+}
+
+public void setDesignation(String designation) {
+	this.designation = designation;
+}
+
+public Double getSalary() {
+	return salary;
+}
+
+public void setSalary(Double salary) {
+	this.salary = salary;
+}
+
+public Department getDepartment() {
+	return department;
+}
+
+public void setDepartment(Department department) {
+	this.department = department;
+}
+
+public Person(Integer personId, String firstName, String lastName, String email, String phoneNumber, LocalDate hireDate,
+		String designation, Double salary, Department department) {
+	super();
+	this.personId = personId;
+	this.firstName = firstName;
+	this.lastName = lastName;
+	this.email = email;
+	this.phoneNumber = phoneNumber;
+	this.hireDate = hireDate;
+	this.designation = designation;
+	this.salary = salary;
+	this.department = department;
+}
+
+public Person() {
+	super();
+	// TODO Auto-generated constructor stub
+}
+
+public Person(Integer personId, String firstName, String lastName, String email, String phoneNumber, LocalDate hireDate,
+		String designation, Double salary) {
+	super();
+	this.personId = personId;
+	this.firstName = firstName;
+	this.lastName = lastName;
+	this.email = email;
+	this.phoneNumber = phoneNumber;
+	this.hireDate = hireDate;
+	this.designation = designation;
+	this.salary = salary;
+}
+
+@Override
+public String toString() {
+	return "Person [personId=" + personId + ", firstName=" + firstName + ", lastName=" + lastName + ", email=" + email
+			+ ", phoneNumber=" + phoneNumber + ", hireDate=" + hireDate + ", designation=" + designation + ", salary="
+			+ salary + ", department=" + department + "]";
+}
+   
+   
+}
+
+
+PersonRepository.java
+package com.pack.SpringBootJPA1;
+
+import java.util.List;
+
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+
+
+public interface PersonRepository extends JpaRepository<Person,Integer> {
+	@Query(value = "select d.department_name,count(p.person_id) from person p,department d where p.department_id=d.department_id group by d.department_name", nativeQuery = true)
+	List<Object[]> countByDepts();
+	
+	List<Person> findByDepartmentIsNull();
+	
+	Person findTop1ByOrderByHireDateAsc();
+	
+	@Query(value="select first_name,last_name,hire_date from person where dayofweek(hire_date)=6",nativeQuery=true)
+	List<Object[]> findEmployeeJoinOnFriday();
+	
+	List<Person> findAllByOrderByPersonIdDesc();
+}
+
+
+Patient.java
+package com.pack.SpringBootJPA1;
+
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.OneToOne;
+import javax.persistence.Table;
+
+
+
+@Entity
+@Table(name="patient")
+public class Patient {
+ 
+	 @Id
+	 private int patientid;
+	 private String name;
+	 private int age;
+	 
+	 @OneToOne(mappedBy="patient")
+	 private Diagnosis diagnosis;
+
+	public int getPatientid() {
+		return patientid;
+	}
+
+	public void setPatientid(int patientid) {
+		this.patientid = patientid;
+	}
+
+	public String getName() {
+		return name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
+
+	public int getAge() {
+		return age;
+	}
+
+	public void setAge(int age) {
+		this.age = age;
+	}
+
+	public Diagnosis getDiagnosis() {
+		return diagnosis;
+	}
+
+	public void setDiagnosis(Diagnosis diagnosis) {
+		this.diagnosis = diagnosis;
+	}
+	 
+}
+
+Diagnosis.java
+package com.pack.SpringBootJPA1;
+
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.OneToOne;
+import javax.persistence.Table;
+
+
+
+@Entity
+@Table(name="diagnosis")
+public class Diagnosis {
+   
+	@Id
+	private Integer dia_id;
+	
+	private String symtoms;
+	private String phy_name;
+	
+	@OneToOne
+    @JoinColumn(name="pat_id")
+    private Patient patient;
+
+	public Integer getDia_id() {
+		return dia_id;
+	}
+
+	public void setDia_id(Integer dia_id) {
+		this.dia_id = dia_id;
+	}
+
+
+
+	public String getSymtoms() {
+		return symtoms;
+	}
+
+	public void setSymtoms(String symtoms) {
+		this.symtoms = symtoms;
+	}
+
+	public String getPhy_name() {
+		return phy_name;
+	}
+
+	public void setPhy_name(String phy_name) {
+		this.phy_name = phy_name;
+	}
+
+	public Patient getPatient() {
+		return patient;
+	}
+
+	public void setPatient(Patient patient) {
+		this.patient = patient;
+	}
+	
+	
+}
+
+
+PatientRepository.java
+package com.pack.SpringBootJPA1;
+
+import org.springframework.data.repository.CrudRepository;
+
+public interface PatientRepository extends CrudRepository<Patient,Integer> {
+
+}
+
+
+DiagnosisRepository.java
+package com.pack.SpringBootJPA1;
+
+import org.springframework.data.repository.CrudRepository;
+
+public interface DiagnosisRepository extends CrudRepository<Diagnosis, Integer> {
+   
+}
+
+
+Department.java
+package com.pack.SpringBootJPA1;
+
+import javax.persistence.Entity;
+import javax.persistence.Id;
+
+
+@Entity
+public class Department {
+	@Id
+   private Integer departmentId;
+   private String departmentName;
+public Integer getDepartmentId() {
+	return departmentId;
+}
+public void setDepartmentId(Integer departmentId) {
+	this.departmentId = departmentId;
+}
+public String getDepartmentName() {
+	return departmentName;
+}
+public void setDepartmentName(String departmentName) {
+	this.departmentName = departmentName;
+}
+public Department(Integer departmentId, String departmentName) {
+	super();
+	this.departmentId = departmentId;
+	this.departmentName = departmentName;
+}
+public Department() {
+	super();
+	// TODO Auto-generated constructor stub
+}
+
+}
+
+
+DepartmentRepository.java
+package com.pack.SpringBootJPA1;
+
+import org.springframework.data.jpa.repository.JpaRepository;
+
+public interface DepartmentRepository extends JpaRepository<Department, Integer>{
+
+}
+
+
+SpringBoot-JPA2
+
+pom.xml
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>org.springframework.boot</groupId>
+		<artifactId>spring-boot-starter-parent</artifactId>
+		<version>2.4.0</version>
+		<relativePath/> <!-- lookup parent from repository -->
+	</parent>
+	<groupId>com.pack</groupId>
+	<artifactId>SpringBoot-JPA2</artifactId>
+	<version>0.0.1-SNAPSHOT</version>
+	<name>SpringBoot-JPA2</name>
+	<description>Demo project for Spring Boot</description>
+
+	<properties>
+		<java.version>1.8</java.version>
+	</properties>
+
+	<dependencies>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-data-jpa</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>mysql</groupId>
+			<artifactId>mysql-connector-java</artifactId>
+			<scope>runtime</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-test</artifactId>
+			<scope>test</scope>
+		</dependency>
+	</dependencies>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.springframework.boot</groupId>
+				<artifactId>spring-boot-maven-plugin</artifactId>
+			</plugin>
+		</plugins>
+	</build>
+
+</project>
+
+
+application.properties
+spring.jpa.hibernate.ddl-auto=update
+spring.datasource.url=jdbc:mysql://localhost:3306/jpa
+spring.datasource.username=root
+spring.datasource.password=root
+
+logging.level.root=debug
+logging.level.org.org.springframework.web=info
+logging.level.com.pack=info
+
+# Logging pattern for the console
+logging.pattern.console=%d{yyyy-MM-dd HH:mm:ss} - %msg%n
+ 
+# Logging pattern for file
+logging.pattern.file=%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n
+#logging.path=logs
+logging.file.name=MyAppLogs/myapp.log
+
+
+SpringBootJpa2Application.java
+package com.pack.SpringBootJPA2;
+
+import java.time.LocalDate;
+import java.util.Arrays;
+import java.util.List;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.TimeUnit;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.CommandLineRunner;
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.data.domain.Sort;
+import org.springframework.scheduling.annotation.EnableAsync;
+
+@SpringBootApplication
+@EnableAsync
+public class SpringBootJpa2Application implements CommandLineRunner {
+	
+	@Autowired
+	EmployeeRepository repo;
+	
+	@Autowired
+	StudentRepository srepo;
+	
+	@Autowired
+	SeatRepository serepo;
+
+	public static void main(String[] args) {
+		SpringApplication.run(SpringBootJpa2Application.class, args);
+	}
+
+	@Override
+	public void run(String... args) throws Exception {
+		//namedQueryJpa();
+		//queryInfo();
+		//nativeQueryDemo();
+		//paramDemo();
+		//modifyingDemo();
+		//sortDemo();
+		//asyncDemo();
+		findStudent();
+		//createStudent();
+		//sortName();
+		//createStudent();
+	}
+
+
+	private void sortName() {
+		//List<Seat> l=serepo.findAllByGender("male");
+		//l.forEach(System.out::println);
+		List<GenderCount> l=serepo.countGenderWise();
+		for(GenderCount g:l)
+			System.out.println(g.getGender()+" "+g.getCount());
+	}
+
+	private void createStudent() {
+		/*List<Seat> seatList=Arrays.asList(
+				   new Seat(20,"sleeper",750.0,"Ramesh","male"),
+				   new Seat(21,"seater",450.0,"Ziya","female"),
+				   new Seat(22,"semisleeper",550.0,"Adam","male"),
+				   new Seat(23,"sleeper",850.0,"Martin","male"),
+				   new Seat(24,"seater",650.0,"Penny","female"));
+		serepo.saveAll(seatList);*/
+		List<Student> stList=Arrays.asList(
+				   new Student(20, "sanju", 23, LocalDate.of(2016,12,23)),
+				   new Student(21, "jack", 20, LocalDate.of(2021, 5, 14)),
+				   new Student(22, "jim", 24, LocalDate.of(2021,4,9))
+				   );
+		srepo.saveAll(stList);
+	}
+
+	private void findStudent() {
+	   int count=srepo.findStudent();
+	   System.out.println(count);
+	   
+	   List<Student> l=srepo.findStudentJoinOnFriday();
+	   for(Student s1:l)
+	   System.out.println(s1.getName()+" "+s1.getAge()+" "+s1.getDoj());
+	   
+	}
+
+	private void asyncDemo() throws  Exception {
+		System.out.println(" -- Async query  --");
+		CompletableFuture<Employee> cf=repo.findByEmail("sam@gmail.com");
+		Employee empl=cf.get(20,TimeUnit.SECONDS);
+		System.out.println(empl);
+		
+	}
+
+	private void modifyingDemo() {
+		int updateCount = repo.updateDeptSalaries("HR", 16);
+	      System.out.println("Update count: " + updateCount);
+
+	      System.out.println("-- all employees after update--");
+	      repo.findAll().forEach(System.out::println);
+	}
+
+
+	private void sortDemo() {
+		System.out.println(" -- finding by dept Sales sort by 'salary' and 'name'  --");
+	      List<Employee> list = repo.findByDept("HR", Sort.by("name", "salary").ascending());
+	      list.forEach(System.out::println);
+	}
+
+	private void paramDemo() {
+		 System.out.println(" -- find single employee --");
+	      Employee emp = repo.findEmployee(15);
+	      System.out.println(emp);
+	      
+	      System.out.println(" -- finding by dept Admin  --");
+	      List<Employee> list = repo.findByDepartment("Admin");
+	      list.forEach(System.out::println);
+	}
+
+	private void nativeQueryDemo() {
+		 System.out.println(" -- find single employee --");
+	      Employee emp = repo.findAllEmployee(16);
+	      System.out.println(emp);
+	      
+	      System.out.println("Native named query");
+	      List<Employee> list = repo.findBySalary();
+	      list.forEach(System.out::println);
+	}
+
+	private void queryInfo() {
+		System.out.println(" -- finding by name containing %ana  --");
+	      List<Employee> list = repo.findByName("%ana");
+	      list.forEach(System.out::println);
+	      System.out.println(" -- finding by name containing ana  --");
+	      list = repo.findByName2("ana");
+	      list.forEach(System.out::println);
+
+	      System.out.println(" -- finding via query method containing ana  --");
+	      list = repo.findByNameContaining("ana");
+	      list.forEach(System.out::println);
+	}
+
+	private void namedQueryJpa() {
+		  System.out.println(" -- finding max salaries in Admin and HR depts  --");
+	      List<Object[]> list = repo.findMaxSalariesByDept(Arrays.asList("Admin", "HR"));
+	      list.forEach(arr -> {
+	          System.out.println(Arrays.toString(arr));
+	      });
+	}
+
+}
+
+
+Employee.java
+package com.pack.SpringBootJPA2;
+
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.NamedNativeQuery;
+import javax.persistence.NamedQuery;
+import javax.persistence.Table;
+
+@Entity
+@NamedQuery(name= "Employee.findMaxSalariesByDept",
+query = "SELECT e.dept, MAX(e.salary) FROM Employee e GROUP BY e.dept HAVING e.dept in ?1")
+@NamedNativeQuery(name = "Employee.findBySalary",
+query="SELECT * FROM emp1000 e WHERE e.salary=34800",
+resultClass = Employee.class
+)
+@Table(name="emp1000")
+public class Employee {
+
+	@Id
+	private Integer id;
+	private String name;
+	private String gender;
+	private String email;
+	private Double salary;
+	private String dept;
+	
+	public Integer getId() {
+		return id;
+	}
+	public void setId(Integer id) {
+		this.id = id;
+	}
+	public String getName() {
+		return name;
+	}
+	public void setName(String name) {
+		this.name = name;
+	}
+	public String getGender() {
+		return gender;
+	}
+	public void setGender(String gender) {
+		this.gender = gender;
+	}
+	public String getEmail() {
+		return email;
+	}
+	public void setEmail(String email) {
+		this.email = email;
+	}
+	public Double getSalary() {
+		return salary;
+	}
+	public void setSalary(Double salary) {
+		this.salary = salary;
+	}
+	
+	public String getDept() {
+		return dept;
+	}
+	public void setDept(String dept) {
+		this.dept = dept;
+	}
+	public Employee(Integer id, String name, String gender, String email, Double salary,String dept) {
+		super();
+		this.id = id;
+		this.name = name;
+		this.gender = gender;
+		this.email = email;
+		this.salary = salary;
+		this.dept = dept;
+	}
+	public Employee() {
+		super();
+		// TODO Auto-generated constructor stub
+	}
+	@Override
+	public String toString() {
+		return "Employee [id=" + id + ", name=" + name + ", gender=" + gender + ", email=" + email + ", salary="
+				+ salary + ", dept=" + dept + "]";
+	}	
+}
+
+
+EmployeeRepository.java
+package com.pack.SpringBootJPA2;
+
+import java.util.List;
+import java.util.concurrent.CompletableFuture;
+
+import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.repository.Modifying;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.CrudRepository;
+import org.springframework.data.repository.query.Param;
+import org.springframework.scheduling.annotation.Async;
+import org.springframework.transaction.annotation.Transactional;
+
+public interface EmployeeRepository extends CrudRepository<Employee,Integer> {
+	//Named Queries
+	//public List<Object[]> findMaxSalariesByDept(List<String> deptNames);
+	
+	//@Query("SELECT e.dept, MAX(e.salary) FROM Employee e GROUP BY e.dept HAVING e.dept in ?1")
+	//public List<Object[]> findMaxSalariesByDept(List<String> deptNames);
+	
+	
+	public List<Object[]> findMaxSalariesByDept(List<String> deptNames);
+	
+	  @Query("SELECT e FROM Employee e WHERE e.name LIKE ?1")
+	  public List<Employee> findByName(String name);
+
+	  @Query("SELECT e FROM Employee e WHERE e.name LIKE %?1%") 
+	  public List<Employee> findByName2(String name);
+
+	  //Instead of LIKE, if query is not complex we use containing
+	  public List<Employee> findByNameContaining(String name);
+	  
+	  //Native Query
+	  @Query(value = "Select * from  emp1000 where id=?1 ", nativeQuery = true)
+	  public Employee findAllEmployee(Integer id);
+	  
+	  //NamedNativeQuery
+	  public List<Employee> findBySalary();
+	  
+	  //@Param
+	  @Query("select e from Employee e where e.id=:a")
+	  public Employee findEmployee(@Param("a")Integer empid);
+	  
+	  //#entityname
+	  @Query("SELECT e FROM #{#entityName} e WHERE e.dept = ?1")
+	  public List<Employee> findByDepartment(String deptName);
+	  
+	    @Transactional
+	    @Modifying
+	    @Query("UPDATE Employee e SET e.salary = e.salary + e.salary * :byPercent/100  WHERE e.dept = :dept")
+	    int updateDeptSalaries(@Param("dept") String dept, @Param("byPercent") double byPercent);
+	  
+	  //sort
+	  public List<Employee> findByDept(String deptName, Sort sort);
+
+	@Async
+	public CompletableFuture<Employee> findByEmail(String email);
+	  
+	  
+}
+
+
+GenderCount.java
+package com.pack.SpringBootJPA2;
+
+public class GenderCount {
+   private String gender;
+   private Long count;
+public String getGender() {
+	return gender;
+}
+public void setGender(String gender) {
+	this.gender = gender;
+}
+public Long getCount() {
+	return count;
+}
+public void setCount(Long count) {
+	this.count = count;
+}
+public GenderCount(String gender, Long count) {
+	super();
+	this.gender = gender;
+	this.count = count;
+}
+   
+}
+
+
+Seat.java
+package com.pack.SpringBootJPA2;
+
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.Table;
+
+@Entity
+@Table(name="seat1000")
+public class Seat {
+   @Override
+	public String toString() {
+		return "Seat [seatNo=" + seatNo + ", type=" + type + ", price=" + price + ", passengerName=" + passengerName
+				+ ", gender=" + gender + "]";
+	}
+@Id
+   private Integer seatNo;
+   private String type;
+   private Double price;
+   private String passengerName;
+   private String gender;
+public Integer getSeatNo() {
+	return seatNo;
+}
+public void setSeatNo(Integer seatNo) {
+	this.seatNo = seatNo;
+}
+public String getType() {
+	return type;
+}
+public void setType(String type) {
+	this.type = type;
+}
+public Double getPrice() {
+	return price;
+}
+public void setPrice(Double price) {
+	this.price = price;
+}
+public String getPassengerName() {
+	return passengerName;
+}
+public void setPassengerName(String passengerName) {
+	this.passengerName = passengerName;
+}
+public String getGender() {
+	return gender;
+}
+public void setGender(String gender) {
+	this.gender = gender;
+}
+public Seat(Integer seatNo, String type, Double price, String passengerName, String gender) {
+	super();
+	this.seatNo = seatNo;
+	this.type = type;
+	this.price = price;
+	this.passengerName = passengerName;
+	this.gender = gender;
+}
+public Seat() {
+	super();
+	// TODO Auto-generated constructor stub
+}
+   
+   
+}
+
+
+SeatRepository.java
+package com.pack.SpringBootJPA2;
+
+import java.util.List;
+import java.util.TreeMap;
+
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+
+
+public interface SeatRepository extends JpaRepository<Seat, Integer>{
+  List<Seat> findByOrderByPassengerNameDesc();
+   List<Seat> findAllByGender(String gender);
+   //@Query(value = "Select gender,count(gender) from Seat group by gender", nativeQuery = true)
+	 //List<Object[]> countGenderWise();
+   
+  // @Query(value = "Select gender,count(gender) from Seat1000 group by gender", nativeQuery = true)
+	// List<GenderCount> countGenderWise();
+   
+   @Query("SELECT new com.pack.SpringBootJPA2.GenderCount(p.gender,count(p.gender)) FROM Seat p GROUP BY p.gender ORDER BY p.gender DESC ")
+	 List<GenderCount> countGenderWise();
+}
+
+
+Student.java
+package com.pack.SpringBootJPA2;
+
+import java.time.LocalDate;
+
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.Table;
+
+@Entity
+@Table(name="stu2000")
+public class Student {
+	@Id
+   private int id;
+   private String name;
+   private int age;
+   private LocalDate doj;
+   
+public LocalDate getDoj() {
+	return doj;
+}
+public void setDoj(LocalDate doj) {
+	this.doj = doj;
+}
+public int getId() {
+	return id;
+}
+public void setId(int id) {
+	this.id = id;
+}
+public String getName() {
+	return name;
+}
+public void setName(String name) {
+	this.name = name;
+}
+public int getAge() {
+	return age;
+}
+public void setAge(int age) {
+	this.age = age;
+}
+
+
+public Student(int id, String name, int age, LocalDate doj) {
+	super();
+	this.id = id;
+	this.name = name;
+	this.age = age;
+	this.doj = doj;
+}
+public Student() {
+	super();
+	// TODO Auto-generated constructor stub
+}
+   
+}
+
+
+StudentRepository.java
+package com.pack.SpringBootJPA2;
+
+import java.util.List;
+
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+
+public interface StudentRepository extends JpaRepository<Student, Integer> {
+   
+	@Query(value="select count(id) from stu2000",nativeQuery=true)
+	  int findStudent();
+	
+	@Query(value="select p from Student p where dayOfWeek(p.doj)=2021")
+	List<Student> findStudentJoinOnFriday();
+}
+
+
+SpringBoot-PagingandSorting
+
+pom.xml
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>org.springframework.boot</groupId>
+		<artifactId>spring-boot-starter-parent</artifactId>
+		<version>2.4.0</version>
+		<relativePath/> <!-- lookup parent from repository -->
+	</parent>
+	<groupId>com.pack</groupId>
+	<artifactId>SpringBoot-PagingandSorting</artifactId>
+	<version>0.0.1-SNAPSHOT</version>
+	<name>SpringBoot-PagingandSorting</name>
+	<description>Demo project for Spring Boot</description>
+
+	<properties>
+		<java.version>1.8</java.version>
+	</properties>
+
+	<dependencies>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-data-jpa</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>mysql</groupId>
+			<artifactId>mysql-connector-java</artifactId>
+			<scope>runtime</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-test</artifactId>
+			<scope>test</scope>
+		</dependency>
+	</dependencies>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.springframework.boot</groupId>
+				<artifactId>spring-boot-maven-plugin</artifactId>
+			</plugin>
+		</plugins>
+	</build>
+
+</project>
+
+
+application.properties
+spring.jpa.hibernate.ddl-auto=update
+spring.datasource.url=jdbc:mysql://localhost:3306/jpa
+spring.datasource.username=root
+spring.datasource.password=root
+
+
+SpringBootPagingandSortingApplication.java
+package com.pack.SpringBootPagingandSorting;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.CommandLineRunner;
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
+import org.springframework.data.domain.Sort;
+
+@SpringBootApplication
+public class SpringBootPagingandSortingApplication implements CommandLineRunner {
+
+	@Autowired
+	private EmployeeRepository repo;
+	
+	public static void main(String[] args) {
+		SpringApplication.run(SpringBootPagingandSortingApplication.class, args);
+	}
+
+	@Override
+	public void run(String... args) throws Exception {
+		//createEmployee();
+		pageSortDemo();
+	}
+
+	private void pageSortDemo() {
+		 System.out.println(" -- finding all employees sorted by names --");
+	      Iterable<Employee> all = repo.findAll(Sort.by("name"));
+	      all.forEach(System.out::println);
+
+	      System.out.println(" -- paginate employees sorted by salaries  --");
+	      //Pageable pageable = PageRequest.of(5,5);
+	      //Pageable pageable = PageRequest.of(pageNo, pageSize, Sort.by("email"));
+	      //Pageable pageable = PageRequest.of(pageNo, pageSize, Sort.by("email").ascending()); 
+	      
+	      //Slice is very much similar to Page, except it does not provide the number of total pages in database. 
+	      //It helps in improving performance when we do not need to display total number pages in UI.
+	      Pageable pageable = PageRequest.of(0,2,Sort.by("salary").descending());
+
+	      while(true){
+	    	// Page<Employee> page = repo.findAll(pageable);
+	          Slice<Employee> page = repo.findAll(pageable);
+	          System.out.println("Page no: "+page.getNumber());
+	          page.getContent().forEach(System.out::println);
+	          if(!page.hasNext()){
+	              break;
+	          }
+	          pageable = page.nextPageable();
+	      }
+	}
+
+	private void createEmployee() {
+		List<Employee> list=new ArrayList<>();
+		Employee e1=new Employee("Diana", "Sales", 2000);
+		list.add(e1);
+		Employee e2=new Employee("Mike", "Sales", 1000);
+		list.add(e2);
+		Employee e3=new Employee("Rose", "IT", 4000);
+		list.add(e3);
+		Employee e4=new Employee("Sara", "Sales", 3000);
+		list.add(e4);
+		Employee e5=new Employee("Andy", "Sales", 3000);
+		list.add(e5);
+		Employee e6=new Employee("Charlie", "Sales", 2500);
+		list.add(e6);
+		Employee e7=new Employee("Jim", "Sales", 4500);
+		list.add(e7);
+		Employee e8=new Employee("Sam", "Sales", 2500);
+		list.add(e8);
+		Employee e9=new Employee("Adam", "Sales", 5000);
+		list.add(e9);
+		Employee e10=new Employee("Tanaka", "Sales", 5500);
+		list.add(e10);
+		Employee e11=new Employee("Joe", "Sales", 1500);
+		list.add(e11);
+		repo.saveAll(list);
+	}
+
+}
+
+
+Employee.java
+package com.pack.SpringBootPagingandSorting;
+
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.Table;
+
+@Entity
+@Table(name="emp1001")
+public class Employee {
+
+
+	@Id
+	@GeneratedValue(strategy=GenerationType.AUTO)
+	private int id;
+	private String name;
+	private String dept;
+	private int salary;
+	private int age;
+	
+	public int getAge() {
+		return age;
+	}
+	public void setAge(int age) {
+		this.age = age;
+	}
+	public int getId() {
+		return id;
+	}
+	public void setId(int id) {
+		this.id = id;
+	}
+	public String getName() {
+		return name;
+	}
+	public void setName(String name) {
+		this.name = name;
+	}
+	public String getDept() {
+		return dept;
+	}
+	public void setDept(String dept) {
+		this.dept = dept;
+	}
+	public int getSalary() {
+		return salary;
+	}
+	public void setSalary(int salary) {
+		this.salary = salary;
+	}
+	public Employee(String name, String dept, int salary) {
+		super();
+		this.name = name;
+		this.dept = dept;
+		this.salary = salary;
+	}
+	@Override
+	public String toString() {
+		return "Employee [id=" + id + ", name=" + name + ", dept=" + dept + ", salary=" + salary + "]";
+	}
+	
+
+	public Employee() {
+		super();
+		// TODO Auto-generated constructor stub
+	}
+}
+
+
+EmployeeRepository.java
+package com.pack.SpringBootPagingandSorting;
+
+import org.springframework.data.repository.PagingAndSortingRepository;
+
+public interface EmployeeRepository extends PagingAndSortingRepository<Employee, Long> {
+
+}
+
+
