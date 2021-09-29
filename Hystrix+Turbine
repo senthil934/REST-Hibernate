@@ -1,0 +1,1065 @@
+Example: Refer HystrixApplication project 
+Hystrix Dashboard | Fault Tolerant Circuit Breaker Design Pattern Example in Spring Boot - YouTube
+
+HystrixApplication project
+
+pom.xml
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>org.springframework.boot</groupId>
+		<artifactId>spring-boot-starter-parent</artifactId>
+		<version>1.5.10.RELEASE</version>
+		<relativePath/> <!-- lookup parent from repository -->
+	</parent>
+	<groupId>com.pack</groupId>
+	<artifactId>HystrixApplication</artifactId>
+	<version>0.0.1-SNAPSHOT</version>
+	<name>HystrixApplication</name>
+	<description>Demo project for Spring Boot</description>
+	<properties>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+		<java.version>1.8</java.version>
+		<spring-cloud.version>Edgware.SR2</spring-cloud.version>
+	</properties>
+
+	<dependencies>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-actuator</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-web</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.cloud</groupId>
+			<artifactId>spring-cloud-starter-hystrix</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.cloud</groupId>
+			<artifactId>spring-cloud-starter-hystrix-dashboard</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-test</artifactId>
+			<scope>test</scope>
+		</dependency>
+	</dependencies>
+
+	<dependencyManagement>
+		<dependencies>
+			<dependency>
+				<groupId>org.springframework.cloud</groupId>
+				<artifactId>spring-cloud-dependencies</artifactId>
+				<version>${spring-cloud.version}</version>
+				<type>pom</type>
+				<scope>import</scope>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.springframework.boot</groupId>
+				<artifactId>spring-boot-maven-plugin</artifactId>
+			</plugin>
+		</plugins>
+	</build>
+
+</project>
+
+
+application.properties
+server.port=8006
+
+
+HystrixApplication.java
+package com.pack.HystrixApplication;
+
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.cloud.client.circuitbreaker.EnableCircuitBreaker;
+import org.springframework.cloud.netflix.hystrix.dashboard.EnableHystrixDashboard;
+
+@SpringBootApplication
+@EnableCircuitBreaker
+@EnableHystrixDashboard
+public class HystrixApplication {
+
+	public static void main(String[] args) {
+		SpringApplication.run(HystrixApplication.class, args);
+	}
+
+}
+
+
+RestResource.java
+package com.pack.HystrixApplication;
+
+import org.apache.commons.lang.math.RandomUtils;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.netflix.hystrix.contrib.javanica.annotation.HystrixCommand;
+
+@RestController
+@RequestMapping("/rest")
+public class RestResource {
+
+    @HystrixCommand(fallbackMethod = "fallBackHello",
+            commandKey = "hello", groupKey = "hello")
+    @GetMapping("/hello")
+    public String hello() {
+        if (RandomUtils.nextBoolean()) {
+            throw new RuntimeException("Failed!");
+        }
+        return "Hello World";
+    }
+
+    @HystrixCommand(fallbackMethod = "fallBackHello",
+            commandKey = "helloYoutube", groupKey = "helloYT")
+    @GetMapping("/helloYT")
+    public String helloYT() {
+        if (RandomUtils.nextBoolean()) {
+            throw new RuntimeException("Failed!");
+        }
+        return "Hello World Youtube";
+    }
+
+    public String fallBackHello() {
+        return "Fall Back Hello initiated";
+    }
+}
+
+
+Example 2: Refer HystrixServer, HystrixBackendService, HystrixBackendServiceBackup
+
+HystrixServer project
+
+pom.xml
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>com.pack</groupId>
+	<artifactId>HystrixServer</artifactId>
+	<version>0.0.1-SNAPSHOT</version>
+	<name>HystrixServer</name>
+	<description>Demo project for Spring Boot</description>
+
+	<parent>
+		<groupId>org.springframework.boot</groupId>
+		<artifactId>spring-boot-starter-parent</artifactId>
+		<version>1.5.9.RELEASE</version>
+		<relativePath/> <!-- lookup parent from repository -->
+	</parent>
+
+	<properties>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+		<java.version>1.8</java.version>
+		<spring-cloud.version>Edgware.RELEASE</spring-cloud.version>
+	</properties>
+
+	<dependencies>
+		<dependency>
+			<groupId>org.springframework.cloud</groupId>
+			<artifactId>spring-cloud-starter-hystrix</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.cloud</groupId>
+			<artifactId>spring-cloud-starter-hystrix-dashboard</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-web</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-test</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>com.thoughtworks.xstream</groupId>
+			<artifactId>xstream</artifactId>
+			<version>1.4.8</version>
+		</dependency>
+	</dependencies>
+
+	<dependencyManagement>
+		<dependencies>
+			<dependency>
+				<groupId>org.springframework.cloud</groupId>
+				<artifactId>spring-cloud-dependencies</artifactId>
+				<version>${spring-cloud.version}</version>
+				<type>pom</type>
+				<scope>import</scope>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.springframework.boot</groupId>
+				<artifactId>spring-boot-maven-plugin</artifactId>
+			</plugin>
+		</plugins>
+	</build>
+
+</project>
+
+
+HystrixServerApplication.java
+package com.pack.HystrixServer;
+
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.cloud.client.circuitbreaker.EnableCircuitBreaker;
+import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
+import org.springframework.cloud.netflix.hystrix.EnableHystrix;
+import org.springframework.cloud.netflix.hystrix.dashboard.EnableHystrixDashboard;
+import org.springframework.context.annotation.Bean;
+import org.springframework.web.client.RestTemplate;
+
+@SpringBootApplication
+@EnableCircuitBreaker
+@EnableDiscoveryClient
+@EnableHystrixDashboard
+@EnableHystrix
+public class HystrixServerApplication {
+
+	public static void main(String[] args) {
+		SpringApplication.run(HystrixServerApplication.class, args);
+	}
+	
+	@Bean
+	public RestTemplate getTemplate(){
+		return new RestTemplate();
+	}
+	
+
+}
+
+
+DemoController.java
+package com.pack.HystrixServer.controller;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+@RestController
+public class DemoController {
+	
+	@Autowired
+	private HystixImpl hystixImpl;
+	
+	ResponseEntity<String> exchange = null;
+	
+	@RequestMapping("/getAccounts")
+	public String getAccounts() {
+		try{
+			exchange = hystixImpl.getName();
+			return exchange.getBody()+"::status code :"+exchange.getStatusCodeValue();
+		}catch(Exception e){
+			
+		}
+		return null;
+		
+	}
+	
+	
+}
+
+
+HystrixImpl.java
+package com.pack.HystrixServer.controller;
+
+import java.net.URI;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Component;
+import org.springframework.web.client.RestTemplate;
+
+import com.netflix.hystrix.contrib.javanica.annotation.HystrixCommand;
+
+@Component
+public class HystixImpl {
+
+	
+	@Autowired
+	private RestTemplate restTemplate;
+	
+	
+	@HystrixCommand(fallbackMethod = "defaultFallbackCallGetName")
+	public ResponseEntity<String> getName(){
+		try{
+			System.out.println("*********************Inside Main*******************");
+			URI endPoint = URI.create("http://localhost:8083/getName");
+			return restTemplate.getForEntity(endPoint, String.class);
+		}catch(Exception e){
+			throw new RuntimeException();
+		}
+		
+	}
+	
+	public ResponseEntity<String> defaultFallbackCallGetName(){
+		System.out.println("*********************Inside fallback*******************");
+		URI endPoint=URI.create("http://localhost:8084/getName");
+		return restTemplate.getForEntity(endPoint, String.class);
+	}
+	
+	
+}
+
+
+
+HystrixBackendService project
+
+pom.xml
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>com.pack</groupId>
+	<artifactId>HystrixBackendService</artifactId>
+	<version>0.0.1-SNAPSHOT</version>
+	<name>HystrixBackendService</name>
+	<description>Demo project for Spring Boot</description>
+
+   <parent>
+		<groupId>org.springframework.boot</groupId>
+		<artifactId>spring-boot-starter-parent</artifactId>
+		<version>1.5.9.RELEASE</version>
+		<relativePath/> <!-- lookup parent from repository -->
+	</parent>
+
+	<properties>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+		<java.version>1.8</java.version>
+		<spring-cloud.version>Edgware.RELEASE</spring-cloud.version>
+	</properties>
+
+	<dependencies>
+		<dependency>
+			<groupId>org.springframework.cloud</groupId>
+			<artifactId>spring-cloud-starter-hystrix</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.cloud</groupId>
+			<artifactId>spring-cloud-starter-hystrix-dashboard</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-web</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-test</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>com.thoughtworks.xstream</groupId>
+			<artifactId>xstream</artifactId>
+			<version>1.4.8</version>
+		</dependency>
+	</dependencies>
+
+	<dependencyManagement>
+		<dependencies>
+			<dependency>
+				<groupId>org.springframework.cloud</groupId>
+				<artifactId>spring-cloud-dependencies</artifactId>
+				<version>${spring-cloud.version}</version>
+				<type>pom</type>
+				<scope>import</scope>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.springframework.boot</groupId>
+				<artifactId>spring-boot-maven-plugin</artifactId>
+			</plugin>
+		</plugins>
+	</build>
+
+</project>
+
+
+application.properties
+server.port=8083
+
+
+HystrixBackendServiceApplication.java
+package com.pack.HystrixBackendService;
+
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
+
+@SpringBootApplication
+@EnableDiscoveryClient
+public class HystrixBackendServiceApplication {
+
+	public static void main(String[] args) {
+		SpringApplication.run(HystrixBackendServiceApplication.class, args);
+	}
+
+}
+
+
+DemoController.java
+package com.pack.HystrixBackendService.controller;
+
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+@RestController
+public class DemoController {
+
+	@RequestMapping("/getName")
+	public String getDetails() {
+		return "Value return from Backend service!!!";
+	}
+}
+
+
+HystrixBackendServiceBackup project
+
+pom.xml
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>com.pack</groupId>
+	<artifactId>HystrixBackendServiceBackup</artifactId>
+	<version>0.0.1-SNAPSHOT</version>
+	<name>HystrixBackendServiceBackup</name>
+	<description>Demo project for Spring Boot</description>
+
+	<parent>
+		<groupId>org.springframework.boot</groupId>
+		<artifactId>spring-boot-starter-parent</artifactId>
+		<version>1.5.9.RELEASE</version>
+		<relativePath/> <!-- lookup parent from repository -->
+	</parent>
+
+	<properties>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+		<java.version>1.8</java.version>
+		<spring-cloud.version>Edgware.RELEASE</spring-cloud.version>
+	</properties>
+
+	<dependencies>
+		<dependency>
+			<groupId>org.springframework.cloud</groupId>
+			<artifactId>spring-cloud-starter-hystrix</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.cloud</groupId>
+			<artifactId>spring-cloud-starter-hystrix-dashboard</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-web</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-test</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>com.thoughtworks.xstream</groupId>
+			<artifactId>xstream</artifactId>
+			<version>1.4.8</version>
+		</dependency>
+	</dependencies>
+
+	<dependencyManagement>
+		<dependencies>
+			<dependency>
+				<groupId>org.springframework.cloud</groupId>
+				<artifactId>spring-cloud-dependencies</artifactId>
+				<version>${spring-cloud.version}</version>
+				<type>pom</type>
+				<scope>import</scope>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.springframework.boot</groupId>
+				<artifactId>spring-boot-maven-plugin</artifactId>
+			</plugin>
+		</plugins>
+	</build>
+
+</project>
+
+
+application.properties
+server.port=8084
+
+
+HystrixBackendServiceBackupApplication.java
+package com.pack.HystrixBackendServiceBackup;
+
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
+
+@SpringBootApplication
+@EnableDiscoveryClient
+public class HystrixBackendServiceBackupApplication {
+
+	public static void main(String[] args) {
+		SpringApplication.run(HystrixBackendServiceBackupApplication.class, args);
+	}
+
+}
+
+
+DemoController.java
+package com.pack.HystrixBackendServiceBackup.controller;
+
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+@RestController
+public class DemoController {
+
+	@RequestMapping("/getName")
+	public String getDetails() {
+		return "Value return from Backend backup service!!!";
+	}
+}
+
+
+TurbineEurekaServer project
+
+pom.xml
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>org.springframework.boot</groupId>
+		<artifactId>spring-boot-starter-parent</artifactId>
+		<version>2.1.5.RELEASE</version>
+		<relativePath/> <!-- lookup parent from repository -->
+	</parent>
+	<groupId>com.pack</groupId>
+	<artifactId>TurbineEurekaServer</artifactId>
+	<version>0.0.1-SNAPSHOT</version>
+	<name>TurbineEurekaServer</name>
+	<description>Demo project for Spring Boot</description>
+
+	<properties>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+		<java.version>1.8</java.version>
+		<spring-cloud.version>Greenwich.SR1</spring-cloud.version>
+	</properties>
+	<dependencyManagement>
+		<dependencies>
+			<dependency>
+				<groupId>org.springframework.cloud</groupId>
+				<artifactId>spring-cloud-dependencies</artifactId>
+				<version>${spring-cloud.version}</version>
+				<type>pom</type>
+				<scope>import</scope>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
+	<dependencies>
+		<dependency>
+			<groupId>org.springframework.cloud</groupId>
+			<artifactId>spring-cloud-starter-netflix-eureka-server</artifactId>
+		</dependency>
+	</dependencies>
+
+</project>
+
+
+application.properties
+server.port= 8761
+
+eureka.client.registerWithEureka= false
+eureka.client.fetchRegistry= false
+
+eureka.server.waitTimeInMsWhenSyncEmpty= 0
+
+
+TurbineEurekaServerApplication.java
+package com.pack.TurbineEurekaServer;
+
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.cloud.netflix.eureka.server.EnableEurekaServer;
+
+@SpringBootApplication
+@EnableEurekaServer
+public class TurbineEurekaServerApplication {
+
+	public static void main(String[] args) {
+		SpringApplication.run(TurbineEurekaServerApplication.class, args);
+	}
+
+}
+
+
+TurbineHystrix project
+
+pom.xml
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>org.springframework.boot</groupId>
+		<artifactId>spring-boot-starter-parent</artifactId>
+		<version>2.1.5.RELEASE</version>
+		<relativePath/> <!-- lookup parent from repository -->
+	</parent>
+	<groupId>com.pack</groupId>
+	<artifactId>TurbineHystrix</artifactId>
+	<version>0.0.1-SNAPSHOT</version>
+	<name>TurbineHystrix</name>
+	<description>Demo project for Spring Boot</description>
+
+	<properties>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+		<java.version>1.8</java.version>
+		<spring-cloud.version>Greenwich.SR1</spring-cloud.version>
+	</properties>
+	<dependencyManagement>
+		<dependencies>
+			<dependency>
+				<groupId>org.springframework.cloud</groupId>
+				<artifactId>spring-cloud-dependencies</artifactId>
+				<version>${spring-cloud.version}</version>
+				<type>pom</type>
+				<scope>import</scope>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
+	<dependencies>
+		<dependency>
+			<groupId>org.springframework.cloud</groupId>
+			<artifactId>spring-cloud-starter-netflix-hystrix-dashboard</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.cloud</groupId>
+			<artifactId>spring-cloud-starter-netflix-turbine</artifactId>
+		</dependency>
+	</dependencies>
+
+</project>
+
+
+application.properties
+server.port= 9090
+
+spring.application.name= hystirx-turbine
+
+eureka.client.serviceUrl.defaultZone= http://localhost:8761/eureka/
+
+turbine.appConfig= user-service,recommendation-service
+
+#turbine.aggregator.clusterConfig= USER-SERVICE,RECOMMENDATION-SERVICE
+#or
+turbine.clusterNameExpression= new String("default")
+
+
+TurbineHystrixApplication.java
+package com.pack.TurbineHystrix;
+
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
+import org.springframework.cloud.netflix.hystrix.dashboard.EnableHystrixDashboard;
+import org.springframework.cloud.netflix.turbine.EnableTurbine;
+
+@SpringBootApplication
+@EnableTurbine
+@EnableDiscoveryClient
+@EnableHystrixDashboard
+public class TurbineHystrixApplication {
+
+	public static void main(String[] args) {
+		SpringApplication.run(TurbineHystrixApplication.class, args);
+	}
+
+}
+
+
+TurbineRecommendationService project
+
+pom.xml
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>org.springframework.boot</groupId>
+		<artifactId>spring-boot-starter-parent</artifactId>
+		<version>2.1.5.RELEASE</version>
+		<relativePath/> <!-- lookup parent from repository -->
+	</parent>
+	<groupId>com.pack</groupId>
+	<artifactId>TurbineRecommendationService</artifactId>
+	<version>0.0.1-SNAPSHOT</version>
+	<name>TurbineRecommendationService</name>
+	<description>Demo project for Spring Boot</description>
+
+	<properties>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+		<java.version>1.8</java.version>
+		<spring-cloud.version>Greenwich.SR1</spring-cloud.version>
+	</properties>
+	<dependencyManagement>
+		<dependencies>
+			<dependency>
+				<groupId>org.springframework.cloud</groupId>
+				<artifactId>spring-cloud-dependencies</artifactId>
+				<version>${spring-cloud.version}</version>
+				<type>pom</type>
+				<scope>import</scope>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
+	<dependencies>
+		<dependency>
+			<groupId>org.springframework.cloud</groupId>
+			<artifactId>spring-cloud-starter-netflix-eureka-client</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-web</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.cloud</groupId>
+			<artifactId>spring-cloud-starter-netflix-hystrix</artifactId>
+		</dependency>
+		 <dependency>
+	        <groupId>org.springframework.boot</groupId>
+	        <artifactId>spring-boot-starter-actuator</artifactId>
+	    </dependency>
+	</dependencies>
+</project>
+
+
+application.properties
+
+server.port= 8070
+
+spring.application.name= recommendation-service
+  
+eureka.client.serviceUrl.defaultZone= http://localhost:8761/eureka/
+
+management.endpoints.web.exposure.include=*
+
+
+TurbineRecommendationServiceApplication.java
+package com.pack.TurbineRecommendationService;
+
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.cloud.client.circuitbreaker.EnableCircuitBreaker;
+import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
+
+@SpringBootApplication
+@EnableDiscoveryClient
+@EnableCircuitBreaker
+public class TurbineRecommendationServiceApplication {
+
+	public static void main(String[] args) {
+		SpringApplication.run(TurbineRecommendationServiceApplication.class, args);
+	}
+
+}
+
+
+RecommendationServiceController.java
+package com.pack.TurbineRecommendationService;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.RestController;
+
+
+import com.netflix.hystrix.contrib.javanica.annotation.HystrixCommand;
+
+@RestController
+public class RecommendationServiceRestController {
+
+    @RequestMapping(value = "/recommendations", method = RequestMethod.GET)
+    @HystrixCommand(fallbackMethod = "recommendationFallback")
+    @ResponseBody
+    public List<Product> recommendations() {
+        List<Product> products = new ArrayList<Product>();
+        products.add(new Product("Product1", "Description1", "link1"));
+        products.add(new Product("Product2", "Description2", "link3"));
+        products.add(new Product("Product3", "Description3", "link3"));
+        return products;
+    }
+    
+    public List<Product> recommendationFallback() {
+        System.out.println("=======recommendationFallback=========");
+        return new ArrayList<Product>();
+    }
+
+}
+
+
+Product.java
+package com.pack.TurbineRecommendationService;
+
+public class Product {
+	
+	private String name;
+	
+	private String description;
+	
+	private String detailsLink;
+	
+	public Product(String name, String description, String detailsLink) {
+		super();
+		this.name = name;
+		this.description = description;
+		this.detailsLink = detailsLink;
+	}
+
+	public Product() {
+		// TODO Auto-generated constructor stub
+	}
+
+	public String getName() {
+		return name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
+
+	public String getDescription() {
+		return description;
+	}
+
+	public void setDescription(String description) {
+		this.description = description;
+	}
+
+	public String getDetailsLink() {
+		return detailsLink;
+	}
+
+	public void setDetailsLink(String detailsLink) {
+		this.detailsLink = detailsLink;
+	}
+
+}
+
+
+TurbineUserService project
+
+pom.xml
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>org.springframework.boot</groupId>
+		<artifactId>spring-boot-starter-parent</artifactId>
+		<version>2.1.5.RELEASE</version>
+		<relativePath/> <!-- lookup parent from repository -->
+	</parent>
+	<groupId>com.pack</groupId>
+	<artifactId>TurbineUserService</artifactId>
+	<version>0.0.1-SNAPSHOT</version>
+	<name>TurbineUserService</name>
+	<description>Demo project for Spring Boot</description>
+
+	<properties>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+		<java.version>1.8</java.version>
+		<spring-cloud.version>Greenwich.SR1</spring-cloud.version>
+	</properties>
+	<dependencyManagement>
+		<dependencies>
+			<dependency>
+				<groupId>org.springframework.cloud</groupId>
+				<artifactId>spring-cloud-dependencies</artifactId>
+				<version>${spring-cloud.version}</version>
+				<type>pom</type>
+				<scope>import</scope>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
+	<dependencies>
+		<dependency>
+			<groupId>org.springframework.cloud</groupId>
+			<artifactId>spring-cloud-starter-netflix-eureka-client</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-web</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.cloud</groupId>
+			<artifactId>spring-cloud-starter-netflix-hystrix</artifactId>
+		</dependency>
+		 <dependency>
+	        <groupId>org.springframework.boot</groupId>
+	        <artifactId>spring-boot-starter-actuator</artifactId>
+	    </dependency>
+	</dependencies>
+
+</project>
+
+
+application.properties
+server.port= 8060
+
+spring.application.name= user-service
+  
+eureka.client.serviceUrl.defaultZone= http://localhost:8761/eureka/
+
+management.endpoints.web.exposure.include=*
+
+
+TurbineUserServiceApplication.java
+package com.pack.TurbineUserService;
+
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.cloud.client.circuitbreaker.EnableCircuitBreaker;
+import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
+import org.springframework.cloud.client.loadbalancer.LoadBalanced;
+import org.springframework.context.annotation.Bean;
+import org.springframework.web.client.RestTemplate;
+
+@SpringBootApplication
+@EnableDiscoveryClient
+@EnableCircuitBreaker
+public class TurbineUserServiceApplication {
+
+	public static void main(String[] args) {
+		SpringApplication.run(TurbineUserServiceApplication.class, args);
+	}
+   
+	@LoadBalanced
+    @Bean
+    RestTemplate restTemplate() {
+        return new RestTemplate();
+    }
+}
+
+
+UserRestController.java
+package com.pack.TurbineUserService;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.client.RestTemplate;
+
+import com.netflix.hystrix.contrib.javanica.annotation.HystrixCommand;
+
+@RestController
+public class UserRestController {
+
+    @Autowired
+    RestTemplate restTemplate;
+
+    @GetMapping(value = "/personalized/{id}")
+    @HystrixCommand(fallbackMethod = "recommendationFallback")
+    public Product[] personalized(@PathVariable int id) {
+        Product[] result = restTemplate.getForObject("http://recommendation-service/recommendations", Product[].class);
+        return result;
+    }
+
+    public Product[] recommendationFallback(int id) {
+        System.out.println("=======recommendationFallback=========" + id);
+        return new Product[0];
+    }
+
+}
+
+
+Product.java
+package com.pack.TurbineUserService;
+
+public class Product {
+
+    private String name;
+
+    private String description;
+
+    private String detailsLink;
+
+    public Product(String name, String description, String detailsLink) {
+        super();
+        this.name = name;
+        this.description = description;
+        this.detailsLink = detailsLink;
+    }
+
+    public Product() {
+        // TODO Auto-generated constructor stub
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public String getDetailsLink() {
+        return detailsLink;
+    }
+
+    public void setDetailsLink(String detailsLink) {
+        this.detailsLink = detailsLink;
+    }
+
+}
+
