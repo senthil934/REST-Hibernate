@@ -1,0 +1,216 @@
+What is Kubernetes?
+   Earlier organization deploy the appl on physical server in traditional way, there will one physical server (ie) hardware, on that hardware there will OS and top of that OS, there will be different appl deployed to it
+   If multiple appl is deployed in this type of situations then few of resources will be utilized by app1 and few of resources are utilized by app2. There comes a scenario like when there is load on anyone appl most of resources has been utilized by that appl and other appl is under utilized, so its not having proper resources to work properly. This is drawback of traditional approach
+   To overcome this situation, virtualization is introduced. So virtualization allows to run multiple VM's on single physical server (ie) hardwar, top of hardware we have OS, top of OS we have hypervisior, top of hyervisior we can install multiple VM's. All those VM will have its own OS and top of that we can deploy our appl. This allows us to utilize resources effectively, suppose we have app1 needs few of resources then with that resources we can create VM and deploy app1 on that VM. For app2 we can create different VM and deploy that appl to that VM
+   This way utilization of resources is handy and gives better scalability and reduces hardware cost. Now VM have its own OS, few of the resources are utilized to run OS as well, so proper utilization of resources is not done for the appl. As few of resources are handled to run OS and few to run appl on that VM.
+   As solution to this containerization comes into picture, Containers are similar to VM but they share same OS, so they consider as lightweight.
+  Similar to VM, containers have their own file system, its share of CPU, memory and processor space. They are decoupled from underlying infrastructure so they can be managed and deployed on any of hardware, it can be local system or cloud. So maintaining and deploying them is very easy 
+   In production env, u have to maintain ur containers and make sure there is no downtime. For example, if there is any container u deployed in production env, then if that container goes down then we have to spin up new containers and we have to maintain them, if u want this behaviour to handle by any of system for that purpose Kubernetes comes into picture 
+   Kubernetes is container orchestration tool developed by google, it helps to manage containerize appl. If we have 100 and 1000s of containers deployed in production env then we go for Kubernetes. It mainly provides high availability and high scalability. 
+   So whenever there is a issue in ur appl or containers, Kubernetes comes into picture and it will create new container for u without bothering u, so high avalibilty is prime feature of Kubernetes.
+   High scalability, so if u want to up scale or down scale ur appl according to request processing of the appl, then it is easily handled with Kubernetes components 
+
+
+Kubernetes Components
+
+1. Pod
+     Smallest unit of Kubernetes is Pod. Lets take Java appl connected to mysql database, so here we have 2 appl both of them on different containers, so we can deploy both the containers in individual pods. So we have 2 pods 1 for appl and 1 for database and deploy 2 pods to kubernetes cluster 
+    Generally 1 pod will have 1 appl (ie) 1 container. On creation of Pod, each pod will be getting its own IP address, so internally within virtual network they both can be connected between IP address that are created.        Suppose any issue happened in pod so new pod will be created with new IP address, in that case configuration would be difficult because earlier we have already configured ur appl to work on that internal IP which was already there. Now new pod is created and again we have to configure on that new IP address. In that another component Service comes into picture
+
+2. Service
+      It is a abstract layer for exposing API's, so we will create service for the pods we created. Services and pods will be having different lifecycle, so whenever Pod is destroyed, service will be present. So whenever new pods are created based on availability or scalability of the configuration, all will be connected to that particular service and our multiple appl are connected via that service which is been exposed in order IP address.
+     So configuration will be taken care using the service endpoint that we created, so that will solve the issue earlier we had with IP address.
+    So service can be internal service or external service,so if ur appl can be accessed outside ur kubernetes cluster so for that we create ur external service and for database we create internal service because from outside we should not allow to access ur database, ur appl can directly access the database from internal service that we created
+   When u create external service,that service will have IP address and port details but that is not the way to share ur appl to user. You want particular DNS name that u want to share, so when user tries to get that particular domain name, then from that domain name ur IP address is resolved and it will call ur appl, in that case ingress component comes into picture 
+   So u will create an ingress component for ur service, so it will resolve ur request. So whenever ur request coming to that ingress using domain name, it will resolve that to ur internal appl, deployed to ur kubernetes cluster.
+   So there will be one extra layer on top of ur service called ingress and all our services are loadbalanced. So if u have multiple pods deployed to ur kubernetes cluster and all pods are connected to single service, so that service is loadbalanced, so that it will internally decides to which appl that request has to be passed and internally it will resolve the request 
+    Suppose we have our appl and our database both in individual pods and if we change our database so entire configuration is been changed. Now our appl has to connect to new database that we create to connect. Typically now we create all those configuration that our appl should connect to this database inside our application.properties file. To change those properties file, we have to again rebuild or deploy our appl which is again tedious, for that we have to use config map  
+
+3. Config Map 
+     All our connection details or external configuration we can create in config map and connect that config map to our application, so that whenever there is a change in configuration we have to just change in configmap and Kubernetes takes care of everything and all our appl works consistently, so this way we can introduce configmap in cluster
+
+4. Secrets 
+    Consider we have scenarios where we want to store ur credentails or passwords in ur appl and storing all those in configmap in plain text is not feasible. So to store all those credentials we have secrets  
+    Secrets will be storing all ur credentials or data in base64 encoded format and deploy the secrets in ur kubernetes cluster 
+
+5. Volumes
+     Whenever there is an issue in pod, that pod is destroyed and new pod is created. Consider there is an issue in database pod, that db pod is destroyed and new db pod is created, so all ur data will be destroyed, but that we dont want. We have to store the data and whenever new pod is created that new pod should have all those data that earlier it was having. To achieve this we use volume to store all those persistent data 
+    All ur mongodb database, all ur filesystem for all of that we create the volumes and attach those volumes to ur kubernetes component.
+    So volumes are nothing but external storage like harddrive or any storage provided by local or cloud. Volume also 2 types 
+   1. Create volume locally inside kubernetes cluster 
+   2. Create remote volume to any of cloud provider 
+
+6. Deployment 
+By any chance ur pod is destroyed and new pod is created, so it will some time to create new pod and meanwhile any user is trying to access that appl, they wont be able to access that appl, so purpose of high availablity and high scalability is not achieved
+   To achive high availability (ie) whenever pod is destroyed and new pod is created, until that u should have replica of it. So we can create entire replica of ur appl like pod, services etc and u can connect all those replicas to ur services.
+   To make replicas of ur appl, deployment comes into picture. Deployment is another kubernetes component which is abstraction for entire appl and u can specify replication factor (ie) how many replicas u want to create, how to up scale and how to down scale all things can be defined in ur deployments 
+
+7. StatefulSet
+      Deployments will create multiple instance for it and all those instances are connected using the services. If u r creating database using deployment, then multiple instance for database will be created and synchronization wont be happening, so there is duplication of data as well in database. So u dont want ur database or stateful app to be running using deployment, to do that we have another component called StatefulSet
+     Used when u r working with databases or the data that has to be synchronized across all ur replicas. But to set a statefulset is more complex or more tedious then do ur deployment, so always preferred to do deployment for stateless app and for database or persistent storage try to do externalization (ie) create database separately from kubernetes cluster 
+
+
+Installing Kubectl and Minikube 
+    Typically Kubernetes works in a cluster, in production env then there is high chance for multiple master node and multiple worker node working in Kubernetes cluster. But if we work in local env, creating cluster is difficult task so for that we use Minikube 
+    Minikube is tool that allows to create single node cluster in local env. Kubectl is command line interface for running commands against kubernetes cluster 
+    To install Minikube and Kubectl is through chocalatey package manager which is package manager for windows 
+
+1. Goto https://chocolatey.org/install
+2. Open Powershell as admin and give
+Set-ExecutionPolicy Bypass -Scope Process -Force; [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072; iex ((New-Object System.Net.WebClient).DownloadString('https://community.chocolatey.org/install.ps1'))
+
+3. To check whether it is installed 
+   > choco
+4. To get help
+   > choco -?
+
+5. To install kubectl
+   >choco install kubernetes-cli 
+If docker is already installed, then kubectl will be installed with docker, if docker is not there we install kubectl using above code 
+
+6. To install minikube
+   >choco install minikube 
+Minikube is used to create cluster within kubernetes env
+
+7. Kubernetes run in virtual env, so virtualization should be enabled, to check 
+   > systeminfo 
+
+8. To start minikube we need to provide virtual env, if docker is already installed then minikube will take docker as default env. But we have many more virtual env like hyperkit, virtualbox,vmware, if we use windows10 then Hyperv is available
+  To enable Hyperv in windows10, goto features - Turn windows features on or off - we need to enable Hyperv 
+
+9. To start minikube
+   >minikube start
+Now minikube cluster start with docker, but if u want to someother driver 
+   >minikube start --driver=hyperv
+
+10. To check cluster started on docker
+   >minikube status
+
+11. To enable kubernetes dashboard
+   >minikube dashboard
+
+12. We can run all kubectl commands on minikube cluster
+   >kubectl get pods
+
+13. To stop minikube cluster
+   >minikube stop
+
+14. To check status
+   >minikube status
+Now all components will be stopped in minikube cluster 
+
+15. To delete minikube cluster
+   > minikube delete
+
+16. We can start the cluster in hyperv also
+   >minikube start --driver=hyperv
+
+So whatever virtualization we use,we have to provide the driver for that env, minikube will start cluster in that env, same commands can be used in hyperv also
+
+Kubernetes commands with examples
+   A smallest deployable component in kubernetes is pod, so we containerize ur appl into container and we have abstract layer for that which is pod. So we deploy single pod for particular container. But in an appl, we abstract that pod into deployment so we will deploying a deployment and that deployment containing different pods and different container for that pods
+
+1. To get components like pods, deployments, services, replicasets, nodes that are in kubernetes cluster
+   >kubectl get pods
+No resources found in default namespace
+   >kubectl get deployment
+   >kubeclt get service
+
+2. To create deployment
+   > kubectl create deployment nginx-server --image=nginx
+Whatever image we are deployed over here, it will check in system whether it is available or not, if not it fetch image from registry (ie) docker and build using deployment
+
+
+3. To view deployment
+   > kubectl get deployment 
+4. To view pod
+   > kubectl get pods
+
+5. One more component is created in deployment is replicaset, which contains how many replicas contain for that pod for our deployment
+  > kubectl get replicaset
+
+When created nginx deployment, first thing is created is replicaset, after replicaset is created by default 1 replicaset is created, pod will be created, so how many replicas we define in replicaset accordingly pods will be created 
+
+6. If u want to see what are the different steps happened for the deployment, then we describe the result
+ > kubectl describe deployment nginx-server
+
+7. To describe pod
+      > kubectl describe pod
+We can see it is scheduled, previously we saw whenever we give command to API server, this api server will pass information to scheduler and from scheduler the information is passed to nodes (ie) kubelet
+
+8. To change replica in deployment
+   > kubectl edit deployment 
+It will be yml file, if we want to create 2 replica, then we can change replicas as 2, now 2 pods will be created for replicaset 
+
+9. Now if we see the pod, it will be created 2 pods
+  > kubectl get pods
+
+10. To debug the appl and check the logs we use 
+  > kubectl logs "podname"
+
+11. From logs itself if we cant find the issue, if we want to go inside the container and debug the issue then
+  > kubectl exec -it "podname" -- bin/bash
+
+We will be in interactive mode for this particular container. Now we will be in root of that container, now from here we can identify if we have any issue, we can go inside container and debug the issue 
+
+12. If we want to delete the deployment, we dont want to delete pod, services, replicaset we have created, u can directly delete the deployment where it automatically delete other components 
+  > kubectl delete deployment nginx-server
+
+Now if u see pod, deployment everything will be deleted and in service we have only default service called kubernetes
+>kubectl get pods
+>kubectl get deployment
+>kubectl get service
+
+13. If u r going with production appl, by giving commands this is not efficient. There will be many appl connected to each other, so we can create configuration files for it and we can directly deploy the configuration file is kubernetes cluster. All configuration files can be created using json or yml file 
+
+
+Kubernetes YAML Configuration
+    Typical kubernetes configuration file, there are different components we look for
+
+1. API version
+     API version which we are using for particular component, so there are different components available in different version of Kubernetes API, that information is defined in API version 
+
+2. Kind
+   what is kind of component, it can be deployment or service or replicaset and other. So kind will define what is the component that we are trying to create 
+
+3. Metadata
+    Defines the data about that particular component. We can define name of that particular component, define labels for that component 
+
+4. Specification
+    What is the specification for that component, all the component will have different specification or attributes related to that component. Like deployment will have different set of attributes in specification and service may have different set of attributes for that particular specification
+ 
+5. Status   
+    We wont define status when we define configuration file, but when we pass configuration file to api server, status attribute is created by kubernetes 
+   So whenever we define specification for any of components we give a decide behaviour. Kubernetes will stores those information in etcd key store and kubernetes will try to understand this are decided behavior and based on that behavior we need to create component described
+   So this way all components will be described and stored in status attribute for that particular configuration
+
+1. Create deployment from config file
+   > kubectl apply -f .\deploy.yml
+
+2. To view deployment
+   > kubectl get deployment 
+
+3. To create service using config file
+   > kubectl apply -f .\svc.yml
+
+4. To view service
+   > kubectl get service
+
+5. To verify whether service is created in same port
+   > kubectl describe service myapp-svc
+
+6. To view pods details
+   > kubectl get pods
+
+7. To view pods with IP address and other details
+   > kubectl get pods -o wide
+
+8. Once component is created, we get status information either from yml or json file. To get info in form of yml file 
+   > kubectl get deployment -o yaml
+
+9. To open the service and connect to pods that we have created. To connect the service we use minikube
+   > minikube service "servicename"
+   > minikube service myapp-svc
+
+Kubernetes Namespace
+    There are lot of microservices and we want to deploy everything in Kubernetes cluster, so all this microservice will deployed in kubernetes cluster in default namespace 
