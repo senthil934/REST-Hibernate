@@ -1,0 +1,658 @@
+https://dev.to/martinbelev/how-to-enable-junit-5-in-new-spring-boot-project-29a8
+
+Jenkins
+
+Process before CI
+   We have group of developers who are taking changes that are present in Source code repository and when entire source code of the application is written it will be built by tools like ant,maven etc.
+    After that the build appl will be deployed on the test server for testing, if there is any bug in code the developer will notify with the feedback loop and if there is no bug then appl is deployed in production for release.
+    
+Problems before CI
+  1. Developers have to wait till the complete software is developed for test results
+  2. Since the entire source code of the appl is first build and then it is tested. So if any bug in the code,developer has to go through the entire source code of the application.
+   3. Developers were actually wasting lot of time in locating and fixing bugs instead of building new appl.So software delivery process was slow
+   4. Continous feedback related to build failure, test status was not present, due to which the developers is unaware of how the appl is doing 
+
+Continous Integration
+     We have multiple developers if any one of them makes any commit to the source code present in repository. The code will be pulled, it will be build, tested and deployed.
+    So advantage is any commit made to code is build and tested due to which any bug in the code, the developer actually know where the bug is present and which commit cause the error, so no need to go through the entire source code of application, just need to check that commit that introduce the bug.
+
+What is CI?
+    The developers are required to make frequent commit to the source code,because of that any changes made in the source code will pull the latest version called pooling repository by CI server and that code will be build, then it will deploy on test server for testing and once testing is done it also deployed in production for release and developers getting continuous feedback on the run.
+
+Continuous Integration tool
+1. Jenkins written in Java 
+2. Buildbot
+3. Travis CI
+4. Bamboo
+
+In eclipse, tomcat is responsible for converting the appl to war or jar package, whereas in Jenkins, by default tomcat is server.
+
+The use of plugin, is to integrate Jenkins with maven or git or sonarqube. So in Jenkins everything is plugin 
+
+We see how to build the appl, compile, test and generate the report using sonarqube in Jenkins
+
+Steps
+1. Pulling the data from GIT repository
+2. Building the compilation
+       - using Freestyle project - everything we have manually configure
+       - using pipeline project - we will write groovy script, run the script and the script will take care everything - we will use in realtime env
+      Like maven how it creates .m2 folder, jenkins also creates .jenkins folder  which contains what job we created, plugin installed everything will present. In realtime mostly we have to go jenkins.exe rather than jenkins.war because each time we dont want to start each time.
+
+Whenever we do any work in jenkins dashboard, by default all programs are stored in c:/users/name/.jenkins folder because JENKINS_HOME is mapped to this particular folder. If we want to change the path, then we change the path of JENKINS_HOME so that we can store all jobs in customized location.
+
+1. Create a project 
+2. Right click project -- Team -- Share project
+3. Create a local repoistory(it will push in remote repoistory at the time of commit)
+   Click create -- c:/senthil.kumart/git -- create a folder under git
+    click finish
+4. Right click project -- Team 
+    Select all files from unstaged and put into staged files
+    Give commit message
+   Click commit & push
+5. Give URI: from GIT url
+   port: 
+   Username: hcl username 
+   password: hcl pwd
+   click next
+     click finish
+Now the project will be pushed inside gitlab
+
+6.Build the project in jenkins
+   1. Download jenkins.war from google https://updates.jenkins-ci.org/download/war/ 2.2.04
+   2. Go to cmd prompt where jenkins.war is present and run the jenkins in specific port
+        >java -jar jenkins.war --httpPort=2000
+             Copy the generated password
+   3. Run jenkins in browser as http://localhost:2000
+   4. Login with generated password -- click login
+   5. Click Installed plugin -- all plugins will be installed
+   6. Give username and password as all admin
+   7. Click save and continue
+   8. Click Save and finish
+   9. Click Start Jenkins
+   12. Goto Jenkins -- Manage Jenkins -- Global tool Configuration
+         * Input JDK first -- Uncheck Install automatically
+             JDK NAME: Java
+              Path: c:\prg files\Java\jdk
+         * Click Maven 
+             Maven name: Maven
+             Path: c:\software\apachemaven\apachemaven
+         * Click Save
+So that jENKINS know the Maven and Java present in our machine
+   10. Click new item
+         Enter item name: Spring project
+            Click Freestyle project
+            Click Ok
+   11.Goto SCM
+         Git: Copy and paste the GIT url
+              Click Add --- Jenkins -- Give git username and password --  Click Save
+               Select ur name from drop menu
+               Click Save
+   
+   13. Go to project dashboard -- Select the dropmenu from project and click build now
+     ----creates the workpace and put project inside jenkins, goto users/.jenkins/workspace, now u can see the project which is fetched from GIT and check in the dashboard also inside workspace dir
+   14. Once the build was successful Go to Confgiure -- Source code mgt -- Build option -- choose Invoke top level maven targets -- Maven version (select the name given for maven installation)
+     Goals: clean install
+     click Advanced
+     POM: give the pom.xml (which is present inside users/.jenkins/workspace/project) - the path will take till project folder
+     Click save -- CLICK apply
+  15. Again go to project and once again Build now
+        First build is to create workspace and second build to run the project with pom.xml
+     Now the build is success 
+  16. Now goto .jenkins/workspace/projectname/target/surefire-reports. Now if we want to get those test reports in Jenkins once the build is success
+  - Copy the path of surefire-reports - C:\Users\senthil.kumart\.jenkins\workspace\SpringBootProject\target\surefire-reports
+   Now I want to generate this report when the build is successful so we do in Post build options
+  - Goto configure - SCM - Post build Actions - Publish Junit test result report - Paste the path (remove till project name) -
+            target\surefire-reports\*.xml
+  - Click Apply and Save
+  - Build the project
+  - Go to project dashboard, u can Latest Test Result Link which contains all test reports
+
+   17. Sometimes when u build ur appl using mvn clean install, even though  ur appl is correct, but due to some test case failure, it would say build failure.
+    But if we want the appl to be build success even though the testcase is failed then we have to configure in pom.xml as
+ <plugin>
+	
+<groupId>org.apache.maven.plugins</groupId>
+	
+<artifactId>maven-surefire-plugin</artifactId>
+	
+<version>2.22.0</version>
+	
+<configuration>
+		
+<testFailureIgnore>true</testFailureIgnore>
+	
+</configuration>
+
+</plugin>
+            
+
+18. To run sonarqube in jenkins for code coverage
+   1. Install sonarqube scanner
+   1. Go to jenkins project -- configure -- SCM -- Build -- choose Invoke top level maven targets
+      Creates another maven version
+      Maven version: maven (select the name given at maven installation)
+      Goals: sonar:sonar
+      POM: give the project/pom.xml (which is present inside users/.jenkins/worspace/project)
+      Properties:-Dsonar.host.url=http://localhost:9000
+      Click Save
+   2. start the sonarqube 
+   3. Build now the project
+   3. It will generate a link where it goes to the Sonarqube dashboard which contains code coverage, code smell
+
+19. Inorder to display Sonarqube result in Jenkins itself. In case it is not present, just run jenkins once again and try
+    - Goto Manage Jenkins - Configure System -In Sonarqube servers - Click Add Sonarqube
+        Name: Sonarqube (anyname)
+        Server url : http://localhost:9000
+        - click Apply and Save
+Goto Global tool configuration - Click SonarQube Scanner
+     - Uncheck install automatically
+      Name: Sonarqube
+      SONARQUBE_HOME: c:/softwares/sonarqube (path of sonarqube)
+    - Click Apply and Save
+    -Goto Configure - Post Build Actions - Sonarqube Analysis with Maven 
+    - Click Apply and Save
+    - Now u can see Sonarqube icon on project dashboard, but it cant be clicked
+    - Build the project and check whether Sonarqube link is working. It will show that the build is failure since Sonarqube Analysis with Maven is deprecated 
+
+
+
+
+
+
+Errors
+
+1. There were errors checking the update sites: SSLHandshakeException: sun.security.validator.ValidatorException: PKIX path building failed: sun.security.provider.certpath.SunCertPathBuilderException: unable to find valid certification path to requested target
+
+goto - Manager Jenkins - Manage plugins - Advanced tab - In Update site change https to http - Submit
+
+
+
+Static code analysis 
+    - used to check code quality using sonarqube whether unused package and variables are removed, remove todo statements inside methods etc
+
+Steps
+1. We have add sonarqube plugin inside maven appl, so that the appl will communicate with sonarqube
+2. Code coverage -Junit is a piece of code written by a developer that executes a specific functionaility in the code to be tested. The percentage of code which is tested by unit tests is called test coverage.
+ Sonarqube dosent have features for code coverage it takes help from jacoco, eclemma which shows the code which is tested in green and code not tested in red 
+
+3. Add in pom.xml
+
+<profiles>
+        <profile>
+            <id>sonar</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+            <properties>
+                <sonar.host.url>
+                    http://localhost:9000
+                </sonar.host.url>
+                <sonar.sources>src/main</sonar.sources>
+                     <sonar.java.coveragePlugin>jacoco</sonar.java.coveragePlugin>
+                <sonar.dynamicAnalysis>reuseReports</sonar.dynamicAnalysis>
+                <sonar.jacoco.reportPaths>${project.basedir}\target\jacoco.exec
+                </sonar.jacoco.reportPaths>
+                <sonar.language>java</sonar.language>
+                <sonar.exclusions>
+      **/**/CustomUserDetails.java,
+      **/UserDetailsServiceImpl.java,
+      **/AirportManagementSystemApplication.java
+    </sonar.exclusions>
+            </properties>
+            <build>
+                <plugins>
+                  
+                    <plugin>
+                        <groupId>org.sonarsource.scanner.maven</groupId>
+                        <artifactId>sonar-maven-plugin</artifactId>
+                        <version>3.6.0.1398</version>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.jacoco</groupId>
+                        <artifactId>jacoco-maven-plugin</artifactId>
+                        <version>0.8.4</version>
+                        <configuration>
+                            <destFile>${sonar.jacoco.reportPaths}</destFile>
+                            <append>true</append>
+                        </configuration>
+                        <executions>
+                            <execution>
+                                <id>agent</id>
+                                <goals>
+                                    <goal>prepare-agent</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
+
+Here we give sonarqube by default run in http://localhost:9000 and the appl in the sonar dashboard and takes the code from src/main. Sonarqube will just perform code quality it dosent cover the test for that purpose we use jacoco plugin, so in project dir/target it keeps jacoco.exe to generate code coverage reports.
+   Sonar refers nearly 25 languages and here we indicate sonarqube configuration refers Java language. For some classes we cant write code coverage those classes can be exculded under <sonar.exclusions>.
+   Next we add sonar and jacoco plugin with maven 
+
+
+4. Start the sonarqube - Go to C:\Softwares\sonarqube-7.0\bin\windows-x86-64 and click startsonar
+
+5. Run mvn sonar:sonar for the related project
+
+6. Now copy the Analysis successful path and put in browser
+
+http://localhost:9000/dashboard/index/com.pack:SpringBoot-Security
+
+7. Create //ToDo comment and once again give mvn sonar:sonar
+   check for the code smell
+
+For every message we have severity, if it is info or minor no problem but if it is blocker, critical and major we have to clear mandatorly.
+
+Define some unused package in file and check in mvn sonar:sonar and check in code smell
+
+Define some local variable inside method and check the code smell
+
+8. We will get some code smell, sonarqube will set some time to rectify  those code smell and display in dashboard
+
+If ur application has minimun number of code smells, bug and vulnerabilities then quality gate will be show as passed. Make sure ur appl has code smell as 1 with minor severity for a perfect application
+
+Vulnerabilities - more related to security like SSL certification issues, so most of time technical debt will be coming only from code smell
+
+
+Jenkins
+   - In eclipse everything we are doing manually mvn clean install, mvn test and mvn sonar:sonar. But in jenkins job only once we will configure and once we write build it will perform all 3 actions (ie) build, compile and generate test reports 
+  - Whenever there is a commit in git repository, we have to start the build automatically (ie) whenever we commit anything in GIT we manually build the application in Jenkins. Web hooks will act as interface between the git repo and jenkins, so if any change in GIT repository then hook will get info and start the build automatically in Jenkins by using web hooks
+  - Web hook will not take the path of the localhost, only in real time we can use along with server, so any change in GIT it will automatically build the jenkins
+
+Jenkins pipeline
+
+https://www.jenkins.io/doc/book/pipeline/#:~:text=A%20Jenkinsfile%20can%20be%20written,over%20Scripted%20Pipeline%20syntax%2C%20and
+
+
+    https://support.cloudbees.com/hc/en-us/articles/230613127-Pipeline-bat-command-returns-Windows-error#:~:text=You%20need%20to%20make%20sure,My%20Computer%20then%20select%20Properties.&text=Scroll%20down%20to%20PATH%20and,%3A%5CWindows%5CSystem32%20to%20it.
+Pipeline - bat command returns Windows errorIssue
+The bat directive in Pipeline returns cmd is not recognized as an internal or external command, operable program or batch file.
+Environment
+
+CloudBees CI (CloudBees Core) on modern cloud pla...support.cloudbees.com
+
+    - previously everything we did individually, but now we write groovy script and run then the script will do all tasks completely.
+    - Groovy script also give 2 options
+           1. Scripted pipeline - If we have single Jenkins server in local machine then normally we prefer to use Scripted pipeline
+           2. Declartive pipeline
+
+    - Scripted pipeline is the first implementation of pipeline in Jenkins, eventhough it build upon pipeline subsystems, it is designed as more or less general purpose build in Groovy.
+       Declarative pipeline is more opinonative and its syntax is well structured, so declarative pipeline is more limiting. But actually we can build samething using scripted and declaarative pipeline
+
+Which one to choose?
+1. Pipeline code validation immediate in declarative than scripted
+      Consider we have scripted pipeline script like
+node {
+   stage("Build"){
+        echo "Build"
+   }
+   stage("Test"){
+        echo 123
+   }
+}
+
+Here is Test stage we make mistake with echo 123, normally echo will expect string, so this pipeline would fail, but the problem is Build stage is executed. Imagine build stage is running for few minutes and it needs those few min just to fail because u made mistake
+
+Consider the declarative pipeline,
+pipeline{
+   agent any
+   stages {
+       stage("Build"){
+          steps {
+              echo "Building"
+          }
+       }
+   }
+   stages {
+       stage("Test"){
+          steps {
+              echo 122
+          }
+       }
+   }
+}
+So when u execute the pipeline, it will failed immediately.
+
+2. Restart from stage in declarative pipeline than scripted
+     If there are some environmental issue which is nothing to do with our sourcecode and we want to restart only Test stage then we need to restart the full pipeline.
+    Consider we have post deployment checks, u deployed the item, then we want to run some regression test and those test are dependent on env configuration that is not stored in ur source code, so it fails but u need to change something elsewhere and then restart post deployment check.
+
+3. Declarative pipeline options block
+       Consider scripted pipeline block
+node{
+   timestamps{
+      ansiColor("sterm"){
+         timeour(time:"1",units:"SECONDS"){
+             stage("Build"){
+                  sh '"printf \\ehello\\n"'
+                  sh "sleep 5s"
+             }
+         }
+      }
+   }
+}
+timestamps indicates everyline in console will have timestamp, ansiColor where it prints any type of text in color. We also set timeout for this build stage and the stage would be failure since timeout 1sec and sleep for 5sec.
+    But in declarative, options are not mixed with pipeline logic 
+pipeline{
+    agent any
+    options{
+       timestamp()
+       ansiColor()
+    }
+    stages{
+      stage("Build"){
+         options{
+             timeout(time:1,unit:"SECONDS")
+         }
+         steps{
+             sh '"printf \\ehello\\n"'
+             sh "sleep 5s"
+         }
+      }
+    }
+} 
+
+4. Skipping Stage Option in declarative than scripted  
+
+Pipeline - It is a userdefined model of CD pipeline which defines ur build process which includes stages for building an appl, testing it and then delivering it. It is a key part of Declarative pipeline syntax
+
+Node - It is a machine which is part of the Jenkins env and is capable of executing a pipeline. It is a key part of scripted pipeline syntax
+
+Stage - defines a conceptually distinct subset of tasks performed through entire pipeline for eg, build, test and deploy stages
+
+Step - A single task which tells Jenkins what to do at a particular point in time
+
+Scripted Pipeline
+1. create new project
+        - Enter item name: PipelineProject
+        - Click Pipeline 
+        - Click Ok
+
+2. Under Pipeline, u can Use Groovy Sandbox checkbox, which indicates that we are using Groovy script. Under Description we have 2 options
+   1. Pipeline script - we can write our own script
+   2. Pipeline script using SCM - If we want to keep it secured, we will write the script in GIT and provide the path of it.
+
+Pipeline Script 
+    - Pipeline script can be start with node or pipeline, but mostly in  realtime with node tag because it has less number of coding compared to pipeline
+    - Inside the node whatever the task which we are performing like pull the data from GIT, then build appl, then test appl, then review the code using Sonarqube. Each and every task is called stage in pipeline script. Pipeline will run stage by stage and from that only we can see which stage is failed and which stage are in.
+   1. First we represent the stage to pull the data from GIT repository
+   node{
+      stage('checkout')
+      {
+         git url: git repo name
+      }
+  }
+But in realtime we wont pass any value directly in stage, instead we assign the url into a variable so in future if any changes in url, it is sufficient to change only the variable 
+   2. In pipeline, we declare the variable using "def" keyword and refer using ${}
+    node{
+      def url = "git repo name"
+      stage('checkout')
+      {
+         git url: "${url}"
+      }
+   }
+  3. In case if we created many branches in GIT and want to display the GIT url as well as the branch also 
+      node{
+      def url = "git repo name"
+      stage('checkout')
+      {
+         git url: "${url}", branch:'branch name'
+      }
+    }
+  4. In case if u r first to write script, then u can generate the script automatically using
+   Click Pipeline Syntax - Sample Step: git:Git
+       - Place GIT url, Select the credintials - Generate Pipeline script
+    node {
+    
+        def url = "https://github.com/senthil934/SpringBootSecurity.git"
+          stage('checkout'){
+        
+          git credentialsId: 'da4227d1-62d3-4b71-81e3-f250c0359627', 
+                url: "${url}"
+   
+       }
+
+    }
+  - Now build and check whether it is pulling the project from GIT, you can see the stage name and when u keep it on stage we can see the logs, when it is green it means the stage is success and red means error
+
+  5. Now we create next stage to build the application using mvn clean install, Since we use windows we use "bat" command       
+   stage('BuildStage') {
+         
+        bat "mvn clean install"
+    
+   }
+  - Click Save and build the appl
+
+ 6. In case if pom.xml is locating in some other folder inside the job then we can define
+   def pomPath="path upto pom.xml"
+   stage('BuildStage') {
+         
+        bat "mvn -f ${pomPath} clean install"
+    
+   }
+ 
+ 7. Now we want to generate the static code analysis
+    stage('CodeAnalysis'){
+      
+   withSonarQubeEnv('Sonarqube') {
+       
+        bat "mvn sonar:sonar"
+    
+    }   
+   Click Save and Build the Project
+
+ 8. Like in freestyle project how we got sonarqube link inside jenkins, if we want in pipeline project then 
+   Goto configure system- In SonarQube Server - Enable Injection SonarQube server configuration as build environment variables checkbox
+   Click Apply and Save
+
+In case if ur jenkins dosent support ur bat command means ur system dosent support System32 for that 
+    1. In Environmental Variables, set path as C:/Windows/System32
+    2. Manage Jenkins - Configure System - Global Properties - Check Environment Variables
+        Name: path
+        Value: C:/windows/System32
+      Click Apply - Save
+Now the system will understand all windows DOS related commands
+    3. Change the script as follows
+node {
+    
+    def url = "https://github.com/senthil934/SpringBootSecurity.git"
+
+    def pomPath = "C:/Users/name/.jenkins/workspace/PipelineProject"
+    stage('checkout'){
+        
+       git credentialsId: 'da4227d1-62d3-4b71-81e3-f250c0359627', 
+               url: "${url}"
+    
+    }
+    
+    stage('BuildStage'){
+ 
+       def mvnHome = tool name: 'Maven', type: 'maven'       
+       bat "${mvnHome}/bin/mvn -f ${pomPath} clean install"
+    
+    }
+    
+    stage('CodeAnalysisStage') {
+       
+       def mvnHome = tool name: 'Maven', type: 'maven'       
+       bat "${mvnHome}/bin/mvn -f ${pomPath} sonar:sonar"
+    
+    }
+
+    environment {
+       env.PATH = env.PATH + ";C:\\Windows\\System32"
+    }
+}
+
+  9. If u enable the sonarqube link in pipeline project 
+       1. Goto Manage plugins-Install SonarQube Quality gate,Quality gate
+       2. Goto Configure System - Quality Gates SonarQube - Click Add Sonarqube instance
+          Name: QualityGate
+          Sonarqube Server Url: http://localhost:9000
+       3. Under Quality Gates - Click Add Sonarqube Instance
+          Name: QualityGate1
+          Sonarqube Server Url: http://localhost:9000
+         Click Apply and Save 
+
+
+Declartive Pipeline
+     1. Create new Item - DeclarativePipelineProject
+          - Select Pipeline
+          - Click Ok 
+
+     2. If we start with node it is scripted pipeline and start with pipeline it is declartive pipeline
+     pipeline{
+        - agent any - Whether this pipeline works with any agent, for eg agent Docker, then pipeline will run when agent as docker. Now we dont want to run with any particular agent so we provide agent:any. If we use scrupted pipeline then we want to work with any agent but in pipeline we have to provide the agent
+       - Next we have to create stages and inside that we have to create different stage
+       - Inside the stage we have to create different steps where we have to provide GIT or BAT command
+     }
+def url = "https://github.com/senthil934/SpringBootSecurity.git"
+
+pipeline{
+    
+   agent any
+    
+     stages {
+        
+       stage('CheckoutFromGit'){
+            
+          steps{
+              
+             git credentialsId: 'da4227d1-62d3-4b71-81e3-f250c0359627', 
+                url: "${url}"  
+            
+          }
+        
+       }
+        
+       stage('Build'){
+            
+          steps{
+              
+             bat "mvn clean install" 
+            
+          }
+        
+       }
+        
+       stage('StaticCodeAnalysis'){
+            
+          steps{
+              
+             bat "mvn sonar:sonar" 
+            
+          }
+        
+       }
+    
+    }
+
+}
+   -Click Apply and Save - Build now
+
+   3. Next we want to create the surefire reports for the test result generated, so we create one more stage called TestReport where we provide the path of test reports from target/surefire-reports folder
+stage('TestReports'){
+            
+     steps{
+                
+        junit testResults: '**/target/surefire-reports/*.xml', allowEmptyResults: false           
+     }
+        
+}
+    - Click Apply and Save - Build Now
+Now u can see link called "Latest Test Result" which show the test report
+
+   4. In order to display the code coverage in Jenkins dashboard
+       - Install Jacoco plugin
+       - create a new stage for code coverage
+            stage('CodeCoverage'){
+               steps {
+                   jacoco( 
+      
+                       execPattern: '**/target/*.exec',
+      
+                       classPattern: 'target/classes',
+      
+                       sourcePattern: 'src/main/java',
+                             exclusionPattern: 'src/test*'
+)
+               }
+            }
+       - Click Apply and Save - Build now
+       - Check in the project, Coverage Report option to see the code coverage
+
+
+
+Maven Life cycle - Assessment purpose - check tutorialspoint.com
+
+1. What is build life cycle?
+2. mvn test - to test 
+3. if u dont want web.xml then what u want to configure
+4. Build success, even if ur test fails also, what u do?
+5. <scope> in pom.xml, which indicates which dependency is needed only at compile time or runtime or at testing
+6. is is possible to create maven project using command prompt using
+mvn archetype:generate -DgroupId=ToolsQA -DartifactId=DemoMavenProject 
+-DarchetypeArtifactId=
+maven-archetype-quickstart -DinteractiveMode=false
+
+7. Right click any maven project - Terminal - 
+      > mvn site:site
+used to document entire dependency in html format. After that in target/site folder we can see dependency.html files
+             <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-site-plugin</artifactId>
+                <version>3.7.1</version>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-project-info-reports-plugin</artifactId>
+                <version>3.0.0</version>
+            </plugin>
+
+
+8. In declarative pipeline, if window command and maven command not working means
+    - Set environment variable in Jenkins - Global Configuration Setting - for 
+C:\\Windows\\System32
+    - In declarative pipeline after
+     pipeline{
+          agent any
+          environment {
+            PATH="C:\\Windows\\System32;path of maven till bin"
+          }
+     }
+
+
+Swagger dependency
+<dependency>
+   <groupId>io.springfox</groupId>
+   <artifactId>springfox-swagger2</artifactId>
+   <version>2.6.1</version>
+   <scope>compile</scope>
+</dependency>
+<dependency>
+   <groupId>io.springfox</groupId>
+   <artifactId>springfox-swagger-ui</artifactId>
+   <version>2.6.1</version>
+   <scope>compile</scope>
+</dependency>
+
+Run http://localhost:8080/swagger-ui.html
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ 
