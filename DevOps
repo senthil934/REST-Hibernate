@@ -1,0 +1,187 @@
+Evoluation of Software Development 
+1. Waterfall model
+    - Initially in real time if we want to create an application most of the organization are following the waterfall model which haves different SDLC stages
+    - Best suited for
+         - Complete requirements are clear and fixed
+         - Product defination is stable 
+    - It ask the complete requirement from the client and delivery team will collect the information and give it to the developer. Now the developer will create the entire appl and once it is ready, then it goes to the testing stage which test entire appl working properly or not  
+    - Here the client gives the entire requirement and it will take so many days to complete the project. The client actually dont know wht developer is doing, he comes to know only at the end of development 
+   - No interaction between the developers and the client 
+
+
+2. Agile development
+       - Best Suited when
+            - Requirement changes frequently
+            - Development needs to be fast 
+       - The client gives some user story (ie) the requirements. Agile basically use the tool called Jira, there only they raise the user story, whatever error made in ur module and everything, so all ur conversation happen only through Jira only
+      - In waterfall model after the entire appl is finished only, the enduser or product owner can able to see the developed product 
+      - But in Agile we take the important module of project in first user story and afterwards we enhance the application with further user stories. They take those user stories and convert as sprints and each sprint will have 10 days period (ie) within 10 days we have to complete the first sprint if not possible it will be taken to second sprint.
+       For example, the login module which involes developer and testers, so both development and testing will done parallely. They take small part of appl and complete within 10 days, and at 10th day they have meeting with product owner and shows the demo of the product developed and get the feedback 
+     - Each module will be considered as a separate sprint. Once ur 1st sprint module is successfully completed they will deliver this to preproduction which means before releasing the product, which has similar type of env in preproduction, and there we will show demo to product owners and get their feedbacks
+
+3. DevOps Approach
+       - It is combination of developer + Operations
+       - Nowadays client gives the requirment, developer will develop and tester will test. But if u want to move to production env and there we want to deploy it, for that developer will not do this sort of operation.
+For that Operation team will be there, they will first set up the environment (ie) tools we are using, bandwidth of the appl, then we can deploy the application
+       In waterfall model, client gives the requirement after the entire project completion only we show demo to the client. But in Agile we divide appl into small modules and for each module give time period as 10 days, so developer and tester will together work on it and show the demo to client. So Agile methodology reduce the gap between ur customer and developer
+       - Devops will reduce the gap between developer and operation team, so developer and operation team is going to work together in DevOps approach  
+       - For example, in some project, customer will give the requirement and developer will develop and there itself they will deploy it using on premises tool, so they wont depend on any operation team, the developer itself will act as developer as well as operation team. In some other project customer will give the requirement and developer will develop and then they give to operation team. Sometimes operation team will not inside we can get from other vendors also which depend on the project
+       - Best Suited when
+            - Requirement changes frequently
+            - Development needs to be agile
+            - Operation needs to be agile
+
+
+What is Devops?
+   It is a software development approach which involves continuous development, continuous testing, continuous integration, continuous deployment and continuous monitoring throughout its complete development lifecycle.
+    This phases will keep on continuously happening and never ends, so devops can have symbol  called infinite 
+  This process is adopted by almost all the top companies  to develop high quality product with short development life cycle which resulting in great customer satisfication
+
+DevOps Tools
+
+1. Plan - Jira 
+2. Code - After completing the code, we put in GIT or Subversion
+3. Build - called packaging, used to build the appl and put all the dependency and creates jar or war using Maven, Gradle or Ant 
+4. Test - Junit, Mockito, Testnt, Cucumber, Spring Cloud contact, Selenium
+
+Plan, Code, Build, Test - done by Developer team
+Deploy, Operate, Monitor - done by Operation team
+Jenkins is used to integrate both the work
+
+1. Deploy and Operate - Puppet, Chef, saltstack, Ansible
+2. Monitor - Splunk, Nagios, Sensu
+
+Devops stages
+      
+1. Version control system which maintains the code.
+     Consider a scenario whether a multiple developer writing a code for a particular application. So how will I know which developer has made what commit at what time and exactly which commit causing the error and if I ever want to revert back to that commit, how do I go back and make changes.
+     Basically the complete concept relies on how we manage the source code. Suppose the developer A has made a commit and that commit causing some error, so how will I know that developer A has made the commit and wht time and what has changed that cause an error so that we can revert back to that commit and make changes. So all these kind of questions can be answered when u use version control system or SCM with the help of tools like GIT, Subversion etc.
+
+2. Continuous Integration - Jenkins - 66% of organization uses, Teamcity, Bamboo
+      It is basically use to build the application continuously. Consider a scenario where the developer makes a changes in source code. Now CI server should able to pull that code and prepare a build. When we talk about the build, build is not just compiling the code, build also inculde validating the source code(ie) checks the code quality whatever packages and variables, methods declared is used or not , reviewing the code, performing unit testing, integration testing and also even packaging ur appl. 
+     Take code from git repo and do mvn clean install (ie) it clean and install all the maven dependency, while doing that whatever test case written everything will be tested and gives report for unit testing (method by method) and integration testing(layer by layer)
+
+3. Continuous delivery
+      Until now ur product is ready, it is tested and now it has to delivered in pre production. Thats where continuous delivery comes.
+      Consider we develop 2 application, one is banking appl which is highly secured which is highly depend on the finance they wont directly upgrade into higher technology,because if they touch the env it will create great loss, so whatever changes or modificaton we doing we have get approval from the customer (ie) User acceptnce testing. Another appl is commercial appl like shopping cart, amazon etc if any sort of modification which depend on finance then only we need to get approval from the customer othertime we can directly deploy (ie) automatic approval. Sometimes we have get approval from customer manually or automatically.
+      So continuous delivery says that whatever the appl we are creating that matters whether we use continuous delivery or deployment which means all appl we deploy but manually u get signoff from the customer there is continous delivery. But sometimes it is auto approved in that time we dont want continous delivery we can go for continuous deployment
+
+4. Continuous deployment 
+      Now consider a CI tool jenkins, jenkins will deploy on the test server to perform UAT with the helps of tools like selenium and once that is done it is deployed on production server for realease. If this step is done automatically, it is continuous deployment and if it is done manually if someone have to approve it then it is delivery.
+
+5. Continuous monitoring 
+     Once ur application is delivered it is continuously monitored by the tools like nagios, splunk which provide the feedback to concern team. Once the team gets the feedback, they take the feedback to solve the bug and the product goes throughout the complete cycle again 
+      
+   
+We have integration in the middle using jenkins server, when the developer changes the source code it will take that code and trigger a build by using maven,graddle etc.Once that is done it will test the source code in the test server with the help of tools like selenium, junit and it will automatically deploy the tested code into production server for realease using docker, puppet etc and then it will continuously monitored with tools like nagois, splunk etc.
+
+Continuous integration and Continuous Developement
+   It is like software development lifecycle. 
+   Imagine we build a website that deployed on live web server and ur product is website or webapp. Now we have set of developers responsible for writing ur code which will further go and build a webapp or website.
+    1. Once the team of developers write the code and commit inside version control system like GIT or SVN, it goes to build phase so this is first phase of the pipeline where the developer put the code and code goes into version control system having <version> tag. So we know which build has what version control tags, so any commit happens and find an error who can go to that particular version and check the commit.
+    2. So after the version control phase done then it goes to the build phase where u compile the code. So u get all various features of code from various branch of repoistories, then merge them and finally u have some compiler to compile it and  that is nothing but the build phase. So in build phase, the code is taken from version control system and then it is compiled together.
+    3. Once the build phase is done, u move on to the testing phase. In testing phase we have different type of testing depending upon the company or depend upon the type of product the company is delivering. So one of the test is unit test in testing phase.
+     In unit testing, we break the complete software in small little chunks based on different part and every part has a code. It is divided into small individual units to understand how it works and when the test is completed u have an assurance that the particular part is working.
+    Once each and every part is tested, we have one more test that has to be performed is integration testing where all the individual tested part are integrated together and seen if they work with each other or not. 
+    4. After the testing stage is done u have to move to deploy stage and this is stage where u deploy the software in staging area or test server where u going to view the code.
+     So in deploy stage, the code is deployed successfully and then u can run another set of test and once u think all parts are working in, u can finally think it is acceptable and then it is deployed on to the production stage.
+    5. Meanwhile in every step if there is any error, development team fixes that particular error and then pushes into the version control system which goes back to complete pipeline again.So once again if any error reported during testing the feedback goes back to dev team, they fix it and that particular product goes to the complete pipeline again that is again goes to the build phase, testing phase and then deployed on to the production server.
+    6. So this how it moves on to every lifecycle unless to a code or product which can be deploy to the production server and there we can measure and validate the code,
+     So pipeline is logical or series of step which defines how SDLC occurs
+
+
+Continuous Integration Example
+     Consider a scenario of a team which has 5 developer building a website which has many features. Let say the website to a shopping website which has many pages like user details, past order, shopping carts whatever the products the person added to the cart and finally we have check out page and so on. All these different pages are known as features of the software, as multiple features we have to combine these features and merge them into single version control system, where u merged various feature of the code and made a single pool of code which can now comprised all features of various branches committed by the developers and then build it as product and move on to testing phase. 
+     So basically we are combining all basic feature of code into single branch and once u combined successfully and then moving to a testing phase. Now when u merge the code and u build the code to get a single unit of the software, this is nothing but integration. So integration means putting all the code together from all the contributing developers and merging the code and building it as a whole.
+
+Why we call continuous integration?
+    Because in devops everything happens continuously and automatic.
+
+Continous Integration
+      As soon as the person commits the code in version control system, it continuously starts merging the process and continuously starts building the process simultaneously so that is the reason it is called continuous integration as no body has to wait for anything.
+
+Continuous Delivery
+     After the stage of continuous integration we have continuous delivery, so as in then we move on to various stage in pipeline we finally deliver the product because as soon as it passes the test and new features becomes functional it can be used as final area for the product, so everything happens in continuous way like the product is build, product is tested, product is then deployed in prod server. Since it is continuously integrated, built, tested and deployed and delivered. This process ensure is know as CI and CD process. 
+
+   Once u have the continuous integration and continuous delivery in place, the deployable unit part is called pipeline (ie) deployable part means the part to the production server where it deploy on to the live servers.
+
+
+Jenkins   
+   Jenkins is an open source automation tool written in Java with plugins built for CI purpose. 
+   Consider u have to automate the entire process (ie) from the time the development team gives the code to the time, the code is deployed on to the production server.
+  There are various steps in  the pipeline and u have to automate the pipeline. In order to make entire SDLC to be automated we need automated tools like Jenkins
+
+Jenkins - Its importance
+   Jenkins provides various interface and tools in order to automate the entire process (ie) process of complete SDLC. 
+   Suppose we have GIT repoistory where the development team commits the code and jenkins takes over from there. Jenkins will pull that code and then it will move to the commit phase where the code is committed to every phase. Then jenkins to the build phase where it will compile the code.
+   After the code is compiled, validated and reviewed, the code is tested and once all the test is done and finally packaged to an application or either war or jar.
+   In generally jenkins will pull the code from version control system, it is going to perform the build, it is going to compile, validate and review the complete code, it perform unit and integration testing and finally package the appl into war or jar and then ready to deliver.
+   
+
+   Now jenkins is a tool for basic CI, but it is used till the appl is packaged. In order to deliver we need some tool to deliver called Docker.
+
+Docker
+   Once the product is moved on to staging server to deploy it we need tools like Docker.
+   Docker is like a virtualization environment which used to create entire server and deploy on it, to deploy some software we need some environment which replicate the prod environment and  thats wht docker provides.
+
+
+  Before Maven we have build tool called Ant, the problem is we have to write long script for executing the task. For example we have to define what is task are and when we have to execute.
+
+What is maven?
+    1. Powerful build automation tool used for Java based project. Maven address 2 aspects of building software
+     a. describes how software is build
+     b. describes the dependency 
+   2. An xml file describes the software project that is build, its dependency on other external modules, the build order, the directory and the required plugins.
+   3.It comes with predefined targets for performing certain well defined tasks like compiling and its packaging
+   4. Maven dynamically downloads java lib and java plugins from central repository and stores them in local repo
+
+Maven lifecycle
+    We have different life cycle for different types of processing.
+
+1. clean - clean up the target folder. Maven creates all class files under target folder and if we run mvn clean it will remove the target folder
+2. validate - it goes through pom.xml and identifies if there are any problem in current project. Also checks different profiles, checks dependency are currently mentioned, it also checks whether different lifecycle are mentioned to complete the build process.
+
+3. initialize - used to initialize all property files for usage in different phases of build life cycle
+
+4.generate-sources - creation of source code which are included in compilation phase itself.This generate the package which can used for seeing the source code. 
+   For eg, we have spring documentation or spring source code along with spring project so that we can use it for reference. 
+
+4. process-sources - to do any filtering based on filename. For eg, filter out some specifc files which u dont want to package along with product
+    
+5. generate-resources - u can push property files or sql files in the runtime and u need to be packaged. 
+   For eg, some spring xml file or application properties those need to generated and push into packages (ie) final jar or war
+
+6. process-resources - if we want copy only files of specific pattern, u can package along with the product
+
+7. compile - where all source code are compiled and moves to target folder
+
+8. process-classes - is a step where u generate files from the compilation stage. 
+   For eg, if u want to optimize the code as part of compilation stage (ie) you want to optimize some class files, let say the classes is huge, u want to optimize that using process-classes
+
+9. generate-test-sources - u can generate source code for the test class (ie) if u want documentation for test classes
+
+10. process-test-sources - filtering out test sources we created
+
+11. test-compile - used to compile all ur test 
+
+12. test - used to run all test
+
+13. process-test-classes - u can process test classes
+
+14. prepare-package - u want generate some files before ur package is ready.
+  For eg, u want to create some json files out of schema
+
+14. package - where all compiled code will compressed into jar or war and shared to others
+
+15. pre-integration-test - u want to do some initialization
+   For eg, we are doing integration test for that we need tomcat, u need to start tomcat that we can do as part of pre integration test
+
+16. integration test - run all integration test
+
+17. post-integration-test - whatever we started in pre integration stage we can stop in this stage
+
+18.verify - used to check if package are perfectly packaged and meet the exact standard, check quality of jar is perfect
+
+19. install - move package to local repo, so other project refer from local repo
+
+20. deploy - copies the package from local to remote repo
