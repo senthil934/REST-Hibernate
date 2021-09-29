@@ -1,0 +1,479 @@
+  Previously we build Restful API and host in tomcat, so the way we configure in bootstrap the jax-rs appl was by writing servlet in web.xml. We created a jersey servlet and configured it to handle the request so thats how the appl was bootstrapped
+   So when the request came in, it was the jersey servlet which handled it and then pass the control to our classes. So having to use servlet it enforces to use any servlet container.
+   So now we want to just create an app that runs as a simple Java class but if we use web.xml we have to use servlet containers so jax-rs has an alternative way of bootstrapping ur appl which has nothing to do with web.xml and servlets
+  So Jersey comes with the class called Application and thats  how we bootstrap our appl
+
+1. create maven project and choose maven-archetype-webapp with dependency called
+
+<dependency>
+   <groupId>org.glassfish.jersey.bundles</groupId>
+   <artifactId>jaxrs-ri</artifactId>
+   <version>2.16</version>
+</dependency>
+<dependency>
+   <groupId>org.glassfish.jersey.media</groupId>
+   <artifactId>jersey-media-moxy</artifactId>
+   <version>2.16</version>
+</dependency>
+
+Moxy is framework the Jersey uses to convert from our java instances to JSON instances. We dont need any extra dependency to convert to xml because we have JAXP with Java but to convert to JSON we need moxy
+
+2. Create Java class MyResource and make it as JAX-RS resource using @Path annotation and Create method testMethod() with @Get and @Produces(MediaType.TEXT_PLAIN)
+
+3. Configure this to be JAX-RS appl. Previously in web.xml we configure a servlet and mapped to that path
+
+Create a class MyApp which extends a class called Application with this we told jersey that it is a JAXRS appl
+
+Now how to map to route url using @ApplicationPath("webapi") which means any restapi prefix with webapi, so now Application class will look every resource and expose the MyResource as /webapi/test
+
+4. Run as run on server and choose tomcat, by default it loads "Hello world" from index.jsp
+
+But we have to access, http://lh:8080/Advanced-JAXRS-1/webapi/test
+
+What is Application class?
+    Previously we have web.xml and we configured a servlet called org.glassfish.jersey.servlet.ServletContainer which set the appl up, and we have init-param which told the appl where the resources are present with @Path.
+  Next we have url-pattern "/webapi/*" so we know all our rest api are exposed to /webapi/*.
+
+  But now we have class MyApp which extends Application class which identifies all resources with @Path in ur class path and next thing to define where are our resources are for that we use @ApplicationPath 
+
+Defines the components of a JAX-RS application and supplies additional meta-data. A JAX-RS application or implementation supplies a concrete subclass of this abstract class.
+
+Life cycle of Resource class 
+
+The term endpoint is focused on the URL that is used to make a request.
+The term resource is focused on the data set that is returned by a request.
+
+1. Create a variable count in MyResource class and in testMethod we increment count variable and prints the count variable. So whenever we run the program, 
+http://lh:8080/Advanced-JAXRS-1/webapi/test
+how much time we refresh the page, the count always returns  1.
+  So what happens here is count is always reset to 0, because everytime we make /webapi/test request, JAXRS creates a new instance of MyResource class, so it never shares the same instance. This happens to the default behaviour of resources in JAXRS, they are set to be request scope which means the scope of resource instance is abt request (ie) if there is new instance it is created for request and once finished the instance is destroyed. This is default
+    You can also have singleton case, where we configure resources to be created just once and JAXRS hold on that instance no matter how many times u need the request. To make resources to singleton use @Singleton
+  Now run the appl, http://lh:8080/Advanced-JAXRS-1/webapi/test and each time we refresh the count is incremented (ie) jaxrs maintains the same instance   
+
+Param Annotataion and member variable
+   Usage of Param annotation and implication have on Singleton life cycle.
+   - Now we define a pathParam as @Path("{pathParam}/test")
+   - Create member variables like 
+private String pathParamExample;
+private String queryParamExample;
+   - We can get path and query param by providing annotation in resource method as @PathParam and @QueryParam respectively. These annotation can be used to members variables also so 
+   @PathParam("pathParam")
+   private String pathParamExample;
+   @QueryParam("query")
+   private String queryParamExample;
+  - Now we print path and query param in testMethod()
+        @GET
+	@Produces(MediaType.TEXT_PLAIN)
+	public String testMethod() {
+		count=count+1;
+		return "JAXRS Works "+pathParamExample+" "+queryParamExample;
+	}
+   - Now run the appl using, http://localhost:8080/Advanced-JAXRS-1/webapi/value/test?query=queryvalue
+    It will print JAXRS works value queryvalue
+
+  - This works because this instance is getting created after making the request so there is new instance per request. So when this request gets to the server, jaxrs  creates a new instance for MyResource so the member variables are initialized to blank values. But when u have @PathParam and @QueryParam, jaxrs will say we have values in the request and set those values to member variables of MyResource 
+   The reason why we choose as member variable instead of using as method argument is that when we make bunch of calls to other method in this class and if we have as method arg we need to pass to all methods but if we have as member variables all method of this class is accessible.
+   If we make as @Singleton, the instance is created before the request so it may be problem. So the injection will not happen if the resource is singleton, in that case we can have only as method argument not as member variables. 
+
+
+Param Converters
+     When we pass pathParam or Query Param which is a integer, now in ur resource we have @PathParam or @QueryParam which capture that value and assign it to integer variable either as method arg or member variable.
+    When something sends over HTTP either pathparam or query param we always gives as string, so there is something in JAXRS which takes that value and examines the method arg or variable annotated with @PathParam and Jersy does that conversion it takes path param and converts into integer.
+   Jersey comes with set of param converters that know how to convert from string to write data type. 
+   Consider if we have custom data type which will convert string to that datatype, in that case we create our own custom param converters.
+
+1. We create a custom data type called MyDate 
+2. Now we want to convert string to instance of MyDate class
+  We have request like /date/today, /date/tomorrow, /date/yesterday and here today, tommorow and yesterday as pathparam 
+3. Create resource called DateResource 
+@Path("/date/{dateString}")
+public class DateResource {
+
+	@GET
+	@Produces(MediaType.TEXT_PLAIN)
+	public String getRequestDate(@PathParam("dateString") String dateString) {
+		return "Got "+ dateString;	
+	}
+}
+4. Now run the appl as
+http://localhoat:8080/Advanced-JAXRS-1/webapi/date/today
+
+5. But now we want convert dateString from String to MyDate using ParamConverterProvider and ParamConverter
+
+ParamConverter interface - whenever u need to convert parameters from String to custom data type we need to implement ParamConverter interface which has method to convert string to custom type
+    T fromString(String value) - which takes string and return data type
+
+ParamConverterProvider class which tells jersey to use ParamConverter given the type
+   ParamConverter getConverter(Class rawType,...) - return the converter for the type
+
+6. Create MyDateConverterProvider class implements ParamConverterProvider and override getConverter().
+These three parameters are what jersey sends to the converter provider to see if the converter provider provide a converter back 
+   In order to register this class as a provider in JAXRS we add @Provider 
+
+7. Run the appl with
+http://localhost:8080/Advanced-JAXRS-1/webaapi/date/today
+http://localhost:8080/Advanced-JAXRS-1/webaapi/date/tomorrow
+http://localhost:8080/Advanced-JAXRS-1/webaapi/date/yesterday
+
+
+MessageBodyReaders and MessageBodyWriters
+      These only converts from raw content that send to the request and response to java types and vice versa
+     For eg, if you want to send an object as a response for ur resource and annotate with @Produces(MediaType.APPLICATION_JSON), there is something to take that raw type and convert to JSON and send to the client. This is done by MessageBodyWriter (ie) whenever u send some objects in message body, the conversion to string to xml payload or json payload, it happens due to MessageBodyWriter.
+     Similarly when u accept input in json or xml in post or put request, so that request will have payload that converted to java type using MessageBodyReader (ie) its reading from message body
+   These 2 classes are important when u r doing marshalling and unmarshalling of types in Java
+
+Difference between MessageBodyWriter, MessageBodyReader and ParamConverter
+    1. MessageBody dealing with content of message, so when you update the resource using put request and request body contains the representation of updated resource.
+     Params are the parameters to the request and not the content of the request 
+     - Consider we give put request "/webapi/data/ram", here ram is path param where we get in resource using @PathParam. However message body is content of the request
+    - When we give get request for "/webapi/posts/123/comments?start=20&size=10" here 123 is path param and start,size are query param and dosent have body content
+    - Now we give POST request for "/webapi/accounts" with {"accountInfo":"---"}, here post body contains account-info and header-info for authentication purpose. Here we have header param called "header-info" 
+    So where we have parameters we deal with ParamConverter and where we have message body we deal with MessageBodyWriter or Reader 
+
+1. In MyResource.java, if we want to return date 
+@GET
+@Produces(MediaType.TEXT_PLAIN)
+public Date testMethod() {
+    return Calendar.getInstance().getTime();
+}
+Now we want JAXRS to convert date to plain text and send it back.
+
+2. When we run as http://localhost:8080/Advanced-JAXRS-1/webapi/test, it will return Internal Server error with MessageBodyWriter is not avaiable in console
+
+3. Now we ask jersey to convert date to plain text. So we create custom MessageBodyWriter which takes the instance of date and convert to plain text and return .
+
+4. Create DateMessageBodyWriter class which implements MessageBodyWriter interface and add unimplement method
+   - getSize() is deprecated so just return -1
+   - isWritable(Class<?> type, Type arg1, Annotation[] arg2, MediaType arg3) - implementation we write to let jersey know if a certain type that this writer can handle 
+   Here we send the date type and check whether it can write to output as plain text
+   So here we check whether the type is date, because this writer to convert date to plain text. If not date so jaxrs will ask other messagebodywriter in the classpath
+   3. writeTo() - whenever we call api which returns date and jaxrs should write date instance to the output, it knows DateMessageBodyWriter needs to call writeTo().
+   This method get the date instance and write to outputstream 
+
+5.Next we have annotate what is the media type that this DateMessageBodyWriter class can handle using @Produces(MediaType.TEXT_PLAIN)
+   FRom this jersey know that this  messagebodywriter needs to be used when jersey has to send plain text 
+
+6. Run the appl, http://lh:8080/Advanced-JAXRS-1/webapi/test
+   Now we get date returns as plain text in response 
+
+Custom Media Type
+
+1. In MyResource class, where we use media type as TEXT_PLAIN which is constant string.
+   To create custom media type we have to choose what string we want and have right messagebodywriter and readers for new medis type
+
+2. Here we use custom media type called "text/shortdate" to return a shortdate 
+        @GET
+	@Produces("text/shortdate")
+	public Date testMethod() {
+		return Calendar.getInstance().getTime();
+	}
+
+3.Now we want to create new MessageBodyWriter which converts date to text/shortdate 
+Create ShortDateMessageBodyWriter class which implements MessageBodyWriter and override the methods.
+   In writeTo(), we write logic to convert in short style using DateFormat
+
+4.  Run the appl, http://lh:8080/Advanced-JAXRS-1/webapi/test
+   Now we get date returns in short style 
+
+5. We can have multiple media type as
+
+ @GET
+	@Produces(value={MediaType.TEXT-PLAIN,"text/shortdate"})
+	public Date testMethod() {
+		return Calendar.getInstance().getTime();
+	}
+
+So whenever the request comes in, the client can pick what media type they want from accept header, so jersey looking at accept header it will pick correct messagebodywriter to convert that and write to response
+
+6. In Postman, with GET request
+
+http://lh:8080/Advanced-JAXRS-1/webapi/test - it returns plain text
+
+http://lh:8080/Advanced-JAXRS-1/webapi/test - but now we add headers as accept and value as text/shortdate now it will print shortdate
+
+
+JAXRS Client 
+   - Previously in rest api appl, we use postman to make rest api request,but now we want to access rest api using Java programatically.
+  - Before JAXRS 2.0 there where different library which make rest api calls and look at response and construct objects, but there was no standard. But with JAXRS 2.0, the specification itself raise a standard for building rest api clients.
+   When u write client we are not worried abt the technology of the server, the server could implement using JAXRS or Spring MVC, because the request and response can be either json or xml
+
+
+1.Create JAXRS-Client project and copy code from previous project 
+
+2.   We are using the api which is already available and from the client we are just access those endpoints. So we download from this github 
+https://github.com/koushikkothagal/messenger
+   Copy the messenger folder inside src/java
+
+2. Run the appl, in Postman with GET request run as 
+http://localhost:8086/JAXRS-Client/webapi/messages
+   - It will display the messages
+3. Create a client program called RestAppClient
+     - JAXRS comes with few api that build client and makes request to Rest API.
+     - JAXRS gives a interface called Client which makes rest api, and instance for Client is created by ClientBuilder.newClient()
+4. Run the program
+
+WebTarget webtarget=client.target("http://localhost:8086/JAXRS-Client/webapi/messages/1");
+Builder builder=webtarget.request();
+Response response=builder.get();
+Message msg=response.readEntity(Message.class);
+System.out.println(msg.getMessage());
+
+In this case,we have request() can takes different argument like MediaType
+Response response=client.target("http://localhost:8086/JAXRS-Client/webapi/messages/1").request(MediaType.APPLICATION_JSON).get();
+Message msg=response.readEntity(Message.class);
+System.out.println(msg.getMessage());
+
+Next we have builder.get(), which takes different arguments like Class, which represent the type of response
+Message msg=client.target("http://localhost:8086/JAXRS-Client/webapi/messages/1")
+				.request(MediaType.APPLICATION_JSON)
+				.get(Message.class);
+
+
+Best Practice in Client
+1. When u define the target, u should not define the entire url, instead create a base url target (ie) till context 
+
+WebTarget basetarget=client.target("http://localhost:8086/JAXRS-Client/webapi/");
+		WebTarget msgtarget= basetarget.path("messages");
+		WebTarget messagetarget=msgtarget.path("{messageId}");
+		Message msg=messagetarget.resolveTemplate("messageId", 2)
+                 .request(MediaType.APPLICATION_JSON).get(Message.class);
+		System.out.println(msg.getMessage());
+
+
+Create message using Post request
+    - Post request normally takes Entity as argument, so we want to convert Message class to Entity class as json
+
+   So when u get ur response we got 201 status, but when u get postResponse.readEntity(), we actually unwrap that response object and get entity out of it. So we wont get status, so once we get postResponse after the request, we can examine response status code and based on the status we can do readEntity or throw an error
+
+Creating Invocations
+      The idea behind Invocations is we can prepare request and you can put in all the things you need that request to do (ie) where is the target, wht is the request format, what is body of request and whether it is get or post request 
+   The idea is to create request object which contains all the information about the request. So we create object called Invocations which contains all the details about a request and then u invoke it somewhere else
+
+1. Create a class InvocationDemo
+2. We want to create a request which gets all messages by year like /webapi/messages?year={year}
+   Now we want to give the responsiblity of creating the request to a method called prepareRequest() which prepare  the request so that we can just execute, so we dont want the logic to prepare request in main method
+3. Run class as Java appl
+
+
+Handling generic type
+     We have seen how to use certain signature of client API in order to cast a response to type we need.For eg we need message so we do get request to particular message so JAXRS will give u message instance 
+    But if JAXRS client which returns a generic type (ie) list of messages using getGenericType
+
+1. Create class GenericDemo and run as Java appl
+
+
+Filters in JAXRS
+   - The best way to implement authentication in JAXRS using Filters
+   - Filter is a way to take some of cross cutting concerns out from ur individual resource classes into a common filter class
+   - We create a filter which contains cross cutting logic and then u configure what are the api request for which that filter need to apply
+   eg: logging - we want to log all api request and response at time they made. One way is write log code in all resource class which is duplicating the work. Instead create LoggingFilter and define the code, so when JAXRS calls that filter logic when api call is made.
+
+1. PoweredByFilter
+      We do have certain websites or appl that have Powered by Wordpress or Powered by Angular like that. When rest api call is made, the response goes out should ideally have a header value called Powered by ABC, so every response should have Powered by ABC.
+   We create filter instead of writing code in every resource 
+a. Create JAXRS-Filter project
+b. Create PoweredByResponseFilter class implements JAXRS filter interface. 2 types of filter interface
+    1. ContainerRequestFilter which executes before request is served
+    2. ContainerResponseFilter which executes after response is prepared and about to send to client 
+
+Depending on requirement we can choose any filters, in this PoweredByResponseFilter we want response to be changed so we use ContainerResponseFilter and override filter(). JAXRS will call this filter when the response is to be send.
+   filter() takes 2 parameters and, parameters are depends on whether its requestfilter or responsefilter. In case of requestfilter, JAXRS sends an instance of ContainerRequestContext class which contains details about the request. In case of responsefilter we get 2 context object like ContainerRequestContext and ContainerResponseContext, since responsefilter is accessed after the response is prepared so we have access to both requestcontext and responsecontext.
+
+c. In our case we want to change the resposne so we use
+
+responseContext.getHeaders().add("X-Powered-By","ABC");
+
+and define the class as @Provider
+
+d.Run the appl, in postman with GET request give
+http://localhost:8086/JAXRS-Filter/webapi/test
+Now u can see the powered by details in the output headers part
+
+Even if u try to give some wrong endpoints    
+http://localhost:8086/JAXRS-Filter/webapi/error
+Now also u can see the powered by details which means the filter is applied for all endpoints in appl
+ 
+2. LoggingFilter
+      We want to log the header values for request when the request is made and before the response is sent back we want to log all the header value of the response 
+
+a. create LoggingFilter class which implements ContainerRequestFilter, ContainerResponseFilter and override filter()
+b. Run the appl, in postman with GET request give
+http://localhost:8086/JAXRS-Filter/webapi/test
+Now u can see request and response header detail in the console 
+
+REST API Authentication
+
+Classic session based Authentication
+     When client makes the call to server by providing username and password, the server validates the creditinals and finds it correct and record the info into session object. Now the server in its response to client sends back the session token. Now the client stores the token in cookie and next time the client makes the call to server, the session token send to server through cookie. When client logoff the server will destroy the session
+
+REST Api are stateless
+   - Stateless means the appl running on server does not maintain any state or does not maintain the info that persist across multiple request 
+   - Ideally when client makes the request to rest api, so the appl does wht need to serve that request and prepares the response, sends the response to client and completely forgets about it.
+   - So session based authentication does not work so in rest api we go for basic auth
+
+Basic Access Authentication(Basic Auth)
+    - First time the client sends the request to server with username and password and second time also sends username and password and so many times
+    - There is no state maintain in the server, so client has to authenticate for every request. The username and password send to every request will be present in header of the request in order to authenticate urself to server.
+
+Basic Auth - Client side
+    - We add username, password separating with : which is single string
+    - We take that string and apply base64 encoding and u encode 
+    - Take that encoded string in ur request header with headerkey called Authorization and the value is "Basic encodevalue"
+
+Basic Auth - Server side 
+    - Now server gets the request and it examines Authorization header, it checks the first word "Basic" and gets second word (ie) encoded string and apply base64 decoding string which gets username:password string 
+
+Normally encoded string is not secure, who have access to encoded string can always decoded. So eventhough you encode username,password in the header, it is available for decode so we have to make sure when u send username, password in request header in basic auth scenario using https so that request is protected.
+
+Implement Rest API Basic Auth
+1. Create class SecuredResource, here when we give /secured/messages we want the endpoint to be secured
+
+2. To make class to be secured, is to check if request coming in has basic authentication info. We can do this implement filter by create cross cutting concern
+
+3. Create SecurityFilter class which implements ContainerRequestFilter and override filter() and inside the method we check whether request has basic auth
+    Create a constant AUTHORIZATION_HEADER="Authorization", which is a key looking in header
+    Now we get list of headers for that authorization_header and if we have a header we are getting the first header 
+    Now we are going to get the word "Basic". Now we get the encode string and do the base64 decode which is username:password and split that and get username and password separately using StringTokenizer
+    Next we check whether username and password are "user" and "password" respectively. In case if credintals are not matching or we dont have auth then we need to handle error using unauthorized and finally abort the request from filter
+   Now we dont want to secure all endpoints we want to just secure the endpoint with /secured in the path
+    
+4. Now run the appl and make call to /webapi/secured/message without any authentication it returns unauthenticated status and if u add authentication info (ie) username and password, then it show the response 
+
+5. Run the appl in server
+6. In Postman, with GET request give http://localhost:8086/JAXRS-Filter/webapi/secured/message without authentication, then it will give error message  "User cannot access the resource."
+
+Now with GET request give http://localhost:8086/JAXRS-Filter/webapi/secured/message, in Authorization - select Basic Auth - Give username, password as user and password respectively - click send
+
+It displays "Resource needs login for authentication"
+
+
+Filters and Interceptors
+    - similar to filters
+    - Filters manipulate header or metadata info while interceptor manipulate the actual body of request and response
+    - 2 kinds
+       a. ReaderInterceptor
+       b. WriterInterceptor
+    - Eg: Encoding an entity response 
+
+
+
+What is REST API?
+     Consider we are going to develop weather report app, if we talk about this app we have lot of data so where we get the data. We can provide some static data which never changes for eg: temp in chennai is 28c which is permanent, but temp keep changes according to the time. So if we want to get current temp all over place then we have to put some sensors in all over places which cost u billions of amount, so how we get that data
+     We already have some webservices available in the internet (ie) some server or cloud somewhere in the world and we try to access that server 
+    We have a dynamic web server belongs to different weather report provider and from the client we send request to those servers and they are ready to give data, so we just call them. There is some api which connect the client with server 
+    Consider we create servlet in server to generate the data in the form of HTML whenever the client request. But we dont to get the data as html so we request the server to send the response in xml or json format because data should have some structure we cant randomly send some data and finally we get the data
+   But when we talk about servlet it creats many overhead like we have to write doPost, doGet, request, response object. To replace this we have simple solution REST API in any technology java or php
+    If u want to return some data, what if we simply create an object on server side and just return the values of the object. So we have an object and we want to send the state of the object.
+    Imagine we want to send weather report, so we have Weather java class which has cityname, temp etc, so we send all this data to the client side in xml or json format.
+    REST(Representational state) which transfers the state of an object in xml or json format. As a client we dont know what happens on the server side we just get the resource back and to get we can use some HTTP methods 
+    REST implementation is implement using Jersey and Spring implementation of rest 
+
+
+Jersey Implementation: Refer JerseyRest1 project
+
+1. Create a maven project using jersey-quickstart-webapp 
+If jersey-quickstart-webapp  not present configure
+
+Go to Preferences -> Maven -> Archetypes ->Add Remote Catalog and add these parameters:
+
+Catalog File: https://repo1.maven.org/maven2/archetype-catalog.xml
+Description: maven catalog
+
+Click verify and check whether it displays some 17000 displays in the top
+Restart eclipse
+
+2. Now select jersey-quickstart-webapp  in maven project and create the project and change jersey version to 2.26-b03 and in MyResource class try to import javax.ws.rs.* instead of jakarta.ws.rs.*
+
+3. Rightclick the project - Properties - Target Runtime - check Apache tomcat
+
+To work with Jersey in web.xml we have to configure ServletContainer which handle the request for Jersey 
+
+4. Run the appl in tomcat server and we see the output 
+So when we /webapi/myresource, the request goes to ServletContainer in web.xml which says to search for path then it goes to related method whenever we send get request 
+
+5. Create our own resource, so first we create model class Person to transfer state of object  
+    Now when we request for Person, now we want to return an object of Person
+
+6. Create new resource called PersonResource with @Path("persons") and create a method called getPerson() which returns a single person as xml
+    So in Person class we define @XmlRootElement  
+
+       @GET
+	@Produces(MediaType.APPLICATION_XML)
+	public Person getPerson() {
+		Person p=new Person();
+		p.setName("Raj");
+		p.setAge(20);
+		return p;
+	}
+
+7. Run the appl in server and give http://localhost:8086/JerseyRest1/webapi/persons and display person in xml format
+  
+8. To list of persons 
+@GET
+	@Produces(MediaType.APPLICATION_XML)
+	public List<Person> getPerson() {
+		Person p=new Person();
+		p.setName("Raj");
+		p.setAge(20);
+
+                Person p1=new Person();
+		p1.setName("Ram");
+		p1.setAge(21);
+                List<Person> list=Arrays.asList(p,p1);
+		return list;
+	}   
+
+
+Mock Repository
+   Previously when we give request "/persons" it will return a list of person by ourself, instead we want to take from database
+   We create separate class PersonRepository which deals with database, and we mock it up. We are not concern which database we work we are concern about getting the data
+
+1. Run the appl in server and http://localhost:8086/JerseyRest1/webapi/persons
+
+Inserting the Resource
+   Previously we just fetch the resources, but now we want to create new person 
+
+1. Create a createPerson() with post request in PersonResource and call create() in repository
+
+2. How to send the person data normally we need some client but we didnt create any webpages so we use postman to send data
+
+3. Run the appl in server
+4. In postman, with POST request give http://localhost:8086/JerseyREST1/webapi/persons/person- in body-raw-xml give input
+<person>
+   <id>30</id>
+   <name>Suresh</name>
+   <age>34</age>
+</person>
+click send
+
+Returning Single Person using @PathParam
+1. create getPerson() and fetch id using @PathParam 
+2. Run in postman with GET request as http://localhost:8086/JerseyREST1/webapi/persons/person/100
+  It will return single person with id 100
+
+Working with JSON
+   Previously we where returning XML from the resources, but to return JSON we need to give @Produces(MediaType.APPLICATION_JSON) and apart from that we need to provide a dependency 
+<dependency>
+          <groupId>org.glassfish.jersey.media</groupId>
+            <artifactId>jersey-media-moxy</artifactId>
+</dependency>
+
+2. Run in postman with GET request as http://localhost:8086/JerseyREST1/webapi/persons/person/100
+  It will return single person with id 100 in json format
+{
+    "age": 20,
+    "id": 100,
+    "name": "Raj"
+}
+
+3. Now if we want to send both xml and json then we provide
+@Produces({MediaType.APPLICATION_JSON,MediaType.APPLICATION_XML})
+and in postman under Headers we provide 
+key: Accept
+value: application/json or application/xml
+then click send
+
+
+Consumes JSON and XML
+   Previously if we want to store any data in xml or jspn format, we will go to postman and in body-raw- we choose either xml or json
+   Instead we can use @Consumes where client sends the data and server will accept it 
