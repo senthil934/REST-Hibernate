@@ -1,0 +1,792 @@
+DoctorPortal-Sleuth project
+
+pom.xml
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>org.springframework.boot</groupId>
+		<artifactId>spring-boot-starter-parent</artifactId>
+		<version>2.2.2.RELEASE</version>
+		<relativePath/> <!-- lookup parent from repository -->
+	</parent>
+	<groupId>com.pack</groupId>
+	<artifactId>DoctorPortal-Sleuth</artifactId>
+	<version>0.0.1-SNAPSHOT</version>
+	<name>DoctorPortal-Sleuth</name>
+	<description>Demo project for Spring Boot</description>
+
+	<properties>
+		<java.version>1.8</java.version>
+		<spring-cloud.version>Hoxton.SR1</spring-cloud.version>
+	</properties>
+
+	<dependencies>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-web</artifactId>
+		</dependency>
+		<!-- <dependency>
+			<groupId>org.springframework.cloud</groupId>
+			<artifactId>spring-cloud-starter-sleuth</artifactId>
+		</dependency> -->
+       <dependency>
+			<groupId>org.springframework.cloud</groupId>
+			<artifactId>spring-cloud-starter-zipkin</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-test</artifactId>
+			<scope>test</scope>
+		</dependency>
+	</dependencies>
+
+	<dependencyManagement>
+		<dependencies>
+			<dependency>
+				<groupId>org.springframework.cloud</groupId>
+				<artifactId>spring-cloud-dependencies</artifactId>
+				<version>${spring-cloud.version}</version>
+				<type>pom</type>
+				<scope>import</scope>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.springframework.boot</groupId>
+				<artifactId>spring-boot-maven-plugin</artifactId>
+			</plugin>
+		</plugins>
+	</build>
+
+	<repositories>
+		<repository>
+			<id>spring-milestones</id>
+			<name>Spring Milestones</name>
+			<url>https://repo.spring.io/milestone</url>
+		</repository>
+	</repositories>
+
+</project>
+
+
+application.yml
+server:
+    port: 7081
+spring:
+  application:
+    name: doctor-portal
+  sleuth:
+    sampler:
+      rate: 100
+  zipkin:
+    base-url: http://localhost:9411
+  
+
+DoctorPortalSleuthApplication.java
+package com.pack.DoctorPortalSleuth;
+
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.annotation.Bean;
+import org.springframework.web.client.RestTemplate;
+
+@SpringBootApplication
+public class DoctorPortalSleuthApplication {
+
+	public static void main(String[] args) {
+		SpringApplication.run(DoctorPortalSleuthApplication.class, args);
+	}
+
+	@Bean
+	public RestTemplate restTemplate(){
+		return new RestTemplate();
+	}
+}
+
+
+MainController.java
+package com.pack.DoctorPortalSleuth;
+
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.web.client.RestTemplateBuilder;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.client.RestTemplate;
+
+@RestController
+public class MainController {
+      private static Logger logger = LoggerFactory.getLogger(MainController.class);
+      
+      @Autowired
+      private RestTemplateBuilder restTemplateBuilder;
+      private boolean flag = true;
+      
+      @GetMapping("/doctors")
+      public String getDoctors(){
+          logger.info("Going to call doctors service");
+          RestTemplate restTemplate = restTemplateBuilder.build();
+          String hospital = "Fortis";
+          if(flag){
+              hospital = "Apollo";
+          }
+          flag = !flag;
+          return restTemplate.getForObject("http://localhost:9081/allDoctors/"+hospital, String.class);
+      }
+
+      @GetMapping("/diseases")
+      public String getDiseases(){
+          logger.info("Going to call diseases service");
+          RestTemplate restTemplate = restTemplateBuilder.build();
+          String germ = "virus";
+          if(flag){
+              germ = "bacteria";
+          }
+          flag = !flag;
+          return restTemplate.getForObject("http://localhost:4081/allDiseases/"+germ, String.class);
+
+      }
+      @GetMapping("/patients")
+      public String getPatients(){
+          logger.info("Going to call patients service");
+          RestTemplate restTemplate = restTemplateBuilder.build();
+          String city = "Mumbai";
+          if(flag){
+              city = "NewDelhi";
+          }
+          flag = !flag;
+          return restTemplate.getForObject("http://localhost:6081/allPatients/"+city, String.class);
+
+      }
+}
+
+
+DoctorService-Sleuth project
+
+pom.xml
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>org.springframework.boot</groupId>
+		<artifactId>spring-boot-starter-parent</artifactId>
+		<version>2.2.2.RELEASE</version>
+		<relativePath/> <!-- lookup parent from repository -->
+	</parent>
+	<groupId>com.pack</groupId>
+	<artifactId>DoctorService-Sleuth</artifactId>
+	<version>0.0.1-SNAPSHOT</version>
+	<name>DoctorService-Sleuth</name>
+	<description>Demo project for Spring Boot</description>
+
+	<properties>
+		<java.version>1.8</java.version>
+		<spring-cloud.version>Hoxton.SR1</spring-cloud.version>
+	</properties>
+
+	<dependencies>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-web</artifactId>
+		</dependency>
+		<!-- <dependency>
+			<groupId>org.springframework.cloud</groupId>
+			<artifactId>spring-cloud-starter-sleuth</artifactId>
+		</dependency> -->
+        <dependency>
+			<groupId>org.springframework.cloud</groupId>
+			<artifactId>spring-cloud-starter-zipkin</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-test</artifactId>
+			<scope>test</scope>
+		</dependency>
+	</dependencies>
+
+	<dependencyManagement>
+		<dependencies>
+			<dependency>
+				<groupId>org.springframework.cloud</groupId>
+				<artifactId>spring-cloud-dependencies</artifactId>
+				<version>${spring-cloud.version}</version>
+				<type>pom</type>
+				<scope>import</scope>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.springframework.boot</groupId>
+				<artifactId>spring-boot-maven-plugin</artifactId>
+			</plugin>
+		</plugins>
+	</build>
+
+	<repositories>
+		<repository>
+			<id>spring-milestones</id>
+			<name>Spring Milestones</name>
+			<url>https://repo.spring.io/milestone</url>
+		</repository>
+	</repositories>
+
+</project>
+
+
+application.yml
+server:
+  port: 9081
+
+spring:
+  application:
+    name: doctor-service
+  sleuth:
+    sampler:
+      rate: 100
+
+
+DoctorServiceSleuthApplication.java
+package com.pack.DoctorServiceSleuth;
+
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+
+@SpringBootApplication
+public class DoctorServiceSleuthApplication {
+
+	public static void main(String[] args) {
+		SpringApplication.run(DoctorServiceSleuthApplication.class, args);
+	}
+
+}
+
+
+MainController.java
+package com.pack.DoctorServiceSleuth;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.pack.DoctorServiceSleuth.api.DoctorsServiceApi;
+
+@RestController
+public class MainController {
+    private static Logger logger = LoggerFactory.getLogger(MainController.class);
+
+    @Autowired
+    private DoctorsServiceApi doctorsServiceApi;
+    @GetMapping("/allDoctors/{hospital}")
+    public String doctors(@PathVariable String hospital){
+        logger.info("got hit on /allDoctors/"+hospital);
+        return doctorsServiceApi.getDoctors(hospital);
+    }
+}
+
+
+DoctorsServiceApi.java
+package com.pack.DoctorServiceSleuth.api;
+
+public interface DoctorsServiceApi {
+    String getDoctors(String hospital);
+}
+
+
+DoctorsServiceApiImpl.java
+package com.pack.DoctorServiceSleuth.api;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.web.client.RestTemplateBuilder;
+import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
+
+@Service
+public class DoctorsServiceApiImpl implements DoctorsServiceApi {
+    private static Logger logger = LoggerFactory.getLogger(DoctorsServiceApiImpl.class);
+
+    @Autowired
+    private RestTemplateBuilder builder;
+    @Override
+    public String getDoctors(String hospital) {
+        logger.info("fetching doctors list from db for hospital -{}", hospital);
+
+        RestTemplate template = builder.build();
+        template.getForObject("http://localhost:5081/notify/doctors", String.class);
+
+        return "List of doctors for hospital - " + hospital;
+    }
+}
+
+
+NotificationService-Sleuth project
+
+pom.xml
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>org.springframework.boot</groupId>
+		<artifactId>spring-boot-starter-parent</artifactId>
+		<version>2.2.2.RELEASE</version>
+		<relativePath/> <!-- lookup parent from repository -->
+	</parent>
+	<groupId>com.pack</groupId>
+	<artifactId>NotificationService-Sleuth</artifactId>
+	<version>0.0.1-SNAPSHOT</version>
+	<name>NotificationService-Sleuth</name>
+	<description>Demo project for Spring Boot</description>
+
+	<properties>
+		<java.version>1.8</java.version>
+		<spring-cloud.version>Hoxton.SR1</spring-cloud.version>
+	</properties>
+
+	<dependencies>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-web</artifactId>
+		</dependency>
+		<!-- <dependency>
+			<groupId>org.springframework.cloud</groupId>
+			<artifactId>spring-cloud-starter-sleuth</artifactId>
+		</dependency> -->
+        <dependency>
+			<groupId>org.springframework.cloud</groupId>
+			<artifactId>spring-cloud-starter-zipkin</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-test</artifactId>
+			<scope>test</scope>
+		</dependency>
+	</dependencies>
+
+	<dependencyManagement>
+		<dependencies>
+			<dependency>
+				<groupId>org.springframework.cloud</groupId>
+				<artifactId>spring-cloud-dependencies</artifactId>
+				<version>${spring-cloud.version}</version>
+				<type>pom</type>
+				<scope>import</scope>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.springframework.boot</groupId>
+				<artifactId>spring-boot-maven-plugin</artifactId>
+			</plugin>
+		</plugins>
+	</build>
+
+	<repositories>
+		<repository>
+			<id>spring-milestones</id>
+			<name>Spring Milestones</name>
+			<url>https://repo.spring.io/milestone</url>
+		</repository>
+	</repositories>
+
+</project>
+
+
+application.yml
+server:
+    port: 5081
+spring:
+  application:
+    name: notification-service
+  sleuth:
+    sampler:
+      rate: 100
+
+
+NotificationServiceSleuthApplication.java
+package com.pack.NotificationServiceSleuth;
+
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+
+@SpringBootApplication
+public class NotificationServiceSleuthApplication {
+
+	public static void main(String[] args) {
+		SpringApplication.run(NotificationServiceSleuthApplication.class, args);
+	}
+
+}
+
+
+MainController.java
+package com.pack.NotificationServiceSleuth;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RestController;
+
+@RestController
+public class MainController {
+private static Logger logger = LoggerFactory.getLogger(MainController.class);
+
+    @GetMapping("/notify/{enquiry}")
+    public String notifyUser(@PathVariable String enquiry){
+        logger.info("notified user for enquiry of - {}", enquiry);
+        return "notified user for enquiry of " + enquiry;
+    }
+}
+
+
+DiseasesService-Sleuth project
+
+pom.xml
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>org.springframework.boot</groupId>
+		<artifactId>spring-boot-starter-parent</artifactId>
+		<version>2.2.2.RELEASE</version>
+		<relativePath/> <!-- lookup parent from repository -->
+	</parent>
+	<groupId>com.pack</groupId>
+	<artifactId>DiseasesService-Sleuth</artifactId>
+	<version>0.0.1-SNAPSHOT</version>
+	<name>DiseasesService-Sleuth</name>
+	<description>Demo project for Spring Boot</description>
+
+	<properties>
+		<java.version>1.8</java.version>
+		<spring-cloud.version>Hoxton.SR1</spring-cloud.version>
+	</properties>
+
+	<dependencies>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-web</artifactId>
+		</dependency>
+		<!-- <dependency>
+			<groupId>org.springframework.cloud</groupId>
+			<artifactId>spring-cloud-starter-sleuth</artifactId>
+		</dependency>
+ -->
+        <dependency>
+			<groupId>org.springframework.cloud</groupId>
+			<artifactId>spring-cloud-starter-zipkin</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-test</artifactId>
+			<scope>test</scope>
+		</dependency>
+	</dependencies>
+
+	<dependencyManagement>
+		<dependencies>
+			<dependency>
+				<groupId>org.springframework.cloud</groupId>
+				<artifactId>spring-cloud-dependencies</artifactId>
+				<version>${spring-cloud.version}</version>
+				<type>pom</type>
+				<scope>import</scope>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.springframework.boot</groupId>
+				<artifactId>spring-boot-maven-plugin</artifactId>
+			</plugin>
+		</plugins>
+	</build>
+
+	<repositories>
+		<repository>
+			<id>spring-milestones</id>
+			<name>Spring Milestones</name>
+			<url>https://repo.spring.io/milestone</url>
+		</repository>
+	</repositories>
+
+</project>
+
+
+application.yml
+server:
+    port: 4081
+spring:
+  application:
+    name: disease-service
+  sleuth:
+    sampler:
+      rate: 100
+  
+
+DiseasesServiceSleuthApplication.java
+package com.pack.DiseasesServiceSleuth;
+
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+
+@SpringBootApplication
+public class DiseasesServiceSleuthApplication {
+
+	public static void main(String[] args) {
+		SpringApplication.run(DiseasesServiceSleuthApplication.class, args);
+	}
+
+}
+
+
+MainController.java
+package com.pack.DiseasesServiceSleuth;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.pack.DiseasesServiceSleuth.api.DiseaseServiceApi;
+
+@RestController
+public class MainController {
+
+    private static Logger logger = LoggerFactory.getLogger(MainController.class);
+
+    @Autowired
+    private DiseaseServiceApi doctorsServiceApi;
+    @GetMapping("/allDiseases/{germs}")
+    public String diseases(@PathVariable String germs){
+        logger.info("got hit on /allDiseases/"+germs);
+        return doctorsServiceApi.getDiseases(germs);
+    }
+}
+
+
+DiseaseServiceApi.java
+package com.pack.DiseasesServiceSleuth.api;
+
+public interface DiseaseServiceApi {
+    String getDiseases(String germ);
+}
+
+DiseaseServiceApiImpl.java
+package com.pack.DiseasesServiceSleuth.api;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.web.client.RestTemplateBuilder;
+import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
+
+@Service
+public class DiseaseServiceApiImpl implements DiseaseServiceApi {
+    private static Logger logger = LoggerFactory.getLogger(DiseaseServiceApiImpl.class);
+
+    @Autowired
+    private RestTemplateBuilder builder;
+
+    @Override
+    public String getDiseases(String germs) {
+        logger.info("fetching diseases list from db for germ -{}", germs);
+
+        RestTemplate template = builder.build();
+        template.getForObject("http://localhost:5081/notify/diseases", String.class);
+
+        return "List of diseases for germ - " + germs;
+    }
+}
+
+
+PatientsService-Sleuth project
+
+pom.xml
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>org.springframework.boot</groupId>
+		<artifactId>spring-boot-starter-parent</artifactId>
+		<version>2.2.2.RELEASE</version>
+		<relativePath/> <!-- lookup parent from repository -->
+	</parent>
+	<groupId>com.pack</groupId>
+	<artifactId>PatientsService-Sleuth</artifactId>
+	<version>0.0.1-SNAPSHOT</version>
+	<name>PatientsService-Sleuth</name>
+	<description>Demo project for Spring Boot</description>
+
+	<properties>
+		<java.version>1.8</java.version>
+		<spring-cloud.version>Hoxton.SR1</spring-cloud.version>
+	</properties>
+
+	<dependencies>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-web</artifactId>
+		</dependency>
+		<!-- <dependency>
+			<groupId>org.springframework.cloud</groupId>
+			<artifactId>spring-cloud-starter-sleuth</artifactId>
+		</dependency> -->
+        <dependency>
+			<groupId>org.springframework.cloud</groupId>
+			<artifactId>spring-cloud-starter-zipkin</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-test</artifactId>
+			<scope>test</scope>
+		</dependency>
+	</dependencies>
+
+	<dependencyManagement>
+		<dependencies>
+			<dependency>
+				<groupId>org.springframework.cloud</groupId>
+				<artifactId>spring-cloud-dependencies</artifactId>
+				<version>${spring-cloud.version}</version>
+				<type>pom</type>
+				<scope>import</scope>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.springframework.boot</groupId>
+				<artifactId>spring-boot-maven-plugin</artifactId>
+			</plugin>
+		</plugins>
+	</build>
+
+	<repositories>
+		<repository>
+			<id>spring-milestones</id>
+			<name>Spring Milestones</name>
+			<url>https://repo.spring.io/milestone</url>
+		</repository>
+	</repositories>
+
+</project>
+
+
+application.yml
+server:
+    port: 6081
+spring:
+  application:
+    name: patients-service
+  sleuth:
+    sampler:
+      rate: 100
+
+
+PatientsServiceSleuthApplication.java
+package com.pack.PatientsServiceSleuth;
+
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+
+@SpringBootApplication
+public class PatientsServiceSleuthApplication {
+
+	public static void main(String[] args) {
+		SpringApplication.run(PatientsServiceSleuthApplication.class, args);
+	}
+
+}
+
+
+MainController.java
+package com.pack.PatientsServiceSleuth;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.pack.PatientsServiceSleuth.api.PatientServiceApi;
+
+@RestController
+public class MainController {
+
+    private static Logger logger = LoggerFactory.getLogger(MainController.class);
+
+    @Autowired
+    private PatientServiceApi doctorsServiceApi;
+    @GetMapping("/allPatients/{city}")
+    public String patients(@PathVariable String city){
+        logger.info("got hit on /allPatients/"+city);
+        return doctorsServiceApi.getPatients(city);
+    }
+}
+
+
+PatientServiceApi.java
+package com.pack.PatientsServiceSleuth.api;
+
+public interface PatientServiceApi {
+    String getPatients(String city);
+}
+
+PatientServiceApiImpl.java
+package com.pack.PatientsServiceSleuth.api;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.web.client.RestTemplateBuilder;
+import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
+
+@Service
+public class PatientServiceApiImpl implements PatientServiceApi {
+    private static Logger logger = LoggerFactory.getLogger(PatientServiceApiImpl.class);
+
+    @Autowired
+    private RestTemplateBuilder builder;
+
+    @Override
+    public String getPatients(String city) {
+        logger.info("fetching patients list from db for city -{}", city);
+
+        RestTemplate template = builder.build();
+        template.getForObject("http://localhost:5081/notify/patients", String.class);
+
+        return "List of patients for city - " + city;
+    }
+}
+
